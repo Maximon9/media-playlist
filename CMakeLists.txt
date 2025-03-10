@@ -1,5 +1,5 @@
 set(PLUGIN_AUTHOR "Maximon9")
-set(PLUGIN_URL "https://github.com/Maciek03102003/StreamMyHeart")
+set(PLUGIN_URL "https://github.com/Maximon9/obs-plugintemplate-master")
 
 cmake_minimum_required(VERSION 3.28...3.30)
 
@@ -7,8 +7,10 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/common/bootstrap.cmake" NO_POLICY_SCO
 
 project(${_name} VERSION ${_version})
 
-option(ENABLE_FRONTEND_API "Use obs-frontend-api for UI functionality" OFF)
+option(ENABLE_FRONTEND_API "Use obs-frontend-api for UI functionality" ON)
 option(ENABLE_QT "Use Qt functionality" OFF)
+
+option(BUILD_OBS_PLUGIN "Build as OBS plugin" ON)
 
 include(compilerconfig)
 include(defaults)
