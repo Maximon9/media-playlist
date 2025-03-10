@@ -19,6 +19,9 @@
 !/3rdparty
 !/Graphs
 !/assets
+./build_x64
+./deps
+./install
 
 # Exclude lock files
 *.lock.json
