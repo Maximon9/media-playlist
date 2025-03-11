@@ -5,13 +5,15 @@ const char *playlist_source_name(void *data)
 	return "Playlist"; // This should match the filename (without extension) in data/
 }
 
-struct playlist_source *playlist = {0};
+struct playlist_source data = {.playlist = {0}, .loop = false};
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 {
 	UNUSED_PARAMETER(settings);
 	obs_log(LOG_INFO, "we made it");
+	struct playlist_source *m_playlist = bzalloc(sizeof(data));
+	obs_log(LOG_INFO, data.loop ? "true" : "false");
 
-	return playlist;
+	return m_playlist;
 }
 
 void playlist_source_destroy(void *data)
