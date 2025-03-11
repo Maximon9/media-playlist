@@ -33,7 +33,7 @@ static obs_properties_t *playlist_get_properties(void *data)
 {
 	obs_properties_t *props = obs_properties_create();
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
-					 *media_filter, *"");
+					 media_filter, "");
 	obs_properties_add_bool(props, "loop", "Loop");
 	return props;
 }
