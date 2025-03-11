@@ -1,18 +1,17 @@
 #include "../include/playlist-source.h"
+#include "../include/utils.h"
 
 const char *playlist_source_name(void *data)
 {
 	return "Playlist"; // This should match the filename (without extension) in data/
 }
 
-struct playlist_source data = {.playlist = {0}, .loop = false};
+struct playlist_source playlist_data = {.playlist = NULL, .loop = false};
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 {
 	UNUSED_PARAMETER(settings);
 	obs_log(LOG_INFO, "we made it");
-	struct playlist_source *m_playlist = bzalloc(sizeof(data));
-	obs_log(LOG_INFO, data.loop ? "true" : "false");
-
+	struct playlist_source *m_playlist = bzalloc(sizeof(playlist_data));
 	return m_playlist;
 }
 
@@ -45,6 +44,15 @@ obs_properties_t *playlist_get_properties(void *data)
 	return props;
 }
 
-void playlist_update(void *data, obs_data_t *settings) {}
+void playlist_update(void *data, obs_data_t *settings)
+{
+	playlist_data.loop = obs_data_get_bool(settings, "loop");
+	if (playlist_data.playlist != NULL) {
+		obs_data_array_release(playlist_data.playlist);
+	}
+	playlist_data.playlist = obs_data_get_array(settings, "playlist");
+	obs_log(LOG_INFO, playlist_data.loop ? "true" : "false");
+	obs_log(LOG_INFO, array_to_string(playlist_data.playlist));
+}
 
 void playlist_tick(void *data, float seconds) {}
