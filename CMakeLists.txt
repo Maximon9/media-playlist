@@ -39,19 +39,12 @@ if(ENABLE_QT)
   )
 endif()
 
-# Add C source files (optionally use file(GLOB ...) if many files)
-# file(GLOB MY_PLUGIN_SOURCES
-#     "src/*.c"  # This will include all .c files in src/
-# )
-
-# target_sources(${CMAKE_PROJECT_NAME}
-#     PRIVATE ${MY_PLUGIN_SOURCES}
-# )
+file(GLOB MY_PLUGIN_SOURCES
+    "src/*.c"
+)
 
 target_sources(${CMAKE_PROJECT_NAME}
- PRIVATE
- src/plugin-main.c
- src/playlist-source.c
+    PRIVATE ${MY_PLUGIN_SOURCES}
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
