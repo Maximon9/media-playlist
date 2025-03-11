@@ -102,11 +102,11 @@ static void playlist_source_destroy(void *data)
 
 static const char *playlist_source_name(void *data)
 {
-	return "Sequential Media Source"; // This should match the filename (without extension) in data/
+	return "Playlist"; // This should match the filename (without extension) in data/
 }
 
 struct obs_source_info playlist_source_info = {
-	.id = "sequential_media_source",
+	.id = "playlist",
 	.type = OBS_SOURCE_TYPE_INPUT,
 	.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_AUDIO,
 	.get_name = playlist_source_name,
