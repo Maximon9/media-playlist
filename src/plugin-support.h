@@ -33,11 +33,6 @@ extern const char *PLUGIN_VERSION;
 void obs_log(int log_level, const char *format, ...);
 extern void blogva(int log_level, const char *format, va_list args);
 
-static const char *media_filter =
-	" (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm *.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
-static const char *video_filter = " (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm);;";
-static const char *audio_filter = " (*.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
-
 #ifdef __cplusplus
 }
 #endif
