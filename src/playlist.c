@@ -15,8 +15,7 @@ static void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	UNUSED_PARAMETER(settings);
 	obs_log(LOG_INFO, "We made it");
 
-	struct playlist_source *mps = {0};
-	return mps;
+	return playlist;
 }
 
 static void playlist_source_destroy(void *data)
@@ -43,7 +42,7 @@ static void playlist_get_defaults(obs_data_t *settings)
 	obs_data_set_default_bool(settings, "loop", false);
 }
 
-struct obs_source_info playlist_source_info = {
+static struct obs_source_info playlist_source_info = {
 	.id = "playlist",
 	.type = OBS_SOURCE_TYPE_INPUT,
 	.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_AUDIO,

@@ -18,6 +18,7 @@ static uint32_t playlist_source_height(void *data)
 struct playlist_source {
 	bool loop;
 };
+struct playlist_source *playlist = {0};
 
 static void *playlist_source_create(obs_data_t *settings, obs_source_t *source);
 
