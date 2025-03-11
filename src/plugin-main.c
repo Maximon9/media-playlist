@@ -84,6 +84,7 @@ static void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	obs_log(LOG_INFO, "We made it");
 
 	struct playlist_source *mps = bzalloc(sizeof(*mps));
+	obs_log(LOG_INFO, "" + sizeof(*mps));
 
 	mps->first_update = true;
 	mps->source = source;
