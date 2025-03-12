@@ -10,8 +10,9 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 {
 	UNUSED_PARAMETER(settings);
 	obs_log(LOG_INFO, "we made it");
-	struct playlist_source *m_playlist = bzalloc(sizeof(playlist_data));
-	return m_playlist;
+	// struct playlist_source *m_playlist = bzalloc(sizeof(playlist_data));
+	update_playlist_data(settings);
+	return &playlist_data;
 }
 
 void playlist_source_destroy(void *data)
@@ -45,6 +46,11 @@ obs_properties_t *playlist_get_properties(void *data)
 
 void playlist_update(void *data, obs_data_t *settings)
 {
+	update_playlist_data(settings);
+}
+
+void update_playlist_data(obs_data_t *settings)
+{
 	playlist_data.loop = obs_data_get_bool(settings, "loop");
 	obs_log(LOG_INFO, playlist_data.loop ? "true" : "false");
 
@@ -70,6 +76,15 @@ void playlist_update(void *data, obs_data_t *settings)
 	// char *result = stringify_string_array(&playlist_paths);
 	// obs_log(LOG_INFO, result);
 	// free(&result);
+}
+void playlist_activate(void *data)
+{
+	obs_log(LOG_INFO, "activated");
+}
+
+void playlist_deactivate(void *data)
+{
+	obs_log(LOG_INFO, "deactivated");
 }
 
 void playlist_tick(void *data, float seconds) {}
