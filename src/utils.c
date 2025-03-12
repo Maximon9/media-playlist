@@ -1,36 +1,37 @@
 #include "../include/utils.h"
 
-char *array_to_string(obs_data_array_t *array)
+char *obs_array_to_string(obs_data_array_t *array, int width)
 {
-	// size_t array_size = obs_data_array_count(array);
-	// if (array == NULL || array_size == 0) {
-	// 	return "[]";
-	// }
+	size_t array_size = obs_data_array_count(array);
 
-	// // Estimate maximum size for the string (2 chars per element + commas + brackets)
-	// size_t estimated_size = array_size * 2 + array_size - 1 + 2; // Two chars per element + commas + brackets
-	// char *result = (char *)malloc(estimated_size * sizeof(char));
+	if (array == NULL || array_size == 0) {
+		return "[]";
+	}
 
-	// // Start the string with the opening bracket
-	// strcpy(result, "[");
+	// Estimate maximum size for the string (2 chars per element + commas + brackets)
+	size_t estimated_size = array_size * 2 + array_size - 1 + 2; // Two chars per element + commas + brackets
+	char *result = (char *)malloc(estimated_size * sizeof(char));
 
-	// // Loop through the array and append each element
-	// for (size_t i = 0; i < array_size; ++i) {
-	// 	// Convert element to string (single character)
-	// 	obs_data_t *item = obs_data_array_item(array, i);
-	// 	char element[2] = {obs_data_item_get_string(item), '\0'}; // Create a single char string
+	// Start the string with the opening bracket
+	strcpy(result, "[");
 
-	// 	strcat(result, element);
+	// Loop through the array and append each element
+	for (size_t i = 0; i < array_size; ++i) {
+		// Convert element to string (single character)
+		obs_data_t *data = obs_data_array_item(array, i);
+		const char *element[2] = {obs_data_get_string(data, "value"), '\0'}; // Create a single char string
 
-	// 	// Add a comma if not the last element
-	// 	if (i < array_size - 1) {
-	// 		strcat(result, ", ");
-	// 	}
-	// }
+		strcat(result, *element);
 
-	// // End the string with the closing bracket
-	// strcat(result, "]");
+		// Add a comma if not the last element
+		if (i < array_size - 1) {
+			strcat(result, ", ");
+		}
+	}
 
-	// return result;
+	// End the string with the closing bracket
+	strcat(result, "]");
+
+	return result;
 	return "[]";
 }
