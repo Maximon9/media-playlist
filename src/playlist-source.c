@@ -17,6 +17,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 void playlist_source_destroy(void *data)
 {
+	free_string_array(&playlist_data.playlist);
 	obs_data_release(data);
 }
 
