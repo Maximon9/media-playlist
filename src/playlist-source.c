@@ -44,10 +44,21 @@ void playlist_get_defaults(obs_data_t *settings)
 obs_properties_t *playlist_get_properties(void *data)
 {
 	obs_properties_t *props = obs_properties_create();
-	obs_properties_add_list(props, "playlist_start_behavior", "Playlist Start Behavior", OBS_COMBO_TYPE_LIST,
-				OBS_COMBO_FORMAT_STRING);
-	obs_properties_add_list(props, "playlist_end_behavior", "Playlist End Behavior", OBS_COMBO_TYPE_LIST,
-				OBS_COMBO_FORMAT_STRING);
+
+	obs_property_t *psb_property = obs_properties_add_list(
+		props, "playlist_start_behavior", "Playlist Start Behavior", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
+
+	obs_property_list_add_int(psb_property, "Restart", RESTART);
+	obs_property_list_add_int(psb_property, "Unpause", UNPAUSE);
+
+	obs_property_t *peb_property = obs_properties_add_list(props, "playlist_end_behavior", "Playlist End Behavior",
+							       OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
+
+	obs_property_list_add_int(peb_property, "Stop", STOP);
+	obs_property_list_add_int(peb_property, "Loop", LOOP);
+	obs_property_list_add_int(peb_property, "Loop Specific Media", LOOP_SPECIFIC_MEDIA);
+	obs_property_list_add_int(peb_property, "Loop Last Media", LOOP_LAST_MEDIA);
+
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
 					 media_filter, "");
 	return props;
