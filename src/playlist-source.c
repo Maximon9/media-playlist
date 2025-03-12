@@ -69,16 +69,21 @@ void playlist_update(void *data, obs_data_t *settings)
 	update_playlist_data(settings);
 }
 
+/**
+ * @brief Updates the playlist data.
+ * @param settings The settings of the playlist source.
+ * @return void
+ */
 void update_playlist_data(obs_data_t *settings)
 {
 	// playlist_data.loop = obs_data_get_array(settings, "loop");
 	// obs_log(LOG_INFO, playlist_data.loop ? "true" : "false");
 
 	playlist_data.playlist_start_behavior = obs_data_get_int(settings, "playlist_start_behavior");
-	obs_log(LOG_INFO, "Start Behavior: %zu", playlist_data.playlist_start_behavior);
+	// obs_log(LOG_INFO, "Start Behavior: %zu", playlist_data.playlist_start_behavior);
 
 	playlist_data.playlist_end_behavior = obs_data_get_int(settings, "playlist_end_behavior");
-	obs_log(LOG_INFO, "end Behavior: %zu", playlist_data.playlist_end_behavior);
+	// obs_log(LOG_INFO, "end Behavior: %zu", playlist_data.playlist_end_behavior);
 
 	obs_data_array_t *obs_playlist = obs_data_get_array(settings, "playlist");
 
@@ -99,19 +104,22 @@ void update_playlist_data(obs_data_t *settings)
 			// obs_log(LOG_INFO, obs_array_to_string(playlist_data.playlist, 90));
 		}
 
-		obs_log_string_array(LOG_INFO, &playlist_data.playlist, 90, "    ");
+		// obs_log_string_array(LOG_INFO, &playlist_data.playlist, 90, "    ");
 	}
 }
 
-void playlist_activate(void *data)
-{
-	obs_log(LOG_INFO, "activated");
-}
+// void playlist_activate(void *data)
+// {
+// 	obs_log(LOG_INFO, "activated");
+// }
 
-void playlist_deactivate(void *data)
-{
-	obs_log(LOG_INFO, "deactivated");
-}
+// void playlist_deactivate(void *data)
+// {
+// 	obs_log(LOG_INFO, "deactivated");
+// }
 
-void playlist_tick(void *data, float seconds) {}
+void playlist_tick(void *data, float seconds)
+{
+	obs_log(LOG_INFO, "tick tock");
+}
 #pragma endregion
