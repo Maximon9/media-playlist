@@ -54,7 +54,7 @@ void playlist_update(void *data, obs_data_t *settings)
 	obs_log(LOG_INFO, playlist_data.loop ? "true" : "false");
 	// obs_log(LOG_INFO, array_to_string(playlist_data.playlist));
 	obs_data_t *test_data = obs_data_array_item(playlist_data.playlist, 0);
-	obs_log(LOG_INFO, obs_data_get_string(test_data, "key"));
+	obs_log(LOG_INFO, obs_data_get_string(test_data, "value"));
 }
 
 void playlist_tick(void *data, float seconds) {}
