@@ -75,15 +75,15 @@ void free_string_array(StringArray *string_array)
 	free(string_array->data); // Free the array of pointers
 }
 
-char *stringify_string_array(StringArray *string_array)
+char *stringify_array(const StringArray *arr, size_t threshold, const char *indent)
 {
-	if (string_array->size == 0)
+	if (arr->size == 0)
 		return strdup("[]"); // Return empty brackets if no elements
 
 	// Calculate required length
 	size_t total_length = 3; // For "[" and "]\0"
-	for (size_t i = 0; i < string_array->size; i++) {
-		total_length += strlen(string_array->data[i]) + 4; // Quotes, comma, space
+	for (size_t i = 0; i < arr->size; i++) {
+		total_length += strlen(arr->data[i]) + 4; // Quotes, comma, space
 	}
 
 	// Allocate memory for the final string
@@ -91,16 +91,34 @@ char *stringify_string_array(StringArray *string_array)
 	if (!result)
 		return NULL; // Handle allocation failure
 
-	// Construct the formatted string
-	strcpy(result, "[");
-	for (size_t i = 0; i < string_array->size; i++) {
-		strcat(result, "\"");
-		strcat(result, string_array->data[i]);
-		strcat(result, "\"");
-		if (i < string_array->size - 1)
-			strcat(result, ", ");
+	if (total_length > threshold) {
+		// Apply prettified formatting
+		strcpy(result, "[\n");
+
+		for (size_t i = 0; i < arr->size; i++) {
+			strcat(result, indent);
+			strcat(result, "\"");
+			strcat(result, arr->data[i]);
+			strcat(result, "\"");
+
+			if (i < arr->size - 1) {
+				strcat(result, ",\n");
+			}
+		}
+
+		strcat(result, "\n]");
+	} else {
+		// Use compact format
+		strcpy(result, "[");
+		for (size_t i = 0; i < arr->size; i++) {
+			strcat(result, "\"");
+			strcat(result, arr->data[i]);
+			strcat(result, "\"");
+			if (i < arr->size - 1)
+				strcat(result, ", ");
+		}
+		strcat(result, "]");
 	}
-	strcat(result, "]");
 
 	return result;
 }

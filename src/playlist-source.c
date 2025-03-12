@@ -17,7 +17,9 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 void playlist_source_destroy(void *data)
 {
-	free_string_array(&playlist_data.playlist);
+	if (playlist_data.playlist.size > 0) {
+		free_string_array(&playlist_data.playlist);
+	}
 	obs_data_release(data);
 }
 
@@ -60,23 +62,25 @@ void update_playlist_data(obs_data_t *settings)
 	if (playlist_data.playlist.size > 0) {
 		free_string_array(&playlist_data.playlist);
 	}
-	init_string_array(&playlist_data.playlist, 2); // Start with a small initial capacity
 	size_t array_size = obs_data_array_count(obs_playlist);
-	for (size_t i = 0; i < array_size; ++i) {
-		// Convert element to string (single character)
-		obs_data_t *data = obs_data_array_item(obs_playlist, i);
-		const char *element = obs_data_get_string(data, "value");
-		add_string(&playlist_data.playlist, element);
+	if (array_size > 0) {
+		init_string_array(&playlist_data.playlist, 2); // Start with a small initial capacity
+		for (size_t i = 0; i < array_size; ++i) {
+			// Convert element to string (single character)
+			obs_data_t *data = obs_data_array_item(obs_playlist, i);
+			const char *element = obs_data_get_string(data, "value");
+			add_string(&playlist_data.playlist, element);
 
-		obs_data_release(data);
-		// obs_log(LOG_INFO, obs_array_to_string(playlist_data.playlist));
-		// obs_log(LOG_INFO, obs_array_to_string(playlist_data.playlist, 90));
+			obs_data_release(data);
+			// obs_log(LOG_INFO, obs_array_to_string(playlist_data.playlist));
+			// obs_log(LOG_INFO, obs_array_to_string(playlist_data.playlist, 90));
+		}
+
+		obs_log(LOG_INFO, "The size is: %zu", playlist_data.playlist.size);
+		char *result = stringify_string_array(&playlist_data.playlist, 90, 4);
+		obs_log(LOG_INFO, result);
+		free(result);
 	}
-
-	obs_log(LOG_INFO, "The size is: %zu", playlist_data.playlist.size);
-	// char *result = stringify_string_array(&playlist_paths);
-	// obs_log(LOG_INFO, result);
-	// free(&result);
 }
 void playlist_activate(void *data)
 {
