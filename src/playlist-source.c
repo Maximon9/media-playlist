@@ -74,6 +74,12 @@ void update_playlist_data(obs_data_t *settings)
 	// playlist_data.loop = obs_data_get_array(settings, "loop");
 	// obs_log(LOG_INFO, playlist_data.loop ? "true" : "false");
 
+	enum StartBehavior playlist_start_behavior = obs_data_get_int(settings, "playlist_start_behavior");
+	obs_log(LOG_INFO, "Start Behavior: %zu", playlist_start_behavior);
+
+	enum EndBehavior playlist_end_behavior = obs_data_get_int(settings, "playlist_end_behavior");
+	obs_log(LOG_INFO, "end Behavior: %zu", playlist_end_behavior);
+
 	obs_data_array_t *obs_playlist = obs_data_get_array(settings, "playlist");
 
 	if (playlist_data.playlist.size > 0) {
