@@ -48,12 +48,28 @@ void playlist_update(void *data, obs_data_t *settings)
 {
 	playlist_data.loop = obs_data_get_bool(settings, "loop");
 	if (playlist_data.playlist != NULL) {
-		obs_data_array_release(playlist_data.playlist);
 	}
-	playlist_data.playlist = obs_data_get_array(settings, "playlist");
 	obs_log(LOG_INFO, playlist_data.loop ? "true" : "false");
-	// obs_log(LOG_INFO, obs_array_to_string(playlist_data.playlist));
-	obs_log(LOG_INFO, obs_array_to_string(playlist_data.playlist, 90));
+
+	obs_data_array_t *obs_playlist = obs_data_get_array(settings, "playlist");
+
+	struct darray playlist = {.array = NULL, .num = 0, .capacity = 0};
+	// DARRAY(char) playlist;
+	// size_t playlist_size = playlist->num
+	size_t array_size = obs_data_array_count(obs_playlist);
+	for (size_t i = 0; i < array_size; ++i) {
+		// Convert element to string (single character)
+		obs_data_t *data = obs_data_array_item(obs_playlist, i);
+		const char *element = obs_data_get_string(data, "value");
+		darray_push_back(1, &playlist, element);
+
+		// obs_log(LOG_INFO, obs_array_to_string(playlist_data.playlist));
+		// obs_log(LOG_INFO, obs_array_to_string(playlist_data.playlist, 90));
+	}
+	DARRAY(char) real_playlist;
+	real_playlist.da = playlist;
+
+	darray_free(&playlist);
 }
 
 void playlist_tick(void *data, float seconds) {}
