@@ -134,17 +134,20 @@ char *stringify_string_array(const StringArray *string_array, size_t threshold, 
 
 	// If the compact string exceeds the threshold, prettify the result
 	if (strlen(result) > threshold) {
-		size_t prettified_length = 3 + (string_array->size - 1) * strlen(indent) +
-					   (string_array->size - 1); // Account for indentation and newlines
-
-		// Reallocate for the prettified string
-		char *prettified_result = (char *)malloc(prettified_length * sizeof(char));
-		if (!prettified_result) {
-			free(result);
-			return NULL; // Handle allocation failure
+		size_t prettified_length = 3; // For "[\n" and "]\n"
+		for (size_t i = 0; i < string_array->size; i++) {
+			prettified_length +=
+				strlen(indent) + strlen(string_array->data[i]) + 4; // Indent, quotes, and comma
 		}
 
-		// Apply prettified format
+		// Allocate memory for the prettified string
+		char *prettified_result = (char *)malloc(prettified_length * sizeof(char));
+		if (!prettified_result) {
+			free(result); // Free the compact string in case of failure
+			return NULL;
+		}
+
+		// Construct the prettified string
 		strcpy(prettified_result, "[\n");
 		for (size_t i = 0; i < string_array->size; i++) {
 			strcat(prettified_result, indent); // Add indentation before each element
@@ -158,7 +161,9 @@ char *stringify_string_array(const StringArray *string_array, size_t threshold, 
 		}
 
 		strcat(prettified_result, "\n]");
+
 		free(result); // Free the original compact string
+
 		return prettified_result;
 	}
 
