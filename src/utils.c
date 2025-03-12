@@ -54,7 +54,7 @@ char *array_to_string(char *array, size_t size)
 		char item = array[i];
 		char element[2] = {item, '\0'}; // Create a single char string
 
-		strcat(result, *element);
+		strcat(result, element);
 
 		// Add a comma if not the last element
 		if (i < size - 1) {

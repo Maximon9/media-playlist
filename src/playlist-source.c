@@ -63,13 +63,16 @@ void playlist_update(void *data, obs_data_t *settings)
 		const char *element = obs_data_get_string(data, "value");
 		darray_push_back(1, &playlist, element);
 
+		obs_data_release(data);
 		// obs_log(LOG_INFO, obs_array_to_string(playlist_data.playlist));
 		// obs_log(LOG_INFO, obs_array_to_string(playlist_data.playlist, 90));
 	}
 	DARRAY(char) real_playlist;
 	real_playlist.da = playlist;
+	obs_log(LOG_INFO, array_to_string(real_playlist.array, real_playlist.num));
 
 	darray_free(&playlist);
+	obs_data_array_release(obs_playlist);
 }
 
 void playlist_tick(void *data, float seconds) {}
