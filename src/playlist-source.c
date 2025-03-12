@@ -1,3 +1,4 @@
+#pragma region Main
 #include "../include/playlist-source.h"
 
 const char *playlist_source_name(void *data)
@@ -76,12 +77,10 @@ void update_playlist_data(obs_data_t *settings)
 			// obs_log(LOG_INFO, obs_array_to_string(playlist_data.playlist, 90));
 		}
 
-		obs_log(LOG_INFO, "The size is: %zu", playlist_data.playlist.size);
-		char *result = stringify_string_array(&playlist_data.playlist, 90, "    ");
-		obs_log(LOG_INFO, result);
-		free(result);
+		obs_log_string_array(LOG_INFO, &playlist_data.playlist, 90, "    ");
 	}
 }
+
 void playlist_activate(void *data)
 {
 	obs_log(LOG_INFO, "activated");
@@ -93,3 +92,4 @@ void playlist_deactivate(void *data)
 }
 
 void playlist_tick(void *data, float seconds) {}
+#pragma endregion

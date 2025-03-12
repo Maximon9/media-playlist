@@ -1,3 +1,4 @@
+#pragma region Main
 #include "../include/utils.h"
 
 char *obs_array_to_string(obs_data_array_t *array)
@@ -169,3 +170,11 @@ char *stringify_string_array(const StringArray *string_array, size_t threshold, 
 
 	return result; // Return the compact string if it's within the threshold
 }
+
+void obs_log_string_array(int log_level, const StringArray *string_array, size_t threshold, const char *indent)
+{
+	char *result = stringify_string_array(string_array, threshold, indent);
+	obs_log(log_level, result);
+	free(result);
+}
+#pragma endregion
