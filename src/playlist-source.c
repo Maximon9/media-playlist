@@ -77,7 +77,7 @@ void update_playlist_data(obs_data_t *settings)
 		}
 
 		obs_log(LOG_INFO, "The size is: %zu", playlist_data.playlist.size);
-		char *result = stringify_string_array(&playlist_data.playlist, 90, 4);
+		char *result = stringify_string_array(&playlist_data.playlist, 90, "    ");
 		obs_log(LOG_INFO, result);
 		free(result);
 	}
