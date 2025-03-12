@@ -6,12 +6,14 @@ const char *playlist_source_name(void *data)
 	return "Playlist"; // This should match the filename (without extension) in data/
 }
 
-struct playlist_source playlist_data = {.playlist = NULL, .loop = false};
+struct PlaylistSource playlist_data = {.playlist = NULL,
+				       .playlist_start_behavior = RESTART,
+				       .playlist_end_behavior = STOP};
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 {
 	UNUSED_PARAMETER(settings);
 	obs_log(LOG_INFO, "we made it");
-	// struct playlist_source *m_playlist = bzalloc(sizeof(playlist_data));
+	// struct PlaylistSource *m_playlist = bzalloc(sizeof(playlist_data));
 	update_playlist_data(settings);
 	return &playlist_data;
 }
@@ -42,9 +44,12 @@ void playlist_get_defaults(obs_data_t *settings)
 obs_properties_t *playlist_get_properties(void *data)
 {
 	obs_properties_t *props = obs_properties_create();
+	obs_properties_add_list(props, "playlist_start_behavior", "Playlist Start Behavior", OBS_COMBO_TYPE_LIST,
+				OBS_COMBO_FORMAT_STRING);
+	obs_properties_add_list(props, "playlist_end_behavior", "Playlist End Behavior", OBS_COMBO_TYPE_LIST,
+				OBS_COMBO_FORMAT_STRING);
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
 					 media_filter, "");
-	obs_properties_add_bool(props, "loop", "Loop");
 	return props;
 }
 
@@ -55,8 +60,8 @@ void playlist_update(void *data, obs_data_t *settings)
 
 void update_playlist_data(obs_data_t *settings)
 {
-	playlist_data.loop = obs_data_get_bool(settings, "loop");
-	obs_log(LOG_INFO, playlist_data.loop ? "true" : "false");
+	// playlist_data.loop = obs_data_get_array(settings, "loop");
+	// obs_log(LOG_INFO, playlist_data.loop ? "true" : "false");
 
 	obs_data_array_t *obs_playlist = obs_data_get_array(settings, "playlist");
 
