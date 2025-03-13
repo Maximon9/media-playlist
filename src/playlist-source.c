@@ -17,7 +17,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	playlist->source = source;
 
-	obs_data_set_bool(settings, "log_changes", false);
+	obs_data_set_bool(settings, "debug", false);
 	// obs_data_set_bool(media_source_data, "log_changes", false);
 	// mps->current_media_source =
 	// 	obs_source_create_private("ffmpeg_source", "current_media_source", media_source_data);
@@ -67,6 +67,8 @@ obs_properties_t *playlist_get_properties(void *data)
 
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
 					 media_filter, "");
+
+	obs_properties_add_bool(props, "debug", "Debug");
 	return props;
 }
 
@@ -117,7 +119,7 @@ void update_playlist_data(obs_data_t *settings)
 void playlist_tick(void *data, float seconds)
 {
 	struct PlaylistSource *playlist_data = data;
-	obs_log(LOG_INFO, playlist_data->log_changes ? "true" : "false");
+	obs_log(LOG_INFO, playlist_data->debug ? "true" : "false");
 	// obs_frontend_get_current_scene();
 }
 #pragma endregion

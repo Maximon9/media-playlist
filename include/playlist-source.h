@@ -28,7 +28,7 @@ struct PlaylistSource {
 	DARRAY(struct MediaFileData) files;
 	struct MediaFileData *current_media;
 	size_t current_media_index;
-	bool log_changes;
+	bool debug;
 };
 const char *playlist_source_name(void *data);
 
