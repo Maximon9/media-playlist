@@ -96,30 +96,32 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	// obs_data_array_t *obs_playlist = obs_data_get_array(settings, "playlist");
 
 	// if (playlist_data.playlist.size > 0) {
-	// 	free_string_array(&playlist_data.playlist);
+	// 	free_media_array(&playlist_data.playlist);
 	// }
 	// size_t array_size = obs_data_array_count(obs_playlist);
 	// if (array_size > 0) {
-	// 	init_string_array(&playlist_data.playlist, 2); // Start with a small initial capacity
+	// 	init_media_array(&playlist_data.playlist, 2); // Start with a small initial capacity
 	// 	for (size_t i = 0; i < array_size; ++i) {
 	// 		// Convert element to string (single character)
 	// 		obs_data_t *data = obs_data_array_item(obs_playlist, i);
 	// 		const char *element = obs_data_get_string(data, "value");
-	// 		add_string(&playlist_data.playlist, element);
+	// 		add_media(&playlist_data.playlist, element);
 
 	// 		obs_data_release(data);
 	// 		// obs_log(LOG_INFO, obs_array_to_string(playlist_data.playlist));
 	// 		// obs_log(LOG_INFO, obs_array_to_string(playlist_data.playlist, 90));
 	// 	}
 
-	// 	// obs_log_string_array(LOG_INFO, &playlist_data.playlist, 90, "    ");
+	// 	// obs_log_media_array(LOG_INFO, &playlist_data.playlist, 90, "    ");
 	// }
 }
 
 void playlist_tick(void *data, float seconds)
 {
 	struct PlaylistSource *playlist_data = data;
-	obs_log(LOG_INFO, "Debug: %s", playlist_data->debug ? "true" : "false");
+	if (playlist_data->debug) {
+		obs_log(LOG_INFO, "Debug: %s", playlist_data->debug ? "true" : "false");
+	}
 	// obs_frontend_get_current_scene();
 }
 #pragma endregion

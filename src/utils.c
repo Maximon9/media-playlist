@@ -37,53 +37,111 @@ char *obs_array_to_string(obs_data_array_t *array)
 }
 
 // Function to initialize the dynamic string array
-void init_string_array(StringArray *string_array, size_t initial_capacity)
+void init_media_array(MediaFileDataArray *media_array, size_t initial_capacity)
 {
-	string_array->data = (char **)malloc(initial_capacity * sizeof(char *));
-	string_array->size = 0;
-	string_array->capacity = initial_capacity;
+	media_array->data = (MediaFileData *)malloc(media_array->capacity * sizeof(MediaFileData));
+	media_array->size = 0;
+	media_array->capacity = initial_capacity;
 }
 
 // Function to add a string to the array
-void add_string(StringArray *string_array, const char *str)
+void add_media_at(MediaFileDataArray *media_array, const char *path, size_t index)
 {
-	// Resize if needed
-	if (string_array->size >= string_array->capacity) {
-		string_array->capacity *= 2;
-		string_array->data = (char **)realloc(string_array->data, string_array->capacity * sizeof(char *));
+	// Create and insert new MediaFileData
+	MediaFileData new_entry = {0};
+	new_entry.path = strdup(path);
+
+	// Extract filename from path
+	const char *last_slash = strrchr(path, '/');
+	new_entry.filename = strdup(last_slash ? last_slash + 1 : path);
+
+	// Generate a simple ID (you might replace this with a better approach)
+	// new_entry.id = strdup(new_entry.filename);
+
+	// Set other default values
+	new_entry.is_url = false;
+	new_entry.is_folder = false;
+	// new_entry.parent = NULL;
+	// new_entry.parent_id = NULL;
+	new_entry.index = index;
+
+	add_media_file_data_at(media_array, new_entry, index);
+}
+
+void add_media_file_data_at(MediaFileDataArray *media_array, MediaFileData media_file_data, size_t index)
+{
+	// Ensure index is within bounds
+	if (index > media_array->size) {
+		index = media_array->size; // Append to the end if index is out of range
 	}
 
-	// Allocate memory for the new string and copy it
-	string_array->data[string_array->size] = strdup(str); // strdup() allocates and copies the string
-	string_array->size++;
+	// Resize if needed
+	if (media_array->size >= media_array->capacity) {
+		size_t new_capacity = (media_array->capacity == 0) ? 1 : media_array->capacity * 2;
+		MediaFileData *new_data = realloc(media_array->data, new_capacity * sizeof(MediaFileData));
+		if (!new_data)
+			return; // Memory allocation failed
+		media_array->data = new_data;
+		media_array->capacity = new_capacity;
+	}
+
+	// Shift elements to the right
+	memmove(&media_array->data[index + 1], &media_array->data[index],
+		(media_array->size - index) * sizeof(MediaFileData));
+
+	// Insert into array
+	media_array->data[index] = media_file_data;
+	media_array->size++;
+}
+
+void remove_media_at(MediaFileDataArray *media_array, size_t index)
+{
+	if (index >= media_array->size)
+		return;
+
+	free(media_array->data[index].path);
+	free(media_array->data[index].filename);
+
+	for (size_t i = index; i < media_array->size - 1; i++) {
+		media_array->data[i] = media_array->data[i + 1];
+	}
+
+	media_array->size--;
+
+	if (media_array->size > 0 && media_array->size <= media_array->capacity / 4) {
+		media_array->capacity /= 2;
+		media_array->data =
+			(MediaFileData *)realloc(media_array->data, media_array->capacity * sizeof(MediaFileData));
+	}
 }
 
 // Function to get a string by index
-const char *get_string(const StringArray *string_array, size_t index)
+const MediaFileData *get_media(MediaFileDataArray *media_array, size_t index)
 {
-	if (index >= string_array->size)
+	if (index >= media_array->size)
 		return NULL; // Out of bounds
-	return string_array->data[index];
+	return &media_array->data[index];
 }
 
 // Function to free the dynamic string array
-void free_string_array(StringArray *string_array)
+void free_media_array(MediaFileDataArray *media_array)
 {
-	for (size_t i = 0; i < string_array->size; i++) {
-		free(string_array->data[i]); // Free each string
+	for (size_t i = 0; i < media_array->size; i++) {
+		free(media_array->data[i].path);
+		free(media_array->data[i].filename);
 	}
-	free(string_array->data); // Free the array of pointers
+	free(media_array->data);
 }
 
-/* char *stringify_string_array(const StringArray *string_array, size_t threshold, const char *indent)
+/* char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent)
 {
-	if (string_array->size == 0)
+	if (media_array->size == 0)
 		return strdup("[]"); // Return empty brackets if no elements
 
 	// Calculate required length
 	size_t total_length = 3; // For "[" and "]\0"
-	for (size_t i = 0; i < string_array->size; i++) {
-		total_length += strlen(string_array->data[i]) + 4; // Quotes, comma, space
+	for (size_t i = 0; i < media_array->size; i++) {
+		total_length += strlen(media_array->data[i]) + 4; // Quotes, comma, space
 	}
 
 	// Allocate memory for the final string
@@ -93,11 +151,11 @@ void free_string_array(StringArray *string_array)
 
 	// Construct the formatted string
 	strcpy(result, "[");
-	for (size_t i = 0; i < string_array->size; i++) {
+	for (size_t i = 0; i < media_array->size; i++) {
 		strcat(result, "\"");
-		strcat(result, string_array->data[i]);
+		strcat(result, media_array->data[i]);
 		strcat(result, "\"");
-		if (i < string_array->size - 1)
+		if (i < media_array->size - 1)
 			strcat(result, ", ");
 	}
 	strcat(result, "]");
@@ -105,15 +163,15 @@ void free_string_array(StringArray *string_array)
 	return result;
 } */
 
-char *stringify_string_array(const StringArray *string_array, size_t threshold, const char *indent)
+char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent)
 {
-	if (string_array->size == 0)
+	if (media_array->size == 0)
 		return strdup("[]"); // Return empty brackets if no elements
 
 	// Calculate the initial length of the compact format
 	size_t total_length = 3; // For "[" and "]\0"
-	for (size_t i = 0; i < string_array->size; i++) {
-		total_length += strlen(string_array->data[i]) + 4; // Quotes, comma, space
+	for (size_t i = 0; i < media_array->size; i++) {
+		total_length += strlen(media_array->data[i].path) + 4; // Quotes, comma, space
 	}
 
 	// Allocate memory for the final string (before prettification)
@@ -123,11 +181,11 @@ char *stringify_string_array(const StringArray *string_array, size_t threshold, 
 
 	// Apply compact format first
 	strcpy(result, "[");
-	for (size_t i = 0; i < string_array->size; i++) {
+	for (size_t i = 0; i < media_array->size; i++) {
 		strcat(result, "\"");
-		strcat(result, string_array->data[i]);
+		strcat(result, media_array->data[i].path);
 		strcat(result, "\"");
-		if (i < string_array->size - 1)
+		if (i < media_array->size - 1)
 			strcat(result, ", ");
 	}
 	strcat(result, "]");
@@ -135,9 +193,9 @@ char *stringify_string_array(const StringArray *string_array, size_t threshold, 
 	// If the compact string exceeds the threshold, prettify the result
 	if (strlen(result) > threshold) {
 		size_t prettified_length = 3; // For "[\n" and "]\n"
-		for (size_t i = 0; i < string_array->size; i++) {
+		for (size_t i = 0; i < media_array->size; i++) {
 			prettified_length +=
-				strlen(indent) + strlen(string_array->data[i]) + 4; // Indent, quotes, and comma
+				strlen(indent) + strlen(media_array->data[i].path) + 4; // Indent, quotes, and comma
 		}
 
 		// Allocate memory for the prettified string
@@ -149,13 +207,13 @@ char *stringify_string_array(const StringArray *string_array, size_t threshold, 
 
 		// Construct the prettified string
 		strcpy(prettified_result, "[\n");
-		for (size_t i = 0; i < string_array->size; i++) {
+		for (size_t i = 0; i < media_array->size; i++) {
 			strcat(prettified_result, indent); // Add indentation before each element
 			strcat(prettified_result, "\"");
-			strcat(prettified_result, string_array->data[i]);
+			strcat(prettified_result, media_array->data[i].path);
 			strcat(prettified_result, "\"");
 
-			if (i < string_array->size - 1) {
+			if (i < media_array->size - 1) {
 				strcat(prettified_result, ",\n");
 			}
 		}
@@ -170,9 +228,9 @@ char *stringify_string_array(const StringArray *string_array, size_t threshold, 
 	return result; // Return the compact string if it's within the threshold
 }
 
-void obs_log_string_array(int log_level, const StringArray *string_array, size_t threshold, const char *indent)
+void obs_log_media_array(int log_level, const MediaFileDataArray *media_array, size_t threshold, const char *indent)
 {
-	char *result = stringify_string_array(string_array, threshold, indent);
+	char *result = stringify_media_array(media_array, threshold, indent);
 	obs_log(log_level, result);
 	free(result);
 }
