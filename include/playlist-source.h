@@ -1,4 +1,3 @@
-#pragma region Main
 #include "./utils.h"
 
 static const char *media_filter =
@@ -58,4 +57,3 @@ struct obs_source_info playlist_source_info = {
 	.video_tick = playlist_tick,
 	.icon_type = OBS_ICON_TYPE_MEDIA,
 };
-#pragma endregion

@@ -1,5 +1,3 @@
-#pragma region Main
-
 #include <obs-module.h>
 #include <plugin-support.h>
 
@@ -26,5 +24,3 @@ void free_string_array(StringArray *string_array);
 char *stringify_string_array(const StringArray *string_array, size_t threshold, const char *indent);
 
 void obs_log_string_array(int log_level, const StringArray *string_array, size_t threshold, const char *indent);
-
-#pragma endregion

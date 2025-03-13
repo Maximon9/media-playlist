@@ -1,4 +1,3 @@
-#pragma region Main
 #include "../include/utils.h"
 
 char *obs_array_to_string(obs_data_array_t *array)
@@ -177,4 +176,3 @@ void obs_log_string_array(int log_level, const StringArray *string_array, size_t
 	obs_log(log_level, result);
 	free(result);
 }
-#pragma endregion

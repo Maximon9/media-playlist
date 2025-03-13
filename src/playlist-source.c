@@ -1,4 +1,3 @@
-#pragma region Main
 #include "../include/playlist-source.h"
 
 const char *playlist_source_name(void *data)
@@ -112,4 +111,3 @@ void playlist_tick(void *data, float seconds)
 {
 	// obs_frontend_get_current_scene();
 }
-#pragma endregion
