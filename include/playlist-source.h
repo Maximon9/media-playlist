@@ -21,9 +21,14 @@ enum EndBehavior {
 };
 
 struct PlaylistSource {
+	obs_source_t *source;
 	StringArray playlist;
 	enum StartBehavior playlist_start_behavior;
 	enum EndBehavior playlist_end_behavior;
+	DARRAY(struct MediaFileData) files;
+	struct MediaFileData *current_media;
+	size_t current_media_index;
+	bool log_changes;
 };
 const char *playlist_source_name(void *data);
 
@@ -49,7 +54,7 @@ void playlist_deactivate(void *data);
 
 void playlist_tick(void *data, float seconds);
 
-static struct obs_source_info playlist_source_info = {
+static struct obs_source_info playlist_source_template = {
 	.id = "media_playlist_source_codeyan",
 	.type = OBS_SOURCE_TYPE_INPUT,
 	.get_name = playlist_source_name,
