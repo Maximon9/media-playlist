@@ -1,5 +1,5 @@
 #pragma region Main
-#include "../include/playlist-source.h"
+#include "../include/sources/playlist-source.h"
 
 const char *playlist_source_name(void *data)
 {
@@ -85,12 +85,12 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 	playlist_data->playlist_start_behavior = obs_data_get_int(settings, "playlist_start_behavior");
 	if (playlist_data->debug) {
-		obs_log(LOG_INFO, "Start Behavior: %zu", playlist_data->playlist_start_behavior);
+		obs_log(LOG_INFO, "Start Behavior: %s", StartBehaviorName[playlist_data->playlist_start_behavior]);
 	}
 
 	playlist_data->playlist_end_behavior = obs_data_get_int(settings, "playlist_end_behavior");
 	if (playlist_data->debug) {
-		obs_log(LOG_INFO, "end Behavior: %zu", playlist_data->playlist_end_behavior);
+		obs_log(LOG_INFO, "end Behavior: %s", EndBehaviorName[playlist_data->playlist_end_behavior]);
 	}
 
 	if (playlist_data->all_media != NULL && playlist_data->all_media->size > 0) {

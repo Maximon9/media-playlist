@@ -1,24 +1,41 @@
 #pragma region Main
 #include <obs-module.h>
 #include <plugin-support.h>
-#include "../include/utils.h"
+#include "../include/utils/utils.h"
 
 static const char *media_filter =
 	" (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm *.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
 static const char *video_filter = " (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm);;";
 static const char *audio_filter = " (*.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
 
-enum StartBehavior {
-	RESTART,
-	UNPAUSE,
-};
+// Define your enum with a macro for string mapping
+#define ENUM_START_BEHAVIOR_LIST \
+	X(RESTART)               \
+	X(UNPAUSE)
 
-enum EndBehavior {
-	STOP,
-	LOOP,
-	LOOP_SPECIFIC_MEDIA,
-	LOOP_LAST_MEDIA,
-};
+#define X(name) name,
+enum { ENUM_START_BEHAVIOR_LIST } StartBehavior;
+#undef X
+
+// Create a lookup table using macros
+#define X(name) #name,
+const char *StartBehaviorName[] = {ENUM_START_BEHAVIOR_LIST};
+#undef X
+
+#define ENUM_END_BEHAVIOR_LIST \
+	X(STOP)                \
+	X(LOOP)                \
+	X(LOOP_SPECIFIC_MEDIA) \
+	X(LOOP_LAST_MEDIA)
+
+#define X(name) name,
+enum { ENUM_END_BEHAVIOR_LIST } EndBehavior;
+#undef X
+
+// Create a lookup table using macros
+#define X(name) #name,
+const char *EndBehaviorName[] = {ENUM_END_BEHAVIOR_LIST};
+#undef X
 
 struct PlaylistSource {
 	obs_source_t *source;
@@ -29,6 +46,7 @@ struct PlaylistSource {
 	size_t current_media_index;
 	bool debug;
 };
+
 const char *playlist_source_name(void *data);
 
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source);
