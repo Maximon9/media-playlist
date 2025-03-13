@@ -6,6 +6,7 @@
 !/build-aux
 !/cmake
 !/data
+!/include
 !/src
 !/eval
 !.clang-format
@@ -19,9 +20,6 @@
 !/3rdparty
 !/Graphs
 !/assets
-./build_x64
-./deps
-./install
 
 # Exclude lock files
 *.lock.json
