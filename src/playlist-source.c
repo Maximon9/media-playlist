@@ -93,27 +93,12 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 		obs_log(LOG_INFO, "end Behavior: %zu", playlist_data->playlist_end_behavior);
 	}
 
-	// obs_data_array_t *obs_playlist = obs_data_get_array(settings, "playlist");
+	if (playlist_data->all_media->size > 0) {
+		free_media_array(playlist_data->all_media);
+	}
 
-	// if (playlist_data.playlist.size > 0) {
-	// 	free_media_array(&playlist_data.playlist);
-	// }
-	// size_t array_size = obs_data_array_count(obs_playlist);
-	// if (array_size > 0) {
-	// 	init_media_array(&playlist_data.playlist, 2); // Start with a small initial capacity
-	// 	for (size_t i = 0; i < array_size; ++i) {
-	// 		// Convert element to string (single character)
-	// 		obs_data_t *data = obs_data_array_item(obs_playlist, i);
-	// 		const char *element = obs_data_get_string(data, "value");
-	// 		add_media(&playlist_data.playlist, element);
-
-	// 		obs_data_release(data);
-	// 		// obs_log(LOG_INFO, obs_array_to_string(playlist_data.playlist));
-	// 		// obs_log(LOG_INFO, obs_array_to_string(playlist_data.playlist, 90));
-	// 	}
-
-	// 	// obs_log_media_array(LOG_INFO, &playlist_data.playlist, 90, "    ");
-	// }
+	playlist_data->all_media = create_meda_file_data_array_from_obs_array(obs_data_get_array(settings, "playlist"));
+	obs_log_media_array(LOG_INFO, playlist_data->all_media, 90, "    ");
 }
 
 void playlist_tick(void *data, float seconds)

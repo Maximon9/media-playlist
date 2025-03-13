@@ -25,19 +25,41 @@ char *obs_array_to_string(obs_data_array_t *array);
 // Function to initialize the dynamic string array
 void init_media_array(MediaFileDataArray *media_array, size_t initial_capacity);
 
-// Function to add a media from a string path to the array
-void add_media_at(MediaFileDataArray *media_array, const char *path, size_t index);
+// Function to add a media from a string path to the end of array
+void push_media_back(MediaFileDataArray *media_array, const char *path);
 
-// Function to add a media from a MediaFileData to the array
-void add_media_file_data_at(MediaFileDataArray *media_array, MediaFileData media_file_data, size_t index);
+// Function to add a media from a string path to the front of array
+void push_media_front(MediaFileDataArray *media_array, const char *path);
 
-void remove_media_at(MediaFileDataArray *media_array, size_t index);
+// Function to add a media from a string path to the array at a specific index
+void push_media_at(MediaFileDataArray *media_array, const char *path, size_t index);
+
+// Function to add a media from a MediaFileData to the end of array
+void push_media_file_data_back(MediaFileDataArray *media_array, MediaFileData media_file_data);
+
+// Function to add a media from a MediaFileData to the front of array
+void push_media_file_data_front(MediaFileDataArray *media_array, MediaFileData media_file_data);
+
+// Function to add a media from a MediaFileData to the array at a specific index
+void push_media_file_data_at(MediaFileDataArray *media_array, MediaFileData media_file_data, size_t index);
+
+// Function to removes a media from the end of the array
+void pop_media_back(MediaFileDataArray *media_array);
+
+// Function to removes a media from the start of the array
+void pop_media_front(MediaFileDataArray *media_array);
+
+// Function to removes a media from an index of the array
+void pop_media_at(MediaFileDataArray *media_array, size_t index);
 
 // Function to get a media by index
 const MediaFileData *get_media(MediaFileDataArray *media_array, size_t index);
 
 // Function to free the dynamic media array
 void free_media_array(MediaFileDataArray *media_array);
+
+// Turns an obs_data_array_t into a MediaFileDataArray
+MediaFileDataArray *create_meda_file_data_array_from_obs_array(obs_data_array_t *obs_playlist);
 
 // Turns the media array into a string
 char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent);

@@ -36,7 +36,6 @@ char *obs_array_to_string(obs_data_array_t *array)
 	return "[]";
 }
 
-// Function to initialize the dynamic string array
 void init_media_array(MediaFileDataArray *media_array, size_t initial_capacity)
 {
 	media_array->data = (MediaFileData *)malloc(media_array->capacity * sizeof(MediaFileData));
@@ -44,8 +43,53 @@ void init_media_array(MediaFileDataArray *media_array, size_t initial_capacity)
 	media_array->capacity = initial_capacity;
 }
 
-// Function to add a string to the array
-void add_media_at(MediaFileDataArray *media_array, const char *path, size_t index)
+void push_media_back(MediaFileDataArray *media_array, const char *path)
+{
+	// Create and insert new MediaFileData
+	MediaFileData new_entry = {0};
+	new_entry.path = strdup(path);
+
+	// Extract filename from path
+	const char *last_slash = strrchr(path, '/');
+	new_entry.filename = strdup(last_slash ? last_slash + 1 : path);
+
+	// Generate a simple ID (you might replace this with a better approach)
+	// new_entry.id = strdup(new_entry.filename);
+
+	// Set other default values
+	new_entry.is_url = false;
+	new_entry.is_folder = false;
+	// new_entry.parent = NULL;
+	// new_entry.parent_id = NULL;
+	new_entry.index = media_array->size;
+
+	push_media_file_data_back(media_array, new_entry);
+}
+
+void push_media_front(MediaFileDataArray *media_array, const char *path)
+{
+	// Create and insert new MediaFileData
+	MediaFileData new_entry = {0};
+	new_entry.path = strdup(path);
+
+	// Extract filename from path
+	const char *last_slash = strrchr(path, '/');
+	new_entry.filename = strdup(last_slash ? last_slash + 1 : path);
+
+	// Generate a simple ID (you might replace this with a better approach)
+	// new_entry.id = strdup(new_entry.filename);
+
+	// Set other default values
+	new_entry.is_url = false;
+	new_entry.is_folder = false;
+	// new_entry.parent = NULL;
+	// new_entry.parent_id = NULL;
+	new_entry.index = 0;
+
+	push_media_file_data_front(media_array, new_entry);
+}
+
+void push_media_at(MediaFileDataArray *media_array, const char *path, size_t index)
 {
 	// Create and insert new MediaFileData
 	MediaFileData new_entry = {0};
@@ -65,10 +109,20 @@ void add_media_at(MediaFileDataArray *media_array, const char *path, size_t inde
 	// new_entry.parent_id = NULL;
 	new_entry.index = index;
 
-	add_media_file_data_at(media_array, new_entry, index);
+	push_media_file_data_at(media_array, new_entry, index);
 }
 
-void add_media_file_data_at(MediaFileDataArray *media_array, MediaFileData media_file_data, size_t index)
+void push_media_file_data_back(MediaFileDataArray *media_array, MediaFileData media_file_data)
+{
+	push_media_file_data_at(media_array, media_file_data, media_array->size);
+}
+
+void push_media_file_data_front(MediaFileDataArray *media_array, MediaFileData media_file_data)
+{
+	push_media_file_data_at(media_array, media_file_data, 0);
+}
+
+void push_media_file_data_at(MediaFileDataArray *media_array, MediaFileData media_file_data, size_t index)
 {
 	// Ensure index is within bounds
 	if (index > media_array->size) {
@@ -94,7 +148,17 @@ void add_media_file_data_at(MediaFileDataArray *media_array, MediaFileData media
 	media_array->size++;
 }
 
-void remove_media_at(MediaFileDataArray *media_array, size_t index)
+void pop_media_back(MediaFileDataArray *media_array)
+{
+	pop_media_at(media_array, media_array->size);
+}
+
+void pop_media_front(MediaFileDataArray *media_array)
+{
+	pop_media_at(media_array, 0);
+}
+
+void pop_media_at(MediaFileDataArray *media_array, size_t index)
 {
 	if (index >= media_array->size)
 		return;
@@ -162,6 +226,27 @@ void free_media_array(MediaFileDataArray *media_array)
 
 	return result;
 } */
+
+MediaFileDataArray *create_meda_file_data_array_from_obs_array(obs_data_array_t *obs_playlist)
+{
+	size_t array_size = obs_data_array_count(obs_playlist);
+	MediaFileDataArray *media_file_data_array = malloc(sizeof(MediaFileDataArray));
+	media_file_data_array->capacity = 0;
+	media_file_data_array->size = 0;
+	if (array_size > 0) {
+		init_media_array(media_file_data_array, 4); // Start with a small initial capacity
+		for (size_t i = 0; i < array_size; ++i) {
+			// Convert element to string (single character)
+			obs_data_t *data = obs_data_array_item(obs_playlist, i);
+			const char *element = obs_data_get_string(data, "value");
+
+			push_media_back(media_file_data_array, element);
+
+			obs_data_release(data);
+		}
+	}
+	return media_file_data_array;
+}
 
 char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent)
 {

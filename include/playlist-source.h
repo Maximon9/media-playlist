@@ -24,8 +24,8 @@ struct PlaylistSource {
 	obs_source_t *source;
 	enum StartBehavior playlist_start_behavior;
 	enum EndBehavior playlist_end_behavior;
-	DARRAY(struct MediaFileData) files;
-	struct MediaFileData *current_media;
+	MediaFileDataArray *all_media;
+	MediaFileData *current_media;
 	size_t current_media_index;
 	bool debug;
 };
