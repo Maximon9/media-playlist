@@ -1,5 +1,5 @@
 /*
-Sequential Media Source
+Playlist
 Copyright (C) 2025 Maximon9
 
 This program is free software; you can redistribute it and/or modify

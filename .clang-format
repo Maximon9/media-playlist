@@ -24,26 +24,26 @@ AlwaysBreakTemplateDeclarations: false
 BinPackArguments: true
 BinPackParameters: true
 BraceWrapping:
-  AfterClass: false
-  AfterControlStatement: false
-  AfterEnum: false
-  AfterFunction: true
-  AfterNamespace: false
-  AfterObjCDeclaration: false
-  AfterStruct: false
-  AfterUnion: false
-  AfterExternBlock: false
-  BeforeCatch: false
-  BeforeElse: false
-  IndentBraces: false
-  SplitEmptyFunction: true
-  SplitEmptyRecord: true
-  SplitEmptyNamespace: true
+    AfterClass: false
+    AfterControlStatement: false
+    AfterEnum: false
+    AfterFunction: true
+    AfterNamespace: false
+    AfterObjCDeclaration: false
+    AfterStruct: false
+    AfterUnion: false
+    AfterExternBlock: false
+    BeforeCatch: false
+    BeforeElse: false
+    IndentBraces: false
+    SplitEmptyFunction: true
+    SplitEmptyRecord: true
+    SplitEmptyNamespace: true
 BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Custom
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeColon
-BreakStringLiterals: false  # apparently unpredictable
+BreakStringLiterals: false # apparently unpredictable
 ColumnLimit: 120
 CompactNamespaces: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
@@ -54,10 +54,10 @@ DerivePointerAlignment: false
 DisableFormat: false
 FixNamespaceComments: true
 ForEachMacros:
-  - 'json_object_foreach'
-  - 'json_object_foreach_safe'
-  - 'json_array_foreach'
-  - 'HASH_ITER'
+    - "json_object_foreach"
+    - "json_object_foreach_safe"
+    - "json_array_foreach"
+    - "HASH_ITER"
 IncludeBlocks: Preserve
 IndentCaseLabels: false
 IndentPPDirectives: None
@@ -99,10 +99,10 @@ SpacesInContainerLiterals: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 StatementMacros:
-  - 'Q_OBJECT'
+    - "Q_OBJECT"
 TabWidth: 8
 TypenameMacros:
-  - 'DARRAY'
+    - "DARRAY"
 UseTab: ForContinuationAndIndentation
 ---
 Language: ObjC
@@ -112,37 +112,37 @@ AlignConsecutiveAssignments: None
 AlignConsecutiveBitFields: None
 AlignConsecutiveDeclarations: None
 AlignConsecutiveMacros:
-  Enabled: true
-  AcrossEmptyLines: false
-  AcrossComments: true
+    Enabled: true
+    AcrossEmptyLines: false
+    AcrossComments: true
 AllowShortBlocksOnASingleLine: Never
 AllowShortEnumsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLambdasOnASingleLine: None
-AttributeMacros: ['__unused', '__autoreleasing', '_Nonnull', '__bridge']
+AttributeMacros: ["__unused", "__autoreleasing", "_Nonnull", "__bridge"]
 BitFieldColonSpacing: Both
 #BreakBeforeBraces: Webkit
 BreakBeforeBraces: Custom
 BraceWrapping:
-  AfterCaseLabel: false
-  AfterClass: true
-  AfterControlStatement: Never
-  AfterEnum: false
-  AfterFunction: true
-  AfterNamespace: false
-  AfterObjCDeclaration: false
-  AfterStruct: false
-  AfterUnion: false
-  AfterExternBlock: false
-  BeforeCatch: false
-  BeforeElse: false
-  BeforeLambdaBody: false
-  BeforeWhile: false
-  IndentBraces: false
-  SplitEmptyFunction: false
-  SplitEmptyRecord: false
-  SplitEmptyNamespace: true
+    AfterCaseLabel: false
+    AfterClass: true
+    AfterControlStatement: Never
+    AfterEnum: false
+    AfterFunction: true
+    AfterNamespace: false
+    AfterObjCDeclaration: false
+    AfterStruct: false
+    AfterUnion: false
+    AfterExternBlock: false
+    BeforeCatch: false
+    BeforeElse: false
+    BeforeLambdaBody: false
+    BeforeWhile: false
+    IndentBraces: false
+    SplitEmptyFunction: false
+    SplitEmptyRecord: false
+    SplitEmptyNamespace: true
 BreakAfterAttributes: Never
 BreakArrays: false
 BreakBeforeConceptDeclarations: Allowed
@@ -201,8 +201,8 @@ SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 2
 SpacesInConditionalStatement: false
 SpacesInLineCommentPrefix:
-  Minimum: 1
-  Maximum: -1
+    Minimum: 1
+    Maximum: -1
 Standard: c++17
 TabWidth: 4
 UseTab: Never

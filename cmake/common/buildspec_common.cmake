@@ -97,7 +97,6 @@ function(_setup_obs_studio)
   message(STATUS "Build ${label} (Reelase - ${arch}) - done")
 
   message(STATUS "Install ${label} (${arch})")
-  
   execute_process(
     COMMAND
       "${CMAKE_COMMAND}" --install build_${arch} --component Development --config Debug --prefix "${dependencies_dir}"

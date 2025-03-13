@@ -1,6 +1,4 @@
 #pragma region Main
-#include <obs-module.h>
-#include <plugin-support.h>
 #include "./utils.h"
 
 static const char *media_filter =

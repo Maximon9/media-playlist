@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
-// #include <obs-module.h>
 #include "../include/playlist-source.h"
 // #include <obs-module.h>
 // #include <plugin-support.h>
@@ -26,18 +25,8 @@ OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 
 bool obs_module_load(void)
 {
-
-	// 	.id = "sequential_media_source",
-	// 	.type = OBS_SOURCE_TYPE_INPUT,
-	// 	.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_AUDIO,
-	// 	.get_name = []() { return "Sequential Media Source"; },
-	// 	.create = playlist_source_create,
-	// 	.destroy = playlist_source_destroy,
-	// 	.get_icon = sequential_media_source_icon, // Assign the icon function
-	// };
-
 	obs_log(LOG_INFO, "plugin loaded successfully (version %s)", PLUGIN_VERSION);
-	obs_register_source(&playlist_source_info);
+	// obs_register_source(&playlist_source_info);
 	return true;
 }
 
