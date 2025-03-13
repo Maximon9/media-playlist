@@ -6,14 +6,14 @@ const char *playlist_source_name(void *data)
 	return "Playlist"; // This should match the filename (without extension) in data/
 }
 
-// struct PlaylistSource playlist_data = {.playlist = NULL,
-// 				       .playlist_start_behavior = RESTART,
-// 				       .playlist_end_behavior = STOP};
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 {
 	struct PlaylistSource *playlist_data = bzalloc(sizeof(*playlist_data));
 
 	playlist_data->source = source;
+	playlist_data->all_media = NULL;
+	playlist_data->current_media = NULL;
+	playlist_data->current_media_index = 0;
 
 	update_playlist_data(playlist_data, settings);
 
@@ -93,7 +93,7 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 		obs_log(LOG_INFO, "end Behavior: %zu", playlist_data->playlist_end_behavior);
 	}
 
-	if (playlist_data->all_media->size > 0) {
+	if (playlist_data->all_media != NULL && playlist_data->all_media->size > 0) {
 		free_media_array(playlist_data->all_media);
 	}
 
