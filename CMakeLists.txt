@@ -39,7 +39,7 @@ if(ENABLE_QT)
   )
 endif()
 
-file(GLOB MY_PLUGIN_SOURCES
+file(GLOB_RECURSE MY_PLUGIN_SOURCES
     "src/*.c"
 )
 
@@ -47,7 +47,24 @@ target_sources(${CMAKE_PROJECT_NAME}
     PRIVATE ${MY_PLUGIN_SOURCES}
 )
 
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+#region Add Includes
+# Find all header files in the include directory and subdirectories.
+file(GLOB_RECURSE HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
 
+# Create a variable to hold the directories.
+set(HEADER_DIRS "")
+
+# For each header file, extract its directory.
+foreach(header_file ${HEADER_FILES})
+    get_filename_component(header_dir ${header_file} DIRECTORY)
+    list(APPEND HEADER_DIRS ${header_dir})
+endforeach()
+
+# Remove duplicate directories.
+list(REMOVE_DUPLICATES HEADER_DIRS)
+
+# Add these directories to your target.
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${HEADER_DIRS})
+#endregion
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
