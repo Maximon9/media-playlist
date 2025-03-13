@@ -11,20 +11,13 @@ const char *playlist_source_name(void *data)
 // 				       .playlist_end_behavior = STOP};
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 {
-	// UNUSED_PARAMETER(settings);
+	struct PlaylistSource *playlist_data = bzalloc(sizeof(*playlist_data));
 
-	struct PlaylistSource *playlist = bzalloc(sizeof(*playlist));
+	playlist_data->source = source;
 
-	playlist->source = source;
+	update_playlist_data(playlist_data, settings);
 
-	obs_data_set_bool(settings, "debug", false);
-	// obs_data_set_bool(media_source_data, "log_changes", false);
-	// mps->current_media_source =
-	// 	obs_source_create_private("ffmpeg_source", "current_media_source", media_source_data);
-	// obs_source_add_active_child(mps->source, mps->current_media_source);
-	// obs_source_add_audio_capture_callback(mps->current_media_source, mps_audio_callback, mps);
-
-	return playlist;
+	return playlist_data;
 }
 
 void playlist_source_destroy(void *data)
@@ -74,7 +67,8 @@ obs_properties_t *playlist_get_properties(void *data)
 
 void playlist_update(void *data, obs_data_t *settings)
 {
-	update_playlist_data(settings);
+	struct PlaylistSource *playlist_data = data;
+	update_playlist_data(playlist_data, settings);
 }
 
 /**
@@ -82,16 +76,22 @@ void playlist_update(void *data, obs_data_t *settings)
  * @param settings The settings of the playlist source.
  * @return void
  */
-void update_playlist_data(obs_data_t *settings)
+void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings)
 {
-	// playlist_data.loop = obs_data_get_array(settings, "loop");
-	// obs_log(LOG_INFO, playlist_data.loop ? "true" : "false");
+	playlist_data->debug = obs_data_get_bool(settings, "debug");
+	if (playlist_data->debug) {
+		obs_log(LOG_INFO, "Debug: %s", playlist_data->debug ? "true" : "false");
+	}
 
-	// playlist_data.playlist_start_behavior = obs_data_get_int(settings, "playlist_start_behavior");
-	// obs_log(LOG_INFO, "Start Behavior: %zu", playlist_data.playlist_start_behavior);
+	playlist_data->playlist_start_behavior = obs_data_get_int(settings, "playlist_start_behavior");
+	if (playlist_data->debug) {
+		obs_log(LOG_INFO, "Start Behavior: %zu", playlist_data->playlist_start_behavior);
+	}
 
-	// playlist_data.playlist_end_behavior = obs_data_get_int(settings, "playlist_end_behavior");
-	// obs_log(LOG_INFO, "end Behavior: %zu", playlist_data.playlist_end_behavior);
+	playlist_data->playlist_end_behavior = obs_data_get_int(settings, "playlist_end_behavior");
+	if (playlist_data->debug) {
+		obs_log(LOG_INFO, "end Behavior: %zu", playlist_data->playlist_end_behavior);
+	}
 
 	// obs_data_array_t *obs_playlist = obs_data_get_array(settings, "playlist");
 
@@ -119,7 +119,7 @@ void update_playlist_data(obs_data_t *settings)
 void playlist_tick(void *data, float seconds)
 {
 	struct PlaylistSource *playlist_data = data;
-	// obs_log(LOG_INFO, playlist_data->debug ? "true" : "false");
+	obs_log(LOG_INFO, "Debug: %s", playlist_data->debug ? "true" : "false");
 	// obs_frontend_get_current_scene();
 }
 #pragma endregion
