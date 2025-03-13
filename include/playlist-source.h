@@ -22,7 +22,6 @@ enum EndBehavior {
 
 struct PlaylistSource {
 	obs_source_t *source;
-	StringArray playlist;
 	enum StartBehavior playlist_start_behavior;
 	enum EndBehavior playlist_end_behavior;
 	DARRAY(struct MediaFileData) files;

@@ -119,7 +119,7 @@ void update_playlist_data(obs_data_t *settings)
 void playlist_tick(void *data, float seconds)
 {
 	struct PlaylistSource *playlist_data = data;
-	obs_log(LOG_INFO, playlist_data->debug ? "true" : "false");
+	// obs_log(LOG_INFO, playlist_data->debug ? "true" : "false");
 	// obs_frontend_get_current_scene();
 }
 #pragma endregion
