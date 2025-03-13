@@ -38,9 +38,9 @@ char *obs_array_to_string(obs_data_array_t *array)
 
 void init_media_array(MediaFileDataArray *media_array, size_t initial_capacity)
 {
-	media_array->data = (MediaFileData *)malloc(media_array->capacity * sizeof(MediaFileData));
 	media_array->size = 0;
 	media_array->capacity = initial_capacity;
+	media_array->data = (MediaFileData *)malloc(media_array->capacity * sizeof(MediaFileData));
 }
 
 void push_media_back(MediaFileDataArray *media_array, const char *path)
@@ -230,20 +230,22 @@ void free_media_array(MediaFileDataArray *media_array)
 MediaFileDataArray *create_meda_file_data_array_from_obs_array(obs_data_array_t *obs_playlist)
 {
 	size_t array_size = obs_data_array_count(obs_playlist);
+	if (array_size == 0)
+		return NULL;
+
 	MediaFileDataArray *media_file_data_array = malloc(sizeof(MediaFileDataArray));
-	media_file_data_array->capacity = 0;
-	media_file_data_array->size = 0;
-	if (array_size > 0) {
-		init_media_array(media_file_data_array, 4); // Start with a small initial capacity
-		for (size_t i = 0; i < array_size; ++i) {
-			// Convert element to string (single character)
-			obs_data_t *data = obs_data_array_item(obs_playlist, i);
-			const char *element = obs_data_get_string(data, "value");
+	if (!media_file_data_array)
+		return NULL;
 
-			push_media_back(media_file_data_array, element);
+	// Initialize with an initial capacity of 4 (or any number you choose)
+	init_media_array(media_file_data_array, 4);
 
-			obs_data_release(data);
-		}
+	for (size_t i = 0; i < array_size; ++i) {
+		obs_data_t *data = obs_data_array_item(obs_playlist, i);
+		const char *element = obs_data_get_string(data, "value");
+		// Use the method call syntax; this passes media_file_data_array as the first parameter.
+		push_media_back(media_file_data_array, element);
+		obs_data_release(data);
 	}
 	return media_file_data_array;
 }

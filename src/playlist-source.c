@@ -98,7 +98,7 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	}
 
 	playlist_data->all_media = create_meda_file_data_array_from_obs_array(obs_data_get_array(settings, "playlist"));
-	if (playlist_data->debug) {
+	if (playlist_data->all_media != NULL && playlist_data->debug) {
 		obs_log_media_array(LOG_INFO, playlist_data->all_media, 90, "    ");
 	}
 }
