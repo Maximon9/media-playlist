@@ -98,15 +98,17 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	}
 
 	playlist_data->all_media = create_meda_file_data_array_from_obs_array(obs_data_get_array(settings, "playlist"));
-	obs_log_media_array(LOG_INFO, playlist_data->all_media, 90, "    ");
+	if (playlist_data->debug) {
+		obs_log_media_array(LOG_INFO, playlist_data->all_media, 90, "    ");
+	}
 }
 
 void playlist_tick(void *data, float seconds)
 {
 	struct PlaylistSource *playlist_data = data;
-	if (playlist_data->debug) {
-		obs_log(LOG_INFO, "Debug: %s", playlist_data->debug ? "true" : "false");
-	}
+	// if (playlist_data->debug) {
+	// 	obs_log_media_array(LOG_INFO, playlist_data->all_media, 90, "    ");
+	// }
 	// obs_frontend_get_current_scene();
 }
 #pragma endregion
