@@ -1,4 +1,6 @@
-#pragma region Main
+#ifndef UTILS_H
+#define UTILS_H
+
 #include <obs-module.h>
 #include <plugin-support.h>
 
@@ -66,4 +68,5 @@ char *stringify_media_array(const MediaFileDataArray *media_array, size_t thresh
 
 // Logs the media array in the obs log files
 void obs_log_media_array(int log_level, const MediaFileDataArray *media_array, size_t threshold, const char *indent);
-#pragma endregion
+
+#endif // UTILS_H
