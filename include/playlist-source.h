@@ -43,10 +43,6 @@ void playlist_update(void *data, obs_data_t *settings);
 
 void update_playlist_data(obs_data_t *settings);
 
-// void playlist_activate(void *data);
-
-// void playlist_deactivate(void *data);
-
 void playlist_tick(void *data, float seconds);
 
 struct obs_source_info playlist_source_info = {
@@ -61,8 +57,6 @@ struct obs_source_info playlist_source_info = {
 	.get_defaults = playlist_get_defaults,
 	.get_properties = playlist_get_properties,
 	.update = playlist_update,
-	// .activate = playlist_activate,
-	// .deactivate = playlist_deactivate,
 	.video_tick = playlist_tick,
 	.icon_type = OBS_ICON_TYPE_MEDIA,
 };

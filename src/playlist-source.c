@@ -108,16 +108,6 @@ void update_playlist_data(obs_data_t *settings)
 	}
 }
 
-// void playlist_activate(void *data)
-// {
-// 	obs_log(LOG_INFO, "playlist activated");
-// }
-
-// void playlist_deactivate(void *data)
-// {
-// 	obs_log(LOG_INFO, "playlist deactivated");
-// }
-
 void playlist_tick(void *data, float seconds)
 {
 	// obs_frontend_get_current_scene();
