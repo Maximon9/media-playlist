@@ -37,12 +37,21 @@ uint32_t playlist_source_height(void *data)
 
 void playlist_get_defaults(obs_data_t *settings)
 {
-	obs_data_set_default_bool(settings, "loop", false);
+	obs_data_set_default_int(settings, "start_index", 0);
+	obs_data_set_default_int(settings, "end_index", 0);
+	obs_data_set_default_int(settings, "playlist_start_behavior", 0);
+	obs_data_set_default_int(settings, "playlist_end_behavior", 0);
+	obs_data_set_default_bool(settings, "debug", false);
 }
 
-obs_properties_t *make_playlist_properties()
+obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 {
 	obs_properties_t *props = obs_properties_create();
+
+	obs_properties_add_int_slider(props, "start_index", "Start Index", 0, playlist_data->end_index, 1);
+
+	obs_properties_add_int_slider(props, "end_index", "End Index", playlist_data->start_index,
+				      (int)(playlist_data->all_media->size - 1), 1);
 
 	obs_property_t *psb_property = obs_properties_add_list(
 		props, "playlist_start_behavior", "Playlist Start Behavior", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
@@ -95,6 +104,9 @@ void playlist_update(void *data, obs_data_t *settings)
  */
 void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings)
 {
+	playlist_data->start_index = (int)obs_data_get_int(settings, "start_index");
+	playlist_data->end_index = (int)obs_data_get_int(settings, "end_index");
+
 	playlist_data->debug = obs_data_get_bool(settings, "debug");
 	if (playlist_data->debug) {
 		obs_log(LOG_INFO, "Debug: %s", playlist_data->debug ? "true" : "false");
@@ -110,15 +122,39 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 		obs_log(LOG_INFO, "end Behavior: %s", EndBehavior[playlist_data->playlist_end_behavior]);
 	}
 
+	size_t previous_size = 0;
+	// obs_log(LOG_INFO, "Sizes: %d", previous_size);
 	if (playlist_data->all_media != NULL && playlist_data->all_media->size > 0) {
+		previous_size = playlist_data->all_media->size;
 		free_media_array(playlist_data->all_media);
 	}
 
 	playlist_data->all_media = create_meda_file_data_array_from_obs_array(obs_data_get_array(settings, "playlist"));
+	// obs_log(LOG_INFO, "Sizes: %d, %s", previous_size, playlist_data->all_media->size);
+	if (playlist_data->end_index == previous_size - 1) {
+		playlist_data->end_index = (int)(playlist_data->all_media->size - 1);
+		obs_data_set_int(settings, "end_index", playlist_data->end_index);
+	}
+
 	if (playlist_data->all_media != NULL && playlist_data->debug) {
 		obs_log_media_array(LOG_INFO, playlist_data->all_media, 90, "    ");
 	}
-	obs_properties_t *props = make_playlist_properties();
+
+	if (playlist_data->start_index < 0) {
+		playlist_data->start_index = 0;
+	} else if (playlist_data->start_index >= playlist_data->end_index) {
+		playlist_data->start_index = playlist_data->end_index;
+	}
+
+	if (playlist_data->end_index < playlist_data->start_index) {
+		playlist_data->end_index = playlist_data->start_index;
+	} else if (playlist_data->end_index >= playlist_data->all_media->size) {
+		playlist_data->end_index = (int)(playlist_data->all_media->size - 1);
+	}
+	obs_data_set_int(settings, "start_index", playlist_data->start_index);
+	obs_data_set_int(settings, "end_index", playlist_data->end_index);
+
+	// obs_properties_t *props = make_playlist_properties();
 }
 
 void playlist_tick(void *data, float seconds)
