@@ -11,7 +11,8 @@
 #define ENUM_END_BEHAVIOR_LIST \
 	X(STOP)                \
 	X(LOOP)                \
-	X(LOOP_AT_INDEX)
+	X(LOOP_AT_INDEX)       \
+	X(LOOP_AT_END)
 
 // Define the enum values for StartBehavior and EndBehavior
 #define X(name) name,

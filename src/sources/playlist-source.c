@@ -93,6 +93,9 @@ obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 
 	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX) {
 		obs_properties_add_int_slider(props, "loop_index", "Loop Index", 0, all_media_size, 1);
+	}
+	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX ||
+	    playlist_data->playlist_end_behavior == LOOP_AT_END) {
 		obs_properties_add_bool(props, "infinite", "infinite");
 		if (playlist_data->infinite == false) {
 			obs_properties_add_int(props, "loop_count", "Loop Count", 0, INT_MAX, 1);
@@ -196,10 +199,13 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	}
 
 	if (previous_size_initialized == true) {
+		obs_log(LOG_INFO, "previous size is init");
 		if (playlist_data->all_media->size != 0 && previous_size != playlist_data->all_media->size) {
+			obs_log(LOG_INFO, "size has changed");
 			update_properties = true;
 			if (playlist_data->end_index == previous_size - 1) {
-				playlist_data->end_index = all_media_size;
+				obs_log(LOG_WARNING, "updated end_index");
+				playlist_data->end_index = all_media_size - 1;
 				update_end_index_ui = true;
 			}
 		}
