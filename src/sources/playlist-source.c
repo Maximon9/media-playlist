@@ -155,6 +155,7 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	obs_data_set_int(settings, "end_index", playlist_data->end_index);
 
 	// obs_properties_t *props = make_playlist_properties();
+	obs_source_update(playlist_data->source, settings);
 }
 
 void playlist_tick(void *data, float seconds)
