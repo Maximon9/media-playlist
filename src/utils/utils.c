@@ -195,6 +195,7 @@ void free_media_array(MediaFileDataArray *media_array)
 		free(media_array->data[i].filename);
 	}
 	free(media_array->data);
+	free(media_array);
 }
 
 /* char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent)

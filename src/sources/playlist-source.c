@@ -41,6 +41,9 @@ void playlist_get_defaults(obs_data_t *settings)
 	obs_data_set_default_int(settings, "end_index", 0);
 	obs_data_set_default_int(settings, "playlist_start_behavior", 0);
 	obs_data_set_default_int(settings, "playlist_end_behavior", 0);
+	obs_data_set_default_int(settings, "loop_index", 0);
+	obs_data_set_default_bool(settings, "infiite", true);
+	obs_data_set_default_int(settings, "loop_count", 0);
 	obs_data_set_default_bool(settings, "debug", false);
 }
 
@@ -73,6 +76,15 @@ obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 		obs_property_list_add_int(peb_property, name, i);
 		i++;
 		name = EndBehavior[i];
+	}
+
+	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX) {
+		obs_properties_add_int_slider(props, "loop_index", "Loop Index", 0,
+					      (int)(playlist_data->all_media->size - 1), 1);
+		obs_properties_add_bool(props, "infiite", "Infiite");
+		if (playlist_data->infinate == false) {
+			obs_properties_add_int(props, "loop_count", "Loop Count", 0, INT_MAX, 1);
+		}
 	}
 
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
@@ -140,6 +152,22 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	bool update_properties = false;
 	bool update_start_index_ui = false;
 	bool update_end_index_ui = false;
+
+	int loop_index = (int)obs_data_get_int(settings, "loop_index");
+	bool infinate = obs_data_get_bool(settings, "infinate");
+	int loop_count = (int)obs_data_get_int(settings, "loop_count");
+
+	if (infinate != *playlist_data->infinate) {
+		update_properties = true;
+	}
+
+	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX) {
+		update_properties = true;
+
+		playlist_data->loop_index = &loop_index;
+		playlist_data->infinate = &infinate;
+		playlist_data->loop_count = &loop_count;
+	}
 
 	if (previous_size_initialized == true) {
 		if (playlist_data->all_media->size != 0 && previous_size != playlist_data->all_media->size) {
