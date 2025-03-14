@@ -16,10 +16,9 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	playlist_data->current_media = NULL;
 	playlist_data->current_media_index = 0;
-
-	playlist_data->loop_index = NULL;
-	playlist_data->infinite = NULL;
-	playlist_data->loop_count = NULL;
+	playlist_data->loop_index = 0;
+	playlist_data->infinite = true;
+	playlist_data->loop_count = 0;
 
 	update_playlist_data(playlist_data, settings);
 
@@ -181,35 +180,21 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	bool infinite = obs_data_get_bool(settings, "infinite");
 	int loop_count = (int)obs_data_get_int(settings, "loop_count");
 
-	bool dup_1_infinite = infinite;
-	bool *ptr_infinite = &dup_1_infinite;
-
 	obs_log(LOG_INFO, "Infinite Old Value: %s", playlist_data->infinite);
-	obs_log(LOG_INFO, "Infinite Old Value: %s",
-		playlist_data->infinite == NULL    ? "null"
-		: *playlist_data->infinite == true ? "true"
-						   : "false");
+	obs_log(LOG_INFO, "Infinite Old Value: %s", playlist_data->infinite == true ? "true" : "false");
 
-	obs_log(LOG_INFO, "Infinite New Value: %s", ptr_infinite);
-	obs_log(LOG_INFO, "Infinite New Value: %s",
-		ptr_infinite == NULL    ? "null"
-		: *ptr_infinite == true ? "true"
-					: "false");
+	obs_log(LOG_INFO, "Infinite New Value: %s", infinite);
+	obs_log(LOG_INFO, "Infinite New Value: %s", infinite == true ? "true" : "false");
 
-	if (ptr_infinite != NULL && playlist_data->infinite != NULL) {
-		if (*ptr_infinite != *playlist_data->infinite) {
-			update_properties = true;
-		}
+	if (infinite != playlist_data->infinite) {
+		update_properties = true;
 	}
 
 	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX) {
-		int dup_loop_index = loop_index;
-		bool dup_2_infinite = infinite;
-		int dup_loop_count = loop_count;
 
-		playlist_data->loop_index = &dup_loop_index;
-		playlist_data->infinite = &dup_2_infinite;
-		playlist_data->loop_count = &dup_loop_count;
+		playlist_data->loop_index = loop_index;
+		playlist_data->infinite = infinite;
+		playlist_data->loop_count = loop_count;
 	}
 
 	if (previous_size_initialized == true) {
