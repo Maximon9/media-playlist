@@ -84,6 +84,7 @@ obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 
 obs_properties_t *playlist_get_properties(void *data)
 {
+	obs_log(LOG_INFO, "Getting Properties");
 	return make_playlist_properties(data);
 }
 
@@ -155,7 +156,8 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	obs_data_set_int(settings, "end_index", playlist_data->end_index);
 
 	// obs_properties_t *props = make_playlist_properties();
-	obs_source_update(playlist_data->source, settings);
+	obs_source_update_properties(playlist_data->source);
+	// obs_source_update(playlist_data->source, settings);
 }
 
 void playlist_tick(void *data, float seconds)
