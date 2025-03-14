@@ -183,14 +183,16 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 	bool *ptr_infinite = &infinite;
 
-	obs_log(LOG_INFO, "Infinite Old Value: %s",
-		playlist_data->infinite == NULL    ? "null"
-		: *playlist_data->infinite == true ? "true"
-						   : "false");
-	obs_log(LOG_INFO, "Infinite New Value: %s",
-		ptr_infinite == NULL    ? "null"
-		: *ptr_infinite == true ? "true"
-					: "false");
+	obs_log(LOG_INFO, "Infinite Old Value: %s", playlist_data->infinite);
+	obs_log(LOG_INFO, "Infinite New Value: %s", ptr_infinite);
+	// obs_log(LOG_INFO, "Infinite Old Value: %s",
+	// 	playlist_data->infinite == NULL    ? "null"
+	// 	: *playlist_data->infinite == true ? "true"
+	// 					   : "false");
+	// obs_log(LOG_INFO, "Infinite New Value: %s",
+	// 	ptr_infinite == NULL    ? "null"
+	// 	: *ptr_infinite == true ? "true"
+	// 				: "false");
 
 	if (ptr_infinite != NULL && playlist_data->infinite != NULL) {
 		if (*ptr_infinite != *playlist_data->infinite) {
@@ -199,9 +201,13 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	}
 
 	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX) {
-		playlist_data->loop_index = &loop_index;
-		playlist_data->infinite = ptr_infinite;
-		playlist_data->loop_count = &loop_count;
+		int dup_loop_index = loop_index;
+		bool dup_infinite = infinite;
+		int dup_loop_count = loop_count;
+
+		playlist_data->loop_index = &dup_loop_index;
+		playlist_data->infinite = &dup_infinite;
+		playlist_data->loop_count = &dup_loop_count;
 	}
 
 	if (previous_size_initialized == true) {
