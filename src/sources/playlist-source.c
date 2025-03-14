@@ -184,11 +184,11 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	obs_log(LOG_INFO, "Infinite Value: %s", infinite);
 	obs_log(LOG_INFO, "Infinite Value: %s", playlist_data->infinite == NULL ? "null" : playlist_data->infinite);
 
-	if (playlist_data->infinite != NULL) {
-		if (infinite != *playlist_data->infinite) {
-			update_properties = true;
-		}
-	}
+	// if (playlist_data->infinite != NULL) {
+	// 	if (infinite != *playlist_data->infinite) {
+	// 		update_properties = true;
+	// 	}
+	// }
 
 	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX) {
 		playlist_data->loop_index = &loop_index;
