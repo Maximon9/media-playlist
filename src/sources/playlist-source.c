@@ -22,6 +22,10 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 void playlist_source_destroy(void *data)
 {
+	struct PlaylistSource *playlist_data = data;
+	if (playlist_data->all_media != NULL && playlist_data->all_media->size > 0) {
+		free_media_array(playlist_data->all_media);
+	}
 	obs_data_release(data);
 }
 
@@ -116,6 +120,7 @@ void playlist_update(void *data, obs_data_t *settings)
  */
 void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings)
 {
+	bool update_properties = false;
 	// int previous_start_index = playlist_data->start_index;
 	int previous_end_index = playlist_data->end_index;
 
@@ -123,17 +128,22 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	playlist_data->end_index = (int)obs_data_get_int(settings, "end_index");
 
 	playlist_data->debug = obs_data_get_bool(settings, "debug");
-	if (playlist_data->debug) {
+	if (playlist_data->debug == true) {
 		obs_log(LOG_INFO, "Debug: %s", playlist_data->debug ? "true" : "false");
 	}
 
 	playlist_data->playlist_start_behavior = obs_data_get_int(settings, "playlist_start_behavior");
-	if (playlist_data->debug) {
+	if (playlist_data->debug == true) {
 		obs_log(LOG_INFO, "Start Behavior: %s", StartBehavior[playlist_data->playlist_start_behavior]);
 	}
 
-	playlist_data->playlist_end_behavior = obs_data_get_int(settings, "playlist_end_behavior");
-	if (playlist_data->debug) {
+	enum EndBehavior playlist_end_behavior = obs_data_get_int(settings, "playlist_end_behavior");
+	if (playlist_data->playlist_end_behavior != playlist_end_behavior) {
+		update_properties = true;
+	}
+
+	playlist_data->playlist_end_behavior = playlist_end_behavior;
+	if (playlist_data->debug == true) {
 		obs_log(LOG_INFO, "end Behavior: %s", EndBehavior[playlist_data->playlist_end_behavior]);
 	}
 
@@ -149,7 +159,6 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	playlist_data->all_media = create_meda_file_data_array_from_obs_array(obs_data_get_array(settings, "playlist"));
 	// obs_log(LOG_INFO, "Sizes: %d, %s", previous_size, playlist_data->all_media->size);
 
-	bool update_properties = false;
 	bool update_start_index_ui = false;
 	bool update_end_index_ui = false;
 
@@ -157,13 +166,13 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	bool infinate = obs_data_get_bool(settings, "infinate");
 	int loop_count = (int)obs_data_get_int(settings, "loop_count");
 
-	if (infinate != *playlist_data->infinate) {
-		update_properties = true;
+	if (playlist_data->infinate != NULL) {
+		if (infinate != *playlist_data->infinate) {
+			update_properties = true;
+		}
 	}
 
 	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX) {
-		update_properties = true;
-
 		playlist_data->loop_index = &loop_index;
 		playlist_data->infinate = &infinate;
 		playlist_data->loop_count = &loop_count;
