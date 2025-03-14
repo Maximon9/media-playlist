@@ -84,7 +84,6 @@ obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 
 obs_properties_t *playlist_get_properties(void *data)
 {
-	obs_log(LOG_INFO, "Getting Properties");
 	return make_playlist_properties(data);
 }
 
