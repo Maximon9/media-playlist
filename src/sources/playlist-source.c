@@ -104,6 +104,9 @@ void playlist_update(void *data, obs_data_t *settings)
  */
 void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings)
 {
+	// int previous_start_index = playlist_data->start_index;
+	int previous_end_index = playlist_data->end_index;
+
 	playlist_data->start_index = (int)obs_data_get_int(settings, "start_index");
 	playlist_data->end_index = (int)obs_data_get_int(settings, "end_index");
 
@@ -150,8 +153,8 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 		obs_log_media_array(LOG_INFO, playlist_data->all_media, 90, "    ");
 	}
 
-	if (playlist_data->start_index > playlist_data->end_index) {
-		playlist_data->start_index = playlist_data->end_index;
+	if (playlist_data->start_index > previous_end_index) {
+		playlist_data->start_index = previous_end_index;
 		update_start_index_ui = true;
 	}
 
