@@ -137,11 +137,13 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	playlist_data->all_media = create_meda_file_data_array_from_obs_array(obs_data_get_array(settings, "playlist"));
 	// obs_log(LOG_INFO, "Sizes: %d, %s", previous_size, playlist_data->all_media->size);
 
+	bool update_properties = false;
 	bool update_start_index_ui = false;
 	bool update_end_index_ui = false;
 
 	if (previous_size_initialized == true) {
 		if (playlist_data->all_media->size != 0 && previous_size != playlist_data->all_media->size) {
+			update_properties = true;
 			if (playlist_data->end_index == previous_size - 1) {
 				playlist_data->end_index = (int)(playlist_data->all_media->size - 1);
 				update_end_index_ui = true;
@@ -156,11 +158,13 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	if (playlist_data->start_index > previous_end_index) {
 		playlist_data->start_index = previous_end_index;
 		update_start_index_ui = true;
+		update_properties = true;
 	}
 
 	if (playlist_data->end_index < playlist_data->start_index) {
 		playlist_data->end_index = playlist_data->start_index;
 		update_end_index_ui = true;
+		update_properties = true;
 	}
 
 	if (update_start_index_ui) {
@@ -170,7 +174,7 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 		obs_data_set_int(settings, "end_index", playlist_data->end_index);
 	}
 
-	if (update_start_index_ui || update_end_index_ui) {
+	if (update_properties == true) {
 		obs_source_update_properties(playlist_data->source);
 	}
 }
