@@ -40,23 +40,31 @@ void playlist_get_defaults(obs_data_t *settings)
 	obs_data_set_default_bool(settings, "loop", false);
 }
 
-obs_properties_t *playlist_get_properties(void *data)
+obs_properties_t *make_playlist_properties()
 {
 	obs_properties_t *props = obs_properties_create();
 
 	obs_property_t *psb_property = obs_properties_add_list(
 		props, "playlist_start_behavior", "Playlist Start Behavior", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 
-	obs_property_list_add_int(psb_property, "Restart", RESTART);
-	obs_property_list_add_int(psb_property, "Unpause", UNPAUSE);
+	long long i = 0;
+	const char *name = StartBehavior[i];
+	while (name != "") {
+		obs_property_list_add_int(psb_property, name, i);
+		i++;
+		name = StartBehavior[i];
+	}
 
 	obs_property_t *peb_property = obs_properties_add_list(props, "playlist_end_behavior", "Playlist End Behavior",
 							       OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 
-	obs_property_list_add_int(peb_property, "Stop", STOP);
-	obs_property_list_add_int(peb_property, "Loop", LOOP);
-	obs_property_list_add_int(peb_property, "Loop Specific Media", LOOP_SPECIFIC_MEDIA);
-	obs_property_list_add_int(peb_property, "Loop Last Media", LOOP_LAST_MEDIA);
+	i = 0;
+	name = EndBehavior[i];
+	while (name != "") {
+		obs_property_list_add_int(peb_property, name, i);
+		i++;
+		name = EndBehavior[i];
+	}
 
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
 					 media_filter, "");
@@ -65,10 +73,19 @@ obs_properties_t *playlist_get_properties(void *data)
 	return props;
 }
 
+obs_properties_t *playlist_get_properties(void *data)
+{
+	return make_playlist_properties(data);
+}
+
 void playlist_update(void *data, obs_data_t *settings)
 {
 	struct PlaylistSource *playlist_data = data;
 	update_playlist_data(playlist_data, settings);
+
+	// Ensure properties are refreshed or updated if necessary
+	// obs_properties_t *props = make_playlist_properties(playlist_data);
+	// obs_source_update(playlist_data->source, props);
 }
 
 /**
@@ -85,12 +102,12 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 	playlist_data->playlist_start_behavior = obs_data_get_int(settings, "playlist_start_behavior");
 	if (playlist_data->debug) {
-		obs_log(LOG_INFO, "Start Behavior: %s", StartBehaviorName[playlist_data->playlist_start_behavior]);
+		obs_log(LOG_INFO, "Start Behavior: %s", StartBehavior[playlist_data->playlist_start_behavior]);
 	}
 
 	playlist_data->playlist_end_behavior = obs_data_get_int(settings, "playlist_end_behavior");
 	if (playlist_data->debug) {
-		obs_log(LOG_INFO, "end Behavior: %s", EndBehaviorName[playlist_data->playlist_end_behavior]);
+		obs_log(LOG_INFO, "end Behavior: %s", EndBehavior[playlist_data->playlist_end_behavior]);
 	}
 
 	if (playlist_data->all_media != NULL && playlist_data->all_media->size > 0) {
@@ -101,6 +118,7 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	if (playlist_data->all_media != NULL && playlist_data->debug) {
 		obs_log_media_array(LOG_INFO, playlist_data->all_media, 90, "    ");
 	}
+	obs_properties_t *props = make_playlist_properties();
 }
 
 void playlist_tick(void *data, float seconds)

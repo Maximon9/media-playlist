@@ -2,7 +2,7 @@
 
 #define X(name) #name,
 
-const char *StartBehaviorName[] = {ENUM_START_BEHAVIOR_LIST};
-const char *EndBehaviorName[] = {ENUM_END_BEHAVIOR_LIST};
+const char *StartBehavior[] = {ENUM_START_BEHAVIOR_LIST ""};
+const char *EndBehavior[] = {ENUM_END_BEHAVIOR_LIST ""};
 
 #undef X
