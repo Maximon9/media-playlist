@@ -167,7 +167,7 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 		obs_data_set_int(settings, "end_index", playlist_data->end_index);
 	}
 
-	if (update_start_index_ui && update_end_index_ui) {
+	if (update_start_index_ui || update_end_index_ui) {
 		obs_source_update_properties(playlist_data->source);
 	}
 }
