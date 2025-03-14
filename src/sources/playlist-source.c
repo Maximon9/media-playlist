@@ -11,9 +11,15 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	struct PlaylistSource *playlist_data = bzalloc(sizeof(*playlist_data));
 
 	playlist_data->source = source;
+
 	playlist_data->all_media = NULL;
+
 	playlist_data->current_media = NULL;
 	playlist_data->current_media_index = 0;
+
+	playlist_data->loop_index = NULL;
+	playlist_data->infinate = NULL;
+	playlist_data->loop_count = NULL;
 
 	update_playlist_data(playlist_data, settings);
 
@@ -41,13 +47,13 @@ uint32_t playlist_source_height(void *data)
 
 void playlist_get_defaults(obs_data_t *settings)
 {
-	obs_data_set_default_int(settings, "start_index", 0);
-	obs_data_set_default_int(settings, "end_index", 0);
-	obs_data_set_default_int(settings, "playlist_start_behavior", 0);
-	obs_data_set_default_int(settings, "playlist_end_behavior", 0);
-	obs_data_set_default_int(settings, "loop_index", 0);
+	// obs_data_set_default_int(settings, "start_index", 0);
+	// obs_data_set_default_int(settings, "end_index", 0);
+	// obs_data_set_default_int(settings, "playlist_start_behavior", 0);
+	// obs_data_set_default_int(settings, "playlist_end_behavior", 0);
+	// obs_data_set_default_int(settings, "loop_index", 0);
 	obs_data_set_default_bool(settings, "infiite", true);
-	obs_data_set_default_int(settings, "loop_count", 0);
+	// obs_data_set_default_int(settings, "loop_count", 0);
 	obs_data_set_default_bool(settings, "debug", false);
 }
 
@@ -100,6 +106,7 @@ obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 
 obs_properties_t *playlist_get_properties(void *data)
 {
+	obs_log(LOG_WARNING, "Getting Properties");
 	return make_playlist_properties(data);
 }
 
