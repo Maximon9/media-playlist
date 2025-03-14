@@ -48,10 +48,10 @@ obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 {
 	obs_properties_t *props = obs_properties_create();
 
-	obs_properties_add_int_slider(props, "start_index", "Start Index", 0, playlist_data->end_index, 1);
+	obs_properties_add_int_slider(props, "start_index", "Start Index", 0, (int)(playlist_data->all_media->size - 1),
+				      1);
 
-	obs_properties_add_int_slider(props, "end_index", "End Index", playlist_data->start_index,
-				      (int)(playlist_data->all_media->size - 1), 1);
+	obs_properties_add_int_slider(props, "end_index", "End Index", 0, (int)(playlist_data->all_media->size - 1), 1);
 
 	obs_property_t *psb_property = obs_properties_add_list(
 		props, "playlist_start_behavior", "Playlist Start Behavior", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
@@ -131,9 +131,13 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 	playlist_data->all_media = create_meda_file_data_array_from_obs_array(obs_data_get_array(settings, "playlist"));
 	// obs_log(LOG_INFO, "Sizes: %d, %s", previous_size, playlist_data->all_media->size);
+
+	bool update_start_index_ui = false;
+	bool update_end_index_ui = false;
+
 	if (playlist_data->end_index == previous_size - 1) {
 		playlist_data->end_index = (int)(playlist_data->all_media->size - 1);
-		obs_data_set_int(settings, "end_index", playlist_data->end_index);
+		update_end_index_ui = true;
 	}
 
 	if (playlist_data->all_media != NULL && playlist_data->debug) {
@@ -142,21 +146,30 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 	if (playlist_data->start_index < 0) {
 		playlist_data->start_index = 0;
+		update_start_index_ui = true;
 	} else if (playlist_data->start_index >= playlist_data->end_index) {
 		playlist_data->start_index = playlist_data->end_index;
+		update_start_index_ui = true;
 	}
 
 	if (playlist_data->end_index < playlist_data->start_index) {
 		playlist_data->end_index = playlist_data->start_index;
+		update_end_index_ui = true;
 	} else if (playlist_data->end_index >= playlist_data->all_media->size) {
 		playlist_data->end_index = (int)(playlist_data->all_media->size - 1);
+		update_end_index_ui = true;
 	}
-	obs_data_set_int(settings, "start_index", playlist_data->start_index);
-	obs_data_set_int(settings, "end_index", playlist_data->end_index);
 
-	// obs_properties_t *props = make_playlist_properties();
-	obs_source_update_properties(playlist_data->source);
-	// obs_source_update(playlist_data->source, settings);
+	if (update_start_index_ui) {
+		obs_data_set_int(settings, "start_index", playlist_data->start_index);
+	}
+	if (update_end_index_ui) {
+		obs_data_set_int(settings, "end_index", playlist_data->end_index);
+	}
+
+	if (update_start_index_ui && update_end_index_ui) {
+		obs_source_update_properties(playlist_data->source);
+	}
 }
 
 void playlist_tick(void *data, float seconds)
