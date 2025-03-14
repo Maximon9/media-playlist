@@ -13,6 +13,7 @@ static const char *audio_filter = " (*.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus 
 
 struct PlaylistSource {
 	obs_source_t *source;
+	obs_source_t *current_media_source;
 	int start_index;
 	int end_index;
 	enum StartBehavior playlist_start_behavior;
@@ -52,6 +53,26 @@ void playlist_deactivate(void *data);
 
 void playlist_tick(void *data, float seconds);
 
+void playlist_video_render(void *data, gs_effect_t *effect);
+
+void media_play_pause(void *data, bool pause);
+
+void media_restart(void *data);
+
+void media_stop(void *data);
+
+void media_next(void *data);
+
+void media_previous(void *data);
+
+int64_t media_get_duration(void *data);
+
+int64_t media_get_time(void *data);
+
+void media_set_time(void *data, int64_t miliseconds);
+
+enum obs_media_state media_get_state(void *data);
+
 static struct obs_source_info playlist_source_template = {
 	.id = "media_playlist_source_codeyan",
 	.type = OBS_SOURCE_TYPE_INPUT,
@@ -65,7 +86,18 @@ static struct obs_source_info playlist_source_template = {
 	.get_properties = playlist_get_properties,
 	.update = playlist_update,
 	.video_tick = playlist_tick,
+	.video_render = playlist_video_render,
 	.icon_type = OBS_ICON_TYPE_MEDIA,
+	.media_play_pause = media_play_pause,
+	.media_restart = media_restart,
+	.media_stop = media_stop,
+	.media_next = media_next,
+	.media_previous = media_previous,
+	.media_get_duration = media_get_duration,
+	.media_get_time = media_get_time,
+	.media_set_time = media_set_time,
+	.media_get_state = media_get_state,
+
 };
 
 #endif // PLAYLIST_SOURCE_H

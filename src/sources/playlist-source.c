@@ -14,11 +14,18 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	playlist_data->all_media = NULL;
 
+	playlist_data->start_index = 0;
+	playlist_data->end_index = 0;
+
 	playlist_data->current_media = NULL;
 	playlist_data->current_media_index = 0;
 	playlist_data->loop_index = 0;
 	playlist_data->infinite = true;
 	playlist_data->loop_count = 0;
+
+	// playlist_data->current_media_source =
+	// 	obs_source_create_private("ffmpeg_source", "current_media_source", settings);
+	// obs_source_add_audio_capture_callback(playlist_data->current_media_source, mps_audio_callback, playlist_data);
 
 	update_playlist_data(playlist_data, settings);
 
@@ -65,9 +72,12 @@ obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 	if (playlist_data->all_media != NULL) {
 		all_media_size = (int)playlist_data->all_media->size;
 	}
-	obs_properties_add_int_slider(props, "start_index", "Start Index", 0, all_media_size, 1);
+	obs_properties_add_int_slider(props, "start_index", "Start Index", 0, all_media_size - 1, 1);
 
-	obs_properties_add_int_slider(props, "end_index", "End Index", 0, all_media_size, 1);
+	obs_properties_add_int_slider(props, "end_index", "End Index", 0, all_media_size - 1, 1);
+
+	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
+					 media_filter, "");
 
 	obs_property_t *psb_property = obs_properties_add_list(
 		props, "playlist_start_behavior", "Playlist Start Behavior", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
@@ -92,7 +102,7 @@ obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 	}
 
 	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX) {
-		obs_properties_add_int_slider(props, "loop_index", "Loop Index", 0, all_media_size, 1);
+		obs_properties_add_int_slider(props, "loop_index", "Loop Index", 0, all_media_size - 1, 1);
 	}
 	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX ||
 	    playlist_data->playlist_end_behavior == LOOP_AT_END) {
@@ -101,9 +111,6 @@ obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 			obs_properties_add_int(props, "loop_count", "Loop Count", 0, INT_MAX, 1);
 		}
 	}
-
-	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
-					 media_filter, "");
 
 	obs_properties_add_bool(props, "debug", "Debug");
 	return props;
@@ -180,6 +187,8 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	bool update_end_index_ui = false;
 
 	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX) {
+		bool update_loop_index_ui = false;
+
 		int loop_index = (int)obs_data_get_int(settings, "loop_index");
 		bool infinite = obs_data_get_bool(settings, "infinite");
 		int loop_count = (int)obs_data_get_int(settings, "loop_count");
@@ -196,15 +205,26 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 		playlist_data->loop_index = loop_index;
 		playlist_data->infinite = infinite;
 		playlist_data->loop_count = loop_count;
+
+		if (playlist_data->loop_index < 0) {
+			playlist_data->loop_index = playlist_data->start_index;
+			update_loop_index_ui = true;
+			update_properties = true;
+		} else if (playlist_data->end_index >= all_media_size) {
+			playlist_data->loop_index = all_media_size - 1;
+			update_loop_index_ui = true;
+			update_properties = true;
+		}
+
+		if (update_loop_index_ui) {
+			obs_data_set_int(settings, "loop_index", playlist_data->loop_index);
+		}
 	}
 
 	if (previous_size_initialized == true) {
-		obs_log(LOG_INFO, "previous size is init");
 		if (playlist_data->all_media->size != 0 && previous_size != playlist_data->all_media->size) {
-			obs_log(LOG_INFO, "size has changed");
 			update_properties = true;
 			if (playlist_data->end_index == previous_size - 1) {
-				obs_log(LOG_WARNING, "updated end_index");
 				playlist_data->end_index = all_media_size - 1;
 				update_end_index_ui = true;
 			}
@@ -225,11 +245,16 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 		playlist_data->end_index = playlist_data->start_index;
 		update_end_index_ui = true;
 		update_properties = true;
+	} else if (playlist_data->end_index >= all_media_size) {
+		playlist_data->end_index = all_media_size - 1;
+		update_end_index_ui = true;
+		update_properties = true;
 	}
 
 	if (update_start_index_ui) {
 		obs_data_set_int(settings, "start_index", playlist_data->start_index);
 	}
+
 	if (update_end_index_ui) {
 		obs_data_set_int(settings, "end_index", playlist_data->end_index);
 	}
@@ -246,5 +271,58 @@ void playlist_tick(void *data, float seconds)
 	// 	obs_log_media_array(LOG_INFO, playlist_data->all_media, 90, "    ");
 	// }
 	// obs_frontend_get_current_scene();
+}
+
+void playlist_video_render(void *data, gs_effect_t *effect)
+{
+	obs_log(LOG_INFO, "playlist_video_render");
+}
+
+void media_play_pause(void *data, bool pause)
+{
+	obs_log(LOG_INFO, "media_play_pause");
+}
+
+void media_restart(void *data)
+{
+	obs_log(LOG_INFO, "media_restart");
+}
+
+void media_stop(void *data)
+{
+	obs_log(LOG_INFO, "media_stop");
+}
+
+void media_next(void *data)
+{
+	obs_log(LOG_INFO, "media_next");
+}
+
+void media_previous(void *data)
+{
+	obs_log(LOG_INFO, "media_previous");
+}
+
+int64_t media_get_duration(void *data)
+{
+	obs_log(LOG_INFO, "media_get_duration");
+	return 0;
+}
+
+int64_t media_get_time(void *data)
+{
+	obs_log(LOG_INFO, "media_get_time");
+	return 0;
+}
+
+void media_set_time(void *data, int64_t miliseconds)
+{
+	obs_log(LOG_INFO, "media_set_time");
+}
+
+enum obs_media_state media_get_state(void *data)
+{
+	obs_log(LOG_INFO, "media_get_state");
+	return OBS_MEDIA_STATE_NONE;
 }
 #pragma endregion
