@@ -278,7 +278,7 @@ void playlist_tick(void *data, float seconds)
 
 void playlist_video_render(void *data, gs_effect_t *effect)
 {
-	obs_log(LOG_INFO, "video_render");
+	// obs_log(LOG_INFO, "video_render");
 }
 
 void media_play_pause(void *data, bool pause)
