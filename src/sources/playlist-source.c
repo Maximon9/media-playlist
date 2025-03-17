@@ -48,15 +48,15 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	playlist_data->run = false;
 
-	playlist_data->current_media_source =
-		obs_source_create_private("ffmpeg_source", "current_media_source", settings);
+	// playlist_data->current_media_source =
+	// 	obs_source_create_private("ffmpeg_source", "current_media_source", settings);
 
-	if (playlist_data->current_media_source) {
-		obs_source_add_active_child(source, playlist_data->current_media_source);
-	}
+	// if (playlist_data->current_media_source) {
+	// 	obs_source_add_active_child(source, playlist_data->current_media_source);
+	// }
 
-	update_playlist_data(playlist_data, settings);
-	obs_frontend_add_event_callback(playlist_on_scene_switch, playlist_data);
+	// update_playlist_data(playlist_data, settings);
+	// obs_frontend_add_event_callback(playlist_on_scene_switch, playlist_data);
 
 	return playlist_data;
 }
@@ -67,15 +67,17 @@ void playlist_source_destroy(void *data)
 
 	struct PlaylistSource *playlist_data = data;
 
-	obs_source_release(playlist_data->current_media_source);
+	// if (playlist_data->current_media_source) {
+	// 	obs_source_release(playlist_data->current_media_source);
+	// }
 
-	obs_frontend_remove_event_callback(playlist_on_scene_switch, playlist_data);
+	// obs_frontend_remove_event_callback(playlist_on_scene_switch, playlist_data);
 
-	free_media_array(playlist_data->all_media);
+	// free_media_array(playlist_data->all_media);
 
-	if (playlist_data->current_media != NULL) {
-		free(playlist_data->current_media);
-	}
+	// if (playlist_data->current_media != NULL) {
+	// 	free(playlist_data->current_media);
+	// }
 
 	bfree(playlist_data);
 }
