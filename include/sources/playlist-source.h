@@ -51,9 +51,9 @@ obs_properties_t *make_playlist_properties();
 
 obs_properties_t *playlist_get_properties(void *data);
 
-void playlist_update(void *data, obs_data_t *settings);
-
 void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings);
+
+void playlist_update(void *data, obs_data_t *settings);
 
 void playlist_activate(void *data);
 
