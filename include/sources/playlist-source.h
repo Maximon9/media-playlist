@@ -63,6 +63,10 @@ void playlist_tick(void *data, float seconds);
 
 void playlist_video_render(void *data, gs_effect_t *effect);
 
+void playlist_save(void *data, obs_data_t *settings);
+
+void playlist_load(void *data, obs_data_t *settings);
+
 void media_play_pause(void *data, bool pause);
 
 void media_restart(void *data);
@@ -93,8 +97,12 @@ static struct obs_source_info playlist_source_template = {
 	.get_defaults = playlist_get_defaults,
 	.get_properties = playlist_get_properties,
 	.update = playlist_update,
+	.activate = playlist_activate,
+	.deactivate = playlist_deactivate,
 	.video_tick = playlist_tick,
 	.video_render = playlist_video_render,
+	.save = playlist_save,
+	.load = playlist_load,
 	.icon_type = OBS_ICON_TYPE_MEDIA,
 	.media_play_pause = media_play_pause,
 	.media_restart = media_restart,
