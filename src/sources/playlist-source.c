@@ -6,6 +6,30 @@ const char *playlist_source_name(void *data)
 	return "Playlist"; // This should match the filename (without extension) in data/
 }
 
+void play_video(struct PlaylistSource *playlist_data, size_t index)
+{
+	if (!playlist_data || !playlist_data->all_media || !playlist_data->current_media_source)
+		return;
+
+	if (index >= playlist_data->all_media->size)
+		return;
+
+	// Get video file path from the array
+	const MediaFileData *media_data = get_media(playlist_data->all_media, index);
+
+	if (!media_data)
+		return;
+
+	// Set file path in ffmpeg_source
+	obs_data_t *ffmpeg_settings = obs_data_create();
+	obs_data_set_string(ffmpeg_settings, "local_file", media_data->path);
+	obs_source_update(playlist_data->current_media_source, ffmpeg_settings);
+	obs_data_release(ffmpeg_settings);
+
+	// Set it as active
+	obs_source_media_play_pause(playlist_data->current_media_source, false);
+}
+
 void playlist_on_scene_switch(enum obs_frontend_event event, void *private_data)
 {
 	if (event == OBS_FRONTEND_EVENT_SCENE_CHANGED) {
@@ -22,6 +46,24 @@ void playlist_on_scene_switch(enum obs_frontend_event event, void *private_data)
 
 		if (source) {
 			playlist_data->run = true;
+
+			switch (playlist_data->playlist_start_behavior) {
+			case RESTART:
+				playlist_data->current_media_index = 0;
+				// playlist_data->current_media =
+				// 	get_media(playlist_data->all_media, playlist_data->current_media_index);
+				// playlist_data->current_media_source;
+				play_video(playlist_data, playlist_data->current_media_index);
+				break;
+			case UNPAUSE:
+				/* code */
+				break;
+			case PAUSE:
+				/* code */
+				break;
+			default:
+				break;
+			}
 		} else {
 			playlist_data->run = false;
 		}
@@ -39,7 +81,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	playlist_data->start_index = 0;
 	playlist_data->end_index = 0;
 
-	playlist_data->current_media = NULL;
+	// playlist_data->current_media = NULL;
 	playlist_data->current_media_index = 0;
 	playlist_data->loop_index = 0;
 	playlist_data->infinite = true;
@@ -69,9 +111,9 @@ void playlist_source_destroy(void *data)
 
 	free_media_array(playlist_data->all_media);
 
-	if (playlist_data->current_media != NULL) {
-		free(playlist_data->current_media);
-	}
+	// if (playlist_data->current_media != NULL) {
+	// 	free(playlist_data->current_media);
+	// }
 
 	bfree(playlist_data);
 	obs_source_release(playlist_data->source);

@@ -24,7 +24,7 @@ struct PlaylistSource {
 	bool infinite;
 	int loop_count;
 	MediaFileDataArray *all_media;
-	MediaFileData *current_media;
+	// const MediaFileData *current_media;
 	size_t current_media_index;
 	bool debug;
 #pragma endregion
@@ -34,6 +34,8 @@ struct PlaylistSource {
 };
 
 const char *playlist_source_name(void *data);
+
+void play_video(struct PlaylistSource *playlist_data, size_t index);
 
 void playlist_on_scene_switch(enum obs_frontend_event event, void *private_data);
 
