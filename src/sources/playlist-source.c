@@ -48,23 +48,23 @@ void playlist_on_scene_switch(enum obs_frontend_event event, void *private_data)
 			playlist_data->run = true;
 			obs_log(LOG_INFO, "We did it yay");
 
-			// switch (playlist_data->playlist_start_behavior) {
-			// case RESTART:
-			// 	playlist_data->current_media_index = 0;
-			// 	// playlist_data->current_media =
-			// 	// 	get_media(playlist_data->all_media, playlist_data->current_media_index);
-			// 	// playlist_data->current_media_source;
-			// 	play_video(playlist_data, playlist_data->current_media_index);
-			// 	break;
-			// case UNPAUSE:
-			// 	/* code */
-			// 	break;
-			// case PAUSE:
-			// 	/* code */
-			// 	break;
-			// default:
-			// 	break;
-			// }
+			switch (playlist_data->playlist_start_behavior) {
+			case RESTART:
+				playlist_data->current_media_index = 0;
+				// playlist_data->current_media =
+				// 	get_media(playlist_data->all_media, playlist_data->current_media_index);
+				// playlist_data->current_media_source;
+				play_video(playlist_data, playlist_data->current_media_index);
+				break;
+			case UNPAUSE:
+				/* code */
+				break;
+			case PAUSE:
+				/* code */
+				break;
+			default:
+				break;
+			}
 		} else {
 			playlist_data->run = false;
 		}
