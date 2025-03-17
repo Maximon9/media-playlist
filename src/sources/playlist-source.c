@@ -359,14 +359,14 @@ void playlist_update(void *data, obs_data_t *settings)
 
 void playlist_activate(void *data)
 {
-	// obs_log(LOG_INFO, "playlist_activate");
+	obs_log(LOG_INFO, "playlist_activate");
 	struct PlaylistSource *playlist_data = data;
 	obs_frontend_add_event_callback(playlist_on_scene_switch, playlist_data);
 }
 
 void playlist_deactivate(void *data)
 {
-	// obs_log(LOG_INFO, "playlist_deactivate");
+	obs_log(LOG_INFO, "playlist_deactivate");
 	struct PlaylistSource *playlist_data = data;
 	obs_frontend_remove_event_callback(playlist_on_scene_switch, playlist_data);
 }
