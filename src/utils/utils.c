@@ -192,12 +192,18 @@ const MediaFileData *get_media(MediaFileDataArray *media_array, size_t index)
 // Function to free the dynamic string array
 void free_media_array(MediaFileDataArray *media_array)
 {
-	for (size_t i = 0; i < media_array->size; i++) {
-		free(media_array->data[i].path);
-		free(media_array->data[i].filename);
+	if (media_array != NULL) {
+		if (media_array->size > 0) {
+			for (size_t i = 0; i < media_array->size; i++) {
+				free(media_array->data[i].path);
+				free(media_array->data[i].filename);
+			}
+		}
+		if (media_array->data != NULL) {
+			free(media_array->data);
+		}
+		free(media_array);
 	}
-	free(media_array->data);
-	free(media_array);
 }
 
 /* char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent)

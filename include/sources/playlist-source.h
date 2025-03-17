@@ -13,6 +13,7 @@ static const char *video_filter = " (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.
 static const char *audio_filter = " (*.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
 
 struct PlaylistSource {
+#pragma region Public
 	obs_source_t *source;
 	obs_source_t *current_media_source;
 	int start_index;
@@ -26,9 +27,15 @@ struct PlaylistSource {
 	MediaFileData *current_media;
 	size_t current_media_index;
 	bool debug;
+#pragma endregion
+#pragma region Private
+	bool run;
+#pragma endregion
 };
 
 const char *playlist_source_name(void *data);
+
+void playlist_on_scene_switch(enum obs_frontend_event event, void *private_data);
 
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source);
 
@@ -101,5 +108,4 @@ static struct obs_source_info playlist_source_template = {
 
 };
 
-void playlist_on_scene_switch(enum obs_frontend_event event, void *private_data);
 #endif // PLAYLIST_SOURCE_H
