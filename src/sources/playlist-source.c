@@ -55,8 +55,6 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 		obs_source_add_active_child(source, playlist_data->current_media_source);
 	}
 
-	// obs_frontend_add_event_callback(playlist_on_scene_switch, playlist_data);
-
 	update_playlist_data(playlist_data, settings);
 
 	return playlist_data;
@@ -71,8 +69,6 @@ void playlist_source_destroy(void *data)
 	if (playlist_data->current_media_source) {
 		obs_source_release(playlist_data->current_media_source);
 	}
-
-	// obs_frontend_remove_event_callback(playlist_on_scene_switch, playlist_data);
 
 	free_media_array(playlist_data->all_media);
 
@@ -322,12 +318,16 @@ void playlist_update(void *data, obs_data_t *settings)
 
 void playlist_activate(void *data)
 {
-	obs_log(LOG_INFO, "playlist_activate");
+	// struct PlaylistSource *playlist_data = data;
+	// obs_frontend_add_event_callback(playlist_on_scene_switch, playlist_data);
+	// obs_log(LOG_INFO, "playlist_activate");
 }
 
 void playlist_deactivate(void *data)
 {
-	obs_log(LOG_INFO, "playlist_deactivate");
+	// struct PlaylistSource *playlist_data = data;
+	// obs_frontend_remove_event_callback(playlist_on_scene_switch, playlist_data);
+	// obs_log(LOG_INFO, "playlist_deactivate");
 }
 
 void playlist_tick(void *data, float seconds)

@@ -200,6 +200,7 @@ MediaFileDataArray *obs_data_array_retain(obs_data_array_t *obs_playlist)
 		push_media_back(media_file_data_array, element);
 		obs_data_release(data);
 	}
+	obs_data_array_release(obs_playlist);
 	return media_file_data_array;
 }
 
