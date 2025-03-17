@@ -22,7 +22,6 @@ void playlist_on_scene_switch(enum obs_frontend_event event, void *private_data)
 
 		if (source) {
 			playlist_data->run = true;
-			obs_log(LOG_INFO, "We did it cool");
 		} else {
 			playlist_data->run = false;
 		}
@@ -62,8 +61,6 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 void playlist_source_destroy(void *data)
 {
-	obs_log(LOG_INFO, "It got deaded");
-
 	struct PlaylistSource *playlist_data = data;
 
 	if (playlist_data->current_media_source) {
@@ -318,14 +315,14 @@ void playlist_update(void *data, obs_data_t *settings)
 
 void playlist_activate(void *data)
 {
-	obs_log(LOG_INFO, "playlist_activate");
+	// obs_log(LOG_INFO, "playlist_activate");
 	struct PlaylistSource *playlist_data = data;
 	obs_frontend_add_event_callback(playlist_on_scene_switch, playlist_data);
 }
 
 void playlist_deactivate(void *data)
 {
-	obs_log(LOG_INFO, "playlist_deactivate");
+	// obs_log(LOG_INFO, "playlist_deactivate");
 	struct PlaylistSource *playlist_data = data;
 	obs_frontend_remove_event_callback(playlist_on_scene_switch, playlist_data);
 }
