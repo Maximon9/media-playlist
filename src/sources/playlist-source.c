@@ -115,7 +115,7 @@ obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 	int last_index = all_media_size - 1;
 
 	if (last_index < 0) {
-		last_index -= 1;
+		last_index += 1;
 	}
 
 	obs_properties_add_int_slider(props, "start_index", "Start Index", 0, last_index, 1);
@@ -225,7 +225,7 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	int last_index = all_media_size - 1;
 
 	if (last_index < 0) {
-		last_index -= 1;
+		last_index += 1;
 	}
 
 	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX) {
