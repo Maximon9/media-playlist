@@ -31,6 +31,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	}
 
 	update_playlist_data(playlist_data, settings);
+	obs_frontend_add_event_callback(playlist_on_scene_switch, playlist_data);
 
 	return playlist_data;
 }
@@ -38,6 +39,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 void playlist_source_destroy(void *data)
 {
 	struct PlaylistSource *playlist_data = data;
+	obs_frontend_remove_event_callback(playlist_on_scene_switch, playlist_data);
 	if (playlist_data->all_media != NULL && playlist_data->all_media->size > 0) {
 		free_media_array(playlist_data->all_media);
 	}
@@ -327,5 +329,25 @@ enum obs_media_state media_get_state(void *data)
 {
 	obs_log(LOG_INFO, "media_get_state");
 	return OBS_MEDIA_STATE_NONE;
+}
+
+void playlist_on_scene_switch(enum obs_frontend_event event, void *private_data)
+{
+	if (event == OBS_FRONTEND_EVENT_SCENE_CHANGED) {
+		// Example: Get the current scene and log its name
+		obs_source_t *scene_source = obs_frontend_get_current_scene();
+		struct PlaylistSource *playlist_data = private_data;
+
+		const char *source_name = obs_source_get_name(playlist_data->source);
+
+		obs_scene_t *scene = obs_scene_from_source(scene_source);
+
+		// Check if a source with the name "my_source" exists in the scene
+		obs_sceneitem_t *source = obs_scene_find_source_recursive(scene, source_name);
+
+		if (source) {
+			obs_log(LOG_INFO, "Testing, this coolness");
+		}
+	}
 }
 #pragma endregion

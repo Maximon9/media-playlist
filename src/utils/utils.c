@@ -1,3 +1,5 @@
+#pragma region Main
+
 #include "../include/utils/utils.h"
 
 char *obs_array_to_string(obs_data_array_t *array)
@@ -322,3 +324,5 @@ void obs_log_media_array(int log_level, const MediaFileDataArray *media_array, s
 	obs_log(log_level, result);
 	free(result);
 }
+
+#pragma endregion

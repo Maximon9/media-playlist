@@ -2,6 +2,7 @@
 #define PLAYLIST_SOURCE_H
 
 #include <obs-module.h>
+#include <obs-frontend-api.h>
 #include <plugin-support.h>
 #include "../include/utils/utils.h"
 #include "../include/utils/enum-utils.h"
@@ -100,4 +101,5 @@ static struct obs_source_info playlist_source_template = {
 
 };
 
+void playlist_on_scene_switch(enum obs_frontend_event event, void *private_data);
 #endif // PLAYLIST_SOURCE_H
