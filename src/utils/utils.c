@@ -228,7 +228,7 @@ void free_media_array(MediaFileDataArray *media_array)
 	return result;
 } */
 
-MediaFileDataArray *create_meda_file_data_array_from_obs_array(obs_data_array_t *obs_playlist)
+MediaFileDataArray *obs_data_array_retain(obs_data_array_t *obs_playlist)
 {
 	size_t array_size = obs_data_array_count(obs_playlist);
 	if (array_size == 0)

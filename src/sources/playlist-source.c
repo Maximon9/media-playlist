@@ -23,9 +23,12 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	playlist_data->infinite = true;
 	playlist_data->loop_count = 0;
 
-	// playlist_data->current_media_source =
-	// 	obs_source_create_private("ffmpeg_source", "current_media_source", settings);
-	// obs_source_add_audio_capture_callback(playlist_data->current_media_source, mps_audio_callback, playlist_data);
+	playlist_data->current_media_source =
+		obs_source_create_private("ffmpeg_source", "current_media_source", settings);
+
+	if (playlist_data->current_media_source) {
+		obs_source_add_active_child(source, playlist_data->current_media_source);
+	}
 
 	update_playlist_data(playlist_data, settings);
 
@@ -174,7 +177,7 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 		free_media_array(playlist_data->all_media);
 	}
 
-	playlist_data->all_media = create_meda_file_data_array_from_obs_array(obs_data_get_array(settings, "playlist"));
+	playlist_data->all_media = obs_data_array_retain(obs_data_get_array(settings, "playlist"));
 	int all_media_size = 0;
 
 	if (playlist_data->all_media != NULL) {
@@ -275,7 +278,7 @@ void playlist_tick(void *data, float seconds)
 
 void playlist_video_render(void *data, gs_effect_t *effect)
 {
-	obs_log(LOG_INFO, "playlist_video_render");
+	obs_log(LOG_INFO, "video_render");
 }
 
 void media_play_pause(void *data, bool pause)
