@@ -166,7 +166,6 @@ void free_media_array(MediaFileDataArray *media_array)
 		if (media_array->data != NULL) {
 			free(media_array->data);
 		}
-		obs_log(LOG_INFO, "Test: %d, %d", media_array->size, media_array->capacity);
 		free(media_array);
 	}
 }
