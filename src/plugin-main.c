@@ -24,17 +24,9 @@ OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 
 // void _on_scene_switch(enum obs_frontend_event event, void *private_data) {}
-// MediaFileDataArray test_array;
 
 bool obs_module_load(void)
 {
-	// init_media_array(&test_array, 4);
-
-	// push_media_back(&test_array, "first/path");
-	// push_media_back(&test_array, "first/path1");
-	// push_media_back(&test_array, "first/path2");
-
-	obs_log(LOG_INFO, "plugin loaded successfully (version %s)", PLUGIN_VERSION);
 	obs_register_source(&playlist_source_template);
 	// obs_frontend_add_event_callback(_on_scene_switch, NULL);
 	return true;
@@ -42,7 +34,6 @@ bool obs_module_load(void)
 
 void obs_module_unload(void)
 {
-	// free_media_array(&test_array);
 	// obs_frontend_remove_event_callback(_on_scene_switch, NULL);
 	obs_log(LOG_INFO, "plugin unloaded");
 }

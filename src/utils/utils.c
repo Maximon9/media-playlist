@@ -167,6 +167,7 @@ void free_media_array(MediaFileDataArray *media_array)
 			free(media_array->data);
 		}
 		obs_log(LOG_INFO, "Test: %d, %d", media_array->size, media_array->capacity);
+		free(media_array);
 	}
 }
 
@@ -176,10 +177,12 @@ MediaFileDataArray *obs_data_array_retain(obs_data_array_t *obs_playlist)
 	if (array_size == 0)
 		return NULL;
 
-	MediaFileDataArray media_file_data_array;
+	MediaFileDataArray *media_file_data_array = malloc(sizeof(MediaFileDataArray));
+	if (!media_file_data_array)
+		return NULL;
 
 	// Initialize with an initial capacity of 4 (or any number you choose)
-	init_media_array(&media_file_data_array, 4);
+	init_media_array(media_file_data_array, 4);
 
 	for (size_t i = 0; i < array_size; ++i) {
 		obs_data_t *data = obs_data_array_item(obs_playlist, i);
@@ -194,10 +197,10 @@ MediaFileDataArray *obs_data_array_retain(obs_data_array_t *obs_playlist)
 			continue;               // Skip if no valid string was found
 		}
 		// Use the method call syntax; this passes media_file_data_array as the first parameter.
-		push_media_back(&media_file_data_array, element);
+		push_media_back(media_file_data_array, element);
 		obs_data_release(data);
 	}
-	return &media_file_data_array;
+	return media_file_data_array;
 }
 
 char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent)
