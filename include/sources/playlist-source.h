@@ -3,11 +3,11 @@
 
 #include <obs-module.h>
 #include <obs-frontend-api.h>
-// #include <util/threading.h>
+#include <util/threading.h>
 // #include <util/platform.h>
 // #include <util/darray.h>
 // #include <util/dstr.h>
-// #include <util/deque.h>
+#include <util/deque.h>
 #include <plugin-support.h>
 #include "../include/utils/utils.h"
 #include "../include/utils/enum-utils.h"
@@ -37,6 +37,12 @@ struct PlaylistSource {
 #pragma region Private
 	bool run;
 	bool paused;
+	pthread_mutex_t mutex;
+	struct deque audio_data[MAX_AUDIO_CHANNELS];
+	struct deque audio_frames;
+	struct deque audio_timestamps;
+	size_t num_channels;
+	pthread_mutex_t audio_mutex;
 #pragma endregion
 };
 
@@ -73,6 +79,9 @@ void playlist_deactivate(void *data);
 void playlist_video_tick(void *data, float seconds);
 
 void playlist_video_render(void *data, gs_effect_t *effect);
+
+bool playlist_audio_render(void *data, uint64_t *ts_out, struct obs_source_audio_mix *audio_output, uint32_t mixers,
+			   size_t channels, size_t sample_rate);
 
 void playlist_save(void *data, obs_data_t *settings);
 
@@ -112,6 +121,7 @@ static struct obs_source_info playlist_source_template = {
 	.deactivate = playlist_deactivate,
 	.video_tick = playlist_video_tick,
 	.video_render = playlist_video_render,
+	.audio_render = playlist_audio_render,
 	.save = playlist_save,
 	.load = playlist_load,
 	.icon_type = OBS_ICON_TYPE_MEDIA,

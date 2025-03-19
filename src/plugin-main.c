@@ -62,6 +62,8 @@ void on_scene_initialized(enum obs_frontend_event event, void *private_data)
 
 		obs_data_release(settings);
 
+		// obs_source_add_audio_capture_callback(media_source, playlist_audio_callback, NULL);
+
 		if (!media_source) {
 			obs_log(LOG_ERROR, "Failed to create media source");
 			return;
@@ -85,7 +87,7 @@ bool obs_module_load(void)
 {
 	obs_register_source(&playlist_source_template);
 
-	obs_frontend_add_event_callback(on_scene_initialized, NULL);
+	// obs_frontend_add_event_callback(on_scene_initialized, NULL);
 
 	return true;
 }
@@ -93,7 +95,7 @@ bool obs_module_load(void)
 // Called when the plugin is unloaded
 void obs_module_unload(void)
 {
-	obs_frontend_remove_event_callback(on_scene_initialized, NULL);
+	// obs_frontend_remove_event_callback(on_scene_initialized, NULL);
 
 	// if (media_source) {
 	// 	obs_source_release(media_source);

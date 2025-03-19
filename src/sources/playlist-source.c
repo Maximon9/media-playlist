@@ -34,20 +34,20 @@ void play_video(struct PlaylistSource *playlist_data, size_t index)
 	obs_source_media_play_pause(playlist_data->source, false);
 }
 
-// void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted)
-// {
-// 	struct PlaylistSource *playlist_data = data;
-// 	UNUSED_PARAMETER(muted);
-// 	UNUSED_PARAMETER(source);
-// 	pthread_mutex_lock(&playlist_data->audio_mutex);
-// 	size_t size = audio_data->frames * sizeof(float);
-// 	for (size_t i = 0; i < playlist_data->num_channels; i++) {
-// 		deque_push_back(&playlist_data->audio_data[i], audio_data->data[i], size);
-// 	}
-// 	deque_push_back(&playlist_data->audio_frames, &audio_data->frames, sizeof(audio_data->frames));
-// 	deque_push_back(&playlist_data->audio_timestamps, &audio_data->timestamp, sizeof(audio_data->timestamp));
-// 	pthread_mutex_unlock(&playlist_data->audio_mutex);
-// }
+void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted)
+{
+	UNUSED_PARAMETER(muted);
+	UNUSED_PARAMETER(source);
+	struct PlaylistSource *playlist_data = data;
+	pthread_mutex_lock(&playlist_data->audio_mutex);
+	size_t size = audio_data->frames * sizeof(float);
+	for (size_t i = 0; i < playlist_data->num_channels; i++) {
+		deque_push_back(&playlist_data->audio_data[i], audio_data->data[i], size);
+	}
+	deque_push_back(&playlist_data->audio_frames, &audio_data->frames, sizeof(audio_data->frames));
+	deque_push_back(&playlist_data->audio_timestamps, &audio_data->timestamp, sizeof(audio_data->timestamp));
+	pthread_mutex_unlock(&playlist_data->audio_mutex);
+}
 
 #pragma endregion
 
@@ -93,6 +93,14 @@ void playlist_source_destroy(void *data)
 	if (playlist_data->media_source_settings != NULL) {
 		obs_data_release(playlist_data->media_source_settings);
 	}
+
+	for (size_t i = 0; i < MAX_AUDIO_CHANNELS; i++) {
+		deque_free(&playlist_data->audio_data[i]);
+	}
+	deque_free(&playlist_data->audio_frames);
+	deque_free(&playlist_data->audio_timestamps);
+	pthread_mutex_destroy(&playlist_data->mutex);
+	pthread_mutex_destroy(&playlist_data->audio_mutex);
 
 	free_media_array(playlist_data->all_media);
 
@@ -374,13 +382,26 @@ void playlist_activate(void *data)
 
 		// const char *video_path =
 		// 	"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4"; // Replace with your actual video path
-		// obs_data_set_string(ffmpeg_settings, S_FFMPEG_LOCAL_FILE, video_path);
+		// obs_data_set_string(playlist_data->media_source_settings, S_FFMPEG_LOCAL_FILE, video_path);
+
+		obs_data_set_bool(playlist_data->media_source_settings, "log_changes", true);
 		playlist_data->media_source = obs_source_create_private("ffmpeg_source", "Video Source",
 									playlist_data->media_source_settings);
 
 		obs_source_add_active_child(playlist_data->source, playlist_data->media_source);
-		// obs_source_add_audio_capture_callback(playlist_data->media_source, playlist_audio_callback,
-		// 				      playlist_data);
+		obs_source_add_audio_capture_callback(playlist_data->media_source, playlist_audio_callback,
+						      playlist_data);
+
+		pthread_mutex_init_value(&playlist_data->mutex);
+		if (pthread_mutex_init(&playlist_data->mutex, NULL) != 0)
+			goto error;
+
+		pthread_mutex_init_value(&playlist_data->audio_mutex);
+		if (pthread_mutex_init(&playlist_data->audio_mutex, NULL) != 0)
+			goto error;
+	error:
+		playlist_source_destroy(playlist_data);
+		return;
 	}
 
 	playlist_data->run = true;
@@ -412,15 +433,31 @@ void playlist_deactivate(void *data)
 
 void playlist_video_tick(void *data, float seconds)
 {
-	// struct PlaylistSource *playlist_data = data;
+	struct PlaylistSource *playlist_data = data;
+	//UNUSED_PARAMETER(data);
+	UNUSED_PARAMETER(seconds);
 
-	// const audio_t *a = obs_get_audio();
-	// const struct audio_output_info *aoi = audio_output_get_info(a)
-
-	// if (playlist_data->debug) {
-	// 	obs_log_media_array(LOG_INFO, playlist_data->all_media, 90, "    ");
-	// }
-	// obs_frontend_get_current_scene();
+	const audio_t *a = obs_get_audio();
+	const struct audio_output_info *aoi = audio_output_get_info(a);
+	pthread_mutex_lock(&playlist_data->audio_mutex);
+	while (playlist_data->audio_frames.size > 0) {
+		struct obs_source_audio audio;
+		audio.format = aoi->format;
+		audio.samples_per_sec = aoi->samples_per_sec;
+		audio.speakers = aoi->speakers;
+		deque_pop_front(&playlist_data->audio_frames, &audio.frames, sizeof(audio.frames));
+		deque_pop_front(&playlist_data->audio_timestamps, &audio.timestamp, sizeof(audio.timestamp));
+		for (size_t i = 0; i < playlist_data->num_channels; i++) {
+			audio.data[i] =
+				(uint8_t *)playlist_data->audio_data[i].data + playlist_data->audio_data[i].start_pos;
+		}
+		obs_source_output_audio(playlist_data->source, &audio);
+		for (size_t i = 0; i < playlist_data->num_channels; i++) {
+			deque_pop_front(&playlist_data->audio_data[i], NULL, audio.frames * sizeof(float));
+		}
+	}
+	playlist_data->num_channels = audio_output_get_channels(a);
+	pthread_mutex_unlock(&playlist_data->audio_mutex);
 }
 
 void playlist_video_render(void *data, gs_effect_t *effect)
@@ -437,6 +474,41 @@ void playlist_video_render(void *data, gs_effect_t *effect)
 	// obs_log(LOG_INFO, "video_render");
 }
 
+bool playlist_audio_render(void *data, uint64_t *ts_out, struct obs_source_audio_mix *audio_output, uint32_t mixers,
+			   size_t channels, size_t sample_rate)
+{
+	struct PlaylistSource *playlist_data = data;
+	if (!playlist_data->media_source)
+		return false;
+
+	struct obs_source_audio_mix child_audio;
+	uint64_t source_ts;
+
+	/*if (obs_source_audio_pending(mps->current_media_source))
+		return false;*/
+
+	source_ts = obs_source_get_audio_timestamp(playlist_data->media_source);
+	if (!source_ts)
+		return false;
+
+	obs_source_get_audio_mix(playlist_data->media_source, &child_audio);
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0)
+			continue;
+
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = child_audio.output[mix].data[ch];
+
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
+
+	*ts_out = source_ts;
+
+	UNUSED_PARAMETER(sample_rate);
+	return true;
+}
 void playlist_save(void *data, obs_data_t *settings)
 {
 	obs_log(LOG_INFO, "playlist_save");
@@ -541,3 +613,103 @@ enum obs_media_state media_get_state(void *data)
 }
 
 #pragma endregion
+/*
+obs_encoder_t *obs_audio_encoder_create(const char *id, const char *name, obs_data_t *settings, size_t mixer_idx, obs_data_t *hotkey_data);
+bool obs_audio_monitoring_available(void);
+audio_t *obs_get_audio(void);
+bool obs_get_audio_info(struct obs_audio_info *oai);
+void obs_get_audio_monitoring_device(const char **name, const char **id);
+bool obs_set_audio_monitoring_device(const char *name, const char *id);
+void obs_enum_audio_monitoring_devices(obs_enum_audio_device_cb cb, void *data);
+bool obs_reset_audio2(const struct obs_audio_info2 *oai);
+bool obs_reset_audio(const struct obs_audio_info *oai);
+void obs_reset_audio_monitoring(void);
+audio_t *obs_output_audio(const obs_output_t *output);
+bool obs_source_audio_active(const obs_source_t *source);
+bool obs_source_audio_pending(const obs_source_t *source);
+audio_t *obs_encoder_audio(const obs_encoder_t *encoder);
+void obs_add_raw_audio_callback(size_t mix_idx, const struct audio_convert_info *conversion, audio_output_callback_t callback, void *param);
+obs_encoder_t *obs_output_get_audio_encoder(const obs_output_t *output, size_t idx);
+void obs_output_set_audio_conversion(obs_output_t *output, const struct audio_convert_info *conversion);
+void obs_output_set_audio_encoder(obs_output_t *output, obs_encoder_t *encoder, size_t idx);
+void obs_remove_raw_audio_callback(size_t mix_idx, audio_output_callback_t callback, void *param);
+void obs_source_add_audio_capture_callback(obs_source_t *source, obs_source_audio_capture_t callback, void *param);
+void obs_source_add_audio_pause_callback(obs_source_t *source, signal_callback_t callback, void *param);
+void obs_source_get_audio_mix(const obs_source_t *source, struct obs_source_audio_mix *audio);
+uint32_t obs_source_get_audio_mixers(const obs_source_t *source);
+uint64_t obs_source_get_audio_timestamp(const obs_source_t *source);
+void obs_source_set_audio_active(obs_source_t *source, bool show);
+void obs_source_set_audio_mixers(obs_source_t *source, uint32_t mixers);
+bool obs_transition_audio_render(obs_source_t *transition, uint64_t *ts_out, struct obs_source_audio_mix *audio, uint32_t mixers, size_t channels, size_t sample_rate, obs_transition_audio_mix_callback_t mix_a_callback, obs_transition_audio_mix_callback_t mix_b_callback);
+void obs_encoder_set_audio(obs_encoder_t *encoder, audio_t *audio);
+void obs_hotkeys_set_audio_hotkeys_translations(const char *mute, const char *unmute, const char *push_to_mute, const char *push_to_talk);
+void obs_source_output_audio(obs_source_t *source, const struct obs_source_audio *audio);
+void obs_source_remove_audio_capture_callback(obs_source_t *source, obs_source_audio_capture_t callback, void *param);
+void obs_source_remove_audio_pause_callback(obs_source_t *source, signal_callback_t callback, void *param);
+const char *obs_get_output_supported_audio_codecs(const char *id);
+const char *obs_output_get_supported_audio_codecs(const obs_output_t *output);
+const char **obs_service_get_supported_audio_codecs(const obs_service_t *service);
+*/
+
+/*
+scene
+group
+audio_line
+image_source
+color_source
+color_source_v2
+color_source_v3
+slideshow
+slideshow_v2
+browser_source
+ffmpeg_source
+mask_filter
+mask_filter_v2
+crop_filter
+gain_filter
+basic_eq_filter
+hdr_tonemap_filter
+color_filter
+color_filter_v2
+scale_filter
+scroll_filter
+gpu_delay
+color_key_filter
+color_key_filter_v2
+clut_filter
+sharpness_filter
+sharpness_filter_v2
+chroma_key_filter
+chroma_key_filter_v2
+async_delay_filter
+noise_suppress_filter
+noise_suppress_filter_v2
+invert_polarity_filter
+noise_gate_filter
+compressor_filter
+limiter_filter
+expander_filter
+upward_compressor_filter
+luma_key_filter
+luma_key_filter_v2
+text_gdiplus
+text_gdiplus_v2
+text_gdiplus_v3
+cut_transition
+fade_transition
+swipe_transition
+slide_transition
+obs_stinger_transition
+fade_to_color_transition
+wipe_transition
+vst_filter
+text_ft2_source
+text_ft2_source_v2
+monitor_capture
+window_capture
+game_capture
+dshow_input
+wasapi_input_capture
+wasapi_output_capture
+wasapi_process_output_capture
+*/
