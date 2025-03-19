@@ -24,12 +24,22 @@ void play_video(struct PlaylistSource *playlist_data, size_t index)
 	obs_data_t *ffmpeg_settings = obs_data_create();
 
 	obs_log(LOG_INFO, media_data->path);
+	obs_data_set_bool(ffmpeg_settings, S_FFMPEG_IS_LOCAL_FILE, true);
 	obs_data_set_string(ffmpeg_settings, S_FFMPEG_LOCAL_FILE, media_data->path);
+
+	obs_log(LOG_INFO, " PRINTING: \n%s", obs_data_get_json_pretty(ffmpeg_settings));
+
 	obs_source_update(playlist_data->current_media_source, ffmpeg_settings);
 	obs_data_release(ffmpeg_settings);
 
+	enum obs_media_state state = obs_source_media_get_state(playlist_data->source);
+	obs_log(LOG_INFO, "Media source state before play: %d", state);
+
 	// Set it as active
 	obs_source_media_play_pause(playlist_data->source, false);
+
+	state = obs_source_media_get_state(playlist_data->source);
+	obs_log(LOG_INFO, "Media source state after play: %d", state);
 }
 #pragma endregion
 
@@ -58,8 +68,12 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	playlist_data->run = false;
 	playlist_data->paused = false;
 
+	obs_data_t *ffmpeg_settings = obs_data_create();
 	playlist_data->current_media_source =
-		obs_source_create_private("ffmpeg_source", "current_media_source", settings);
+		// obs_source_create_private("ffmpeg_source", "current_media_source", ffmpeg_settings);
+		obs_source_create("ffmpeg_source", "current_media_source", ffmpeg_settings, NULL);
+
+	obs_data_release(ffmpeg_settings);
 
 	if (playlist_data->current_media_source) {
 		obs_source_add_active_child(playlist_data->source, playlist_data->current_media_source);
@@ -236,24 +250,27 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 		last_index += 1;
 	}
 
+	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX ||
+	    playlist_data->playlist_end_behavior == LOOP_AT_END) {
+		bool infinite = obs_data_get_bool(settings, "infinite");
+		if (infinite != playlist_data->infinite) {
+			update_properties = true;
+		}
+		playlist_data->infinite = infinite;
+	}
 	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX) {
 		bool update_loop_index_ui = false;
 
 		int loop_index = (int)obs_data_get_int(settings, "loop_index");
-		bool infinite = obs_data_get_bool(settings, "infinite");
 		int loop_count = (int)obs_data_get_int(settings, "loop_count");
 
 		if (playlist_data->debug == true) {
 			obs_log(LOG_INFO, "Infinite New Value: %s", loop_index);
-			obs_log(LOG_INFO, "Infinite New Value: %s", infinite == true ? "true" : "false");
+			obs_log(LOG_INFO, "Infinite New Value: %s", playlist_data->infinite == true ? "true" : "false");
 			obs_log(LOG_INFO, "Infinite New Value: %s", loop_count);
-		}
-		if (infinite != playlist_data->infinite) {
-			update_properties = true;
 		}
 
 		playlist_data->loop_index = loop_index;
-		playlist_data->infinite = infinite;
 		playlist_data->loop_count = loop_count;
 
 		if (playlist_data->loop_index < 0) {
