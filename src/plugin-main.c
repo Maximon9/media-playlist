@@ -38,14 +38,14 @@ void on_scene_initialized(enum obs_frontend_event event, void *private_data)
 
 	obs_scene_t *scene = obs_scene_from_source(scene_source);
 
-		if (!scene) {
+	if (!scene) {
 		obs_log(LOG_ERROR, "Failed to get current scene after initialization");
 		return;
 	}
 	const char *scene_name = obs_source_get_name(scene_source);
-	obs_log(LOG_INFO, "%s", scene_name);
+	obs_log(LOG_INFO, "PRINTING Scene Name %s %d %d", scene_name, !media_source, scene_name == "Starting Soon");
 
-	if (!media_source && scene_name == "Starting Soon") {
+	if (media_source == NULL && scene_name == "Starting Soon") {
 		obs_data_t *settings = obs_data_create();
 		if (!settings) {
 			obs_log(LOG_ERROR, "Failed to create settings data");
@@ -74,7 +74,7 @@ void on_scene_initialized(enum obs_frontend_event event, void *private_data)
 	}
 
 	// Start media playback
-	if (media_source) {
+	if (media_source != NULL) {
 		obs_source_media_play_pause(media_source, false); // Play the media
 		obs_log(LOG_INFO, "Media playback started");
 	}
