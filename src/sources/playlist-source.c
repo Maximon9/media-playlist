@@ -1,11 +1,7 @@
 #pragma region Main
 #include "../include/sources/playlist-source.h"
 
-const char *playlist_source_name(void *data)
-{
-	return "Playlist"; // This should match the filename (without extension) in data/
-}
-
+#pragma region Media Functions
 void play_video(struct PlaylistSource *playlist_data, size_t index)
 {
 	if (!playlist_data || !playlist_data->all_media || !playlist_data->current_media_source)
@@ -29,46 +25,11 @@ void play_video(struct PlaylistSource *playlist_data, size_t index)
 	// Set it as active
 	obs_source_media_play_pause(playlist_data->current_media_source, false);
 }
+#pragma endregion
 
-void playlist_on_scene_switch(enum obs_frontend_event event, void *private_data)
+const char *playlist_source_name(void *data)
 {
-	if (event == OBS_FRONTEND_EVENT_SCENE_CHANGED) {
-		// Example: Get the current scene and log its name
-		obs_source_t *scene_source = obs_frontend_get_current_scene();
-		struct PlaylistSource *playlist_data = private_data;
-
-		const char *source_name = obs_source_get_name(playlist_data->source);
-
-		obs_scene_t *scene = obs_scene_from_source(scene_source);
-
-		// Check if a source with the name "my_source" exists in the scene
-		obs_sceneitem_t *source = obs_scene_find_source_recursive(scene, source_name);
-
-		if (source) {
-			playlist_data->run = true;
-			obs_log(LOG_INFO, "We did it yay");
-
-			switch (playlist_data->playlist_start_behavior) {
-			case RESTART:
-				playlist_data->current_media_index = 0;
-				// playlist_data->current_media =
-				// 	get_media(playlist_data->all_media, playlist_data->current_media_index);
-				// playlist_data->current_media_source;
-				play_video(playlist_data, playlist_data->current_media_index);
-				break;
-			case UNPAUSE:
-				/* code */
-				break;
-			case PAUSE:
-				/* code */
-				break;
-			default:
-				break;
-			}
-		} else {
-			playlist_data->run = false;
-		}
-	}
+	return "Playlist"; // This should match the filename (without extension) in data/
 }
 
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
@@ -98,7 +59,6 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	}
 
 	update_playlist_data(playlist_data, settings);
-	playlist_on_scene_switch(OBS_FRONTEND_EVENT_SCENE_CHANGED, playlist_data);
 
 	return playlist_data;
 }
@@ -361,14 +321,31 @@ void playlist_activate(void *data)
 {
 	obs_log(LOG_INFO, "playlist_activate");
 	struct PlaylistSource *playlist_data = data;
-	obs_frontend_add_event_callback(playlist_on_scene_switch, playlist_data);
+	playlist_data->run = true;
+
+	switch (playlist_data->playlist_start_behavior) {
+	case RESTART:
+		playlist_data->current_media_index = 0;
+		// playlist_data->current_media =
+		// 	get_media(playlist_data->all_media, playlist_data->current_media_index);
+		// playlist_data->current_media_source;
+		play_video(playlist_data, playlist_data->current_media_index);
+		break;
+	case UNPAUSE:
+		/* code */
+		break;
+	case PAUSE:
+		/* code */
+		break;
+	default:
+		break;
+	}
 }
 
 void playlist_deactivate(void *data)
 {
 	obs_log(LOG_INFO, "playlist_deactivate");
-	struct PlaylistSource *playlist_data = data;
-	obs_frontend_remove_event_callback(playlist_on_scene_switch, playlist_data);
+	// struct PlaylistSource *playlist_data = data;
 }
 
 void playlist_tick(void *data, float seconds)

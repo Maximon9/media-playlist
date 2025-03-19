@@ -23,17 +23,13 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 
-// void _on_scene_switch(enum obs_frontend_event event, void *private_data) {}
-
 bool obs_module_load(void)
 {
 	obs_register_source(&playlist_source_template);
-	// obs_frontend_add_event_callback(_on_scene_switch, NULL);
 	return true;
 }
 
 void obs_module_unload(void)
 {
-	// obs_frontend_remove_event_callback(_on_scene_switch, NULL);
 	obs_log(LOG_INFO, "plugin unloaded");
 }

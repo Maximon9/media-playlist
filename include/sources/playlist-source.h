@@ -2,7 +2,6 @@
 #define PLAYLIST_SOURCE_H
 
 #include <obs-module.h>
-#include <obs-frontend-api.h>
 #include <plugin-support.h>
 #include "../include/utils/utils.h"
 #include "../include/utils/enum-utils.h"
@@ -33,11 +32,11 @@ struct PlaylistSource {
 #pragma endregion
 };
 
-const char *playlist_source_name(void *data);
-
+#pragma region Media Functions
 void play_video(struct PlaylistSource *playlist_data, size_t index);
+#pragma endregion
 
-void playlist_on_scene_switch(enum obs_frontend_event event, void *private_data);
+const char *playlist_source_name(void *data);
 
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source);
 
