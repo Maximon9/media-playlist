@@ -380,6 +380,7 @@ void playlist_load(void *data, obs_data_t *settings)
 
 void media_play_pause(void *data, bool pause)
 {
+	obs_log(LOG_INFO, "We be playing the video");
 	struct PlaylistSource *playlist_data = data;
 
 	obs_source_media_play_pause(playlist_data->current_media_source, pause);
@@ -393,7 +394,9 @@ void media_restart(void *data)
 
 void media_stop(void *data)
 {
-	obs_log(LOG_INFO, "media_stop");
+	struct PlaylistSource *playlist_data = data;
+
+	obs_source_media_stop(playlist_data->current_media_source);
 }
 
 void media_next(void *data)
@@ -408,14 +411,16 @@ void media_previous(void *data)
 
 int64_t media_get_duration(void *data)
 {
-	obs_log(LOG_INFO, "media_get_duration");
-	return 0;
+	struct PlaylistSource *playlist_data = data;
+
+	return obs_source_media_get_duration(playlist_data->current_media_source);
 }
 
 int64_t media_get_time(void *data)
 {
-	obs_log(LOG_INFO, "media_get_time");
-	return 0;
+	struct PlaylistSource *playlist_data = data;
+
+	return obs_source_media_get_time(playlist_data->current_media_source);
 }
 
 void media_set_time(void *data, int64_t miliseconds)
