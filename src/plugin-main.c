@@ -43,9 +43,9 @@ void on_scene_initialized(enum obs_frontend_event event, void *private_data)
 		return;
 	}
 	const char *scene_name = obs_source_get_name(scene_source);
-	obs_log(LOG_INFO, "PRINTING Scene Name %s %d %d", scene_name, !media_source, scene_name == "Starting Soon");
+	obs_log(LOG_INFO, "PRINTING Scene Name %s %d %d", scene_name);
 
-	if (media_source == NULL && scene_name == "Starting Soon") {
+	if (media_source == NULL && strcmp(scene_name, "Starting Soon") == 0) {
 		obs_data_t *settings = obs_data_create();
 		if (!settings) {
 			obs_log(LOG_ERROR, "Failed to create settings data");
@@ -59,7 +59,7 @@ void on_scene_initialized(enum obs_frontend_event event, void *private_data)
 		obs_data_set_string(settings, "local_file", video_path);
 
 		// Try creating the media source
-		media_source = obs_source_create("ffmpeg_source", "Video Source", settings, NULL);
+		media_source = obs_source_create_private("ffmpeg_source", "Video Source", settings);
 		obs_data_release(settings);
 
 		if (!media_source) {
@@ -74,39 +74,31 @@ void on_scene_initialized(enum obs_frontend_event event, void *private_data)
 	}
 
 	// Start media playback
-	if (media_source != NULL) {
-		obs_source_media_play_pause(media_source, false); // Play the media
-		obs_log(LOG_INFO, "Media playback started");
-	}
+	// if (media_source != NULL) {
+	// 	obs_source_media_play_pause(media_source, false); // Play the media
+	// 	obs_log(LOG_INFO, "Media playback started");
+	// }
 }
 
 // Called when the plugin is loaded
 bool obs_module_load(void)
 {
-	// Create a media source for displaying video
+	// obs_frontend_add_event_callback(on_scene_initialized, NULL);
 
-	// Register the event callback for when the scene is initialized
-	obs_frontend_add_event_callback(on_scene_initialized, NULL);
-	obs_log(LOG_INFO, "Event callback for scene initialization registered");
-
-	// obs_register_source(&playlist_source_template);
+	obs_register_source(&playlist_source_template);
 	return true;
 }
 
 // Called when the plugin is unloaded
 void obs_module_unload(void)
 {
-	obs_log(LOG_INFO, "Unloading plugin...");
+	// obs_frontend_remove_event_callback(on_scene_initialized, NULL);
 
-	// Remove the event callback
-	obs_frontend_remove_event_callback(on_scene_initialized, NULL);
-
-	// Clean up media source
-	if (media_source) {
-		obs_source_release(media_source);
-		media_source = NULL;
-		obs_log(LOG_INFO, "Media source released successfully");
-	}
+	// if (media_source) {
+	// 	obs_source_release(media_source);
+	// 	media_source = NULL;
+	// 	obs_log(LOG_INFO, "Media source released successfully");
+	// }
 
 	obs_log(LOG_INFO, "Plugin unloaded");
 }
