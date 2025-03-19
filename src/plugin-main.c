@@ -54,8 +54,7 @@ void on_scene_initialized(enum obs_frontend_event event, void *private_data)
 // Called when the plugin is loaded
 bool obs_module_load(void)
 {
-	obs_log(LOG_INFO, "Plugin loading...");
-
+	// Create a media source for displaying video
 	obs_data_t *settings = obs_data_create();
 	if (!settings) {
 		obs_log(LOG_ERROR, "Failed to create settings data");
@@ -81,6 +80,7 @@ bool obs_module_load(void)
 	obs_frontend_add_event_callback(on_scene_initialized, NULL);
 	obs_log(LOG_INFO, "Event callback for scene initialization registered");
 
+	// obs_register_source(&playlist_source_template);
 	return true;
 }
 
