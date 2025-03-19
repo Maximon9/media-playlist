@@ -33,6 +33,22 @@ void play_video(struct PlaylistSource *playlist_data, size_t index)
 	// Set it as active
 	obs_source_media_play_pause(playlist_data->source, false);
 }
+
+// void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted)
+// {
+// 	struct PlaylistSource *playlist_data = data;
+// 	UNUSED_PARAMETER(muted);
+// 	UNUSED_PARAMETER(source);
+// 	pthread_mutex_lock(&playlist_data->audio_mutex);
+// 	size_t size = audio_data->frames * sizeof(float);
+// 	for (size_t i = 0; i < playlist_data->num_channels; i++) {
+// 		deque_push_back(&playlist_data->audio_data[i], audio_data->data[i], size);
+// 	}
+// 	deque_push_back(&playlist_data->audio_frames, &audio_data->frames, sizeof(audio_data->frames));
+// 	deque_push_back(&playlist_data->audio_timestamps, &audio_data->timestamp, sizeof(audio_data->timestamp));
+// 	pthread_mutex_unlock(&playlist_data->audio_mutex);
+// }
+
 #pragma endregion
 
 const char *playlist_source_name(void *data)
@@ -335,15 +351,16 @@ void playlist_activate(void *data)
 	if (playlist_data->media_source == NULL) {
 		playlist_data->media_source_settings = obs_data_create();
 
+		char id = "" obs_enum_source_types(0, &id);
 		// const char *video_path =
 		// 	"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4"; // Replace with your actual video path
 		// obs_data_set_string(ffmpeg_settings, S_FFMPEG_LOCAL_FILE, video_path);
-		obs_data_set_bool(playlist_data->media_source_settings, S_FFMPEG_RESTART_PLAYBACK_ON_ACTIVE, false);
-
 		playlist_data->media_source = obs_source_create_private("ffmpeg_source", "Video Source",
 									playlist_data->media_source_settings);
 
 		obs_source_add_active_child(playlist_data->source, playlist_data->media_source);
+		// obs_source_add_audio_capture_callback(playlist_data->media_source, playlist_audio_callback,
+		// 				      playlist_data);
 	}
 
 	playlist_data->run = true;
