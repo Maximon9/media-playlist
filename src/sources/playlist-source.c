@@ -1,6 +1,7 @@
 #pragma region Main
 #include "../include/sources/playlist-source.h"
 
+#define S_FFMPEG_RESTART_PLAYBACK_ON_ACTIVE "restart_on_activate"
 #define S_FFMPEG_LOCAL_FILE "local_file"
 #define S_FFMPEG_INPUT "input"
 #define S_FFMPEG_IS_LOCAL_FILE "is_local_file"
@@ -77,25 +78,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	playlist_data->run = false;
 	playlist_data->paused = false;
 
-	obs_data_t *ffmpeg_settings = obs_data_create();
-
-	const char *video_path =
-		"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4"; // Replace with your actual video path
-	obs_data_set_string(ffmpeg_settings, "local_file", video_path);
-	playlist_data->current_media_source =
-		obs_source_create_private("ffmpeg_source", "Video Source", ffmpeg_settings);
-
-	obs_data_release(ffmpeg_settings);
-
-	// if (playlist_data->current_media_source) {
-	obs_log(LOG_INFO, "Current Media Before: %s",
-		obs_source_active(playlist_data->current_media_source) ? "true" : "false");
-
-	obs_source_add_active_child(playlist_data->source, playlist_data->current_media_source);
-
-	obs_log(LOG_INFO, "Current Media After: %s",
-		obs_source_active(playlist_data->current_media_source) ? "true" : "false");
-	// }
+	playlist_data->current_media_source = NULL;
 
 	update_playlist_data(playlist_data, settings);
 
@@ -364,9 +347,44 @@ void playlist_activate(void *data)
 	obs_log(LOG_INFO, "playlist_activate");
 	struct PlaylistSource *playlist_data = data;
 
-	int child_count = 0;
-	obs_source_enum_active_sources(playlist_data->source, enum_source_children, &child_count);
-	obs_log(LOG_INFO, "Child Count: %d", child_count);
+	if (playlist_data->current_media_source == NULL) {
+		obs_data_t *ffmpeg_settings = obs_data_create();
+
+		const char *video_path =
+			"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4"; // Replace with your actual video path
+		obs_data_set_string(ffmpeg_settings, S_FFMPEG_LOCAL_FILE, video_path);
+		obs_data_set_bool(ffmpeg_settings, S_FFMPEG_RESTART_PLAYBACK_ON_ACTIVE, false);
+
+		playlist_data->current_media_source =
+			obs_source_create_private("ffmpeg_source", "Video Source", ffmpeg_settings);
+
+		obs_data_release(ffmpeg_settings);
+
+		// if (playlist_data->current_media_source) {
+		obs_log(LOG_INFO, "Current Media Before: %s",
+			obs_source_active(playlist_data->current_media_source) ? "true" : "false");
+
+		// obs_source_t *scene_source = obs_frontend_get_current_scene();
+
+		// obs_log(LOG_INFO, "Trying To Find Scene: %s", scene_source == NULL ? "null" : "cool");
+
+		// obs_scene_t *scene = obs_scene_from_source(scene_source);
+
+		// if (scene != NULL) {
+		// 	obs_log(LOG_INFO, "Found Scene");
+		// 	obs_scene_add(scene, playlist_data->current_media_source);
+		// }
+
+		obs_source_add_active_child(playlist_data->source, playlist_data->current_media_source);
+
+		obs_log(LOG_INFO, "Current Media After: %s",
+			obs_source_active(playlist_data->current_media_source) ? "true" : "false");
+		// }
+	}
+
+	// int child_count = 0;
+	// obs_source_enum_active_sources(playlist_data->source, enum_source_children, &child_count);
+	// obs_log(LOG_INFO, "Child Count: %d", child_count);
 
 	playlist_data->run = true;
 

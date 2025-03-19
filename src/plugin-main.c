@@ -17,7 +17,6 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
 #include "../include/sources/playlist-source.h"
-#include <obs-frontend-api.h>
 // #include <obs-module.h>
 // #include <plugin-support.h>
 

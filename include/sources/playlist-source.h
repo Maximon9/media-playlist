@@ -5,6 +5,7 @@
 #include <plugin-support.h>
 #include "../include/utils/utils.h"
 #include "../include/utils/enum-utils.h"
+#include <obs-frontend-api.h>
 
 static const char *media_filter =
 	" (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm *.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
