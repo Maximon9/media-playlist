@@ -87,10 +87,14 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	obs_data_release(ffmpeg_settings);
 
-	obs_log(LOG_INFO, "Current Media: %s", playlist_data->current_media_source);
 	// if (playlist_data->current_media_source) {
+	obs_log(LOG_INFO, "Current Media Before: %s",
+		obs_source_active(playlist_data->current_media_source) ? "true" : "false");
+
 	obs_source_add_active_child(playlist_data->source, playlist_data->current_media_source);
 
+	obs_log(LOG_INFO, "Current Media After: %s",
+		obs_source_active(playlist_data->current_media_source) ? "true" : "false");
 	// }
 
 	update_playlist_data(playlist_data, settings);
