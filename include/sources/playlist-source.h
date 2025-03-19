@@ -64,7 +64,7 @@ void playlist_activate(void *data);
 
 void playlist_deactivate(void *data);
 
-void playlist_tick(void *data, float seconds);
+void playlist_video_tick(void *data, float seconds);
 
 void playlist_video_render(void *data, gs_effect_t *effect);
 
@@ -104,7 +104,7 @@ static struct obs_source_info playlist_source_template = {
 	.update = playlist_update,
 	.activate = playlist_activate,
 	.deactivate = playlist_deactivate,
-	.video_tick = playlist_tick,
+	.video_tick = playlist_video_tick,
 	.video_render = playlist_video_render,
 	.save = playlist_save,
 	.load = playlist_load,
