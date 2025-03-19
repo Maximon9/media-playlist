@@ -35,8 +35,12 @@ bool obs_module_load(void)
 		return false;
 	}
 
-	obs_data_set_string(settings, "local_file", "/path/to/video.mp4"); // Replace with your file path
+	// Set up the video path for FFmpeg source
+	const char *video_path = "/path/to/video.mp4"; // Replace with your actual video path
+	blog(LOG_INFO, "Setting video source path: %s", video_path);
+	obs_data_set_string(settings, "local_file", video_path);
 
+	// Try creating the media source
 	media_source = obs_source_create("ffmpeg_source", "Video Source", settings, NULL);
 	obs_data_release(settings);
 
@@ -49,23 +53,29 @@ bool obs_module_load(void)
 	obs_scene_t *scene = obs_scene_from_source(obs_frontend_get_current_scene());
 	if (!scene) {
 		blog(LOG_ERROR, "Failed to get current scene");
+		obs_source_release(media_source); // Clean up
 		return false;
 	}
 
-	// Add the media source to the scene
+	// Add media source to scene
 	obs_scene_add(scene, media_source);
+	blog(LOG_INFO, "Media source added to scene");
 
-	// Start playing the media source
-	obs_source_media_play_pause(media_source, false); // Start playing
+	// Start media playback
+	obs_source_media_play_pause(media_source, false); // Play the media
+	blog(LOG_INFO, "Media playback started");
 
-	obs_register_source(&playlist_source_template);
+	// obs_register_source(&playlist_source_template);
 	return true;
 }
 
 void obs_module_unload(void)
 {
+	// Clean up media source
 	if (media_source) {
 		obs_source_release(media_source);
+		media_source = NULL;
+		blog(LOG_INFO, "Media source released successfully");
 	}
 	obs_log(LOG_INFO, "plugin unloaded");
 }
