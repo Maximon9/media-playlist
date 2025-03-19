@@ -2,10 +2,15 @@
 #define PLAYLIST_SOURCE_H
 
 #include <obs-module.h>
+#include <obs-frontend-api.h>
+// #include <util/threading.h>
+// #include <util/platform.h>
+// #include <util/darray.h>
+// #include <util/dstr.h>
+// #include <util/deque.h>
 #include <plugin-support.h>
 #include "../include/utils/utils.h"
 #include "../include/utils/enum-utils.h"
-#include <obs-frontend-api.h>
 
 static const char *media_filter =
 	" (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm *.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
@@ -92,7 +97,7 @@ void media_set_time(void *data, int64_t miliseconds);
 enum obs_media_state media_get_state(void *data);
 
 static struct obs_source_info playlist_source_template = {
-	.id = "media_playlist",
+	.id = "media_playlist_code_maximon9",
 	.type = OBS_SOURCE_TYPE_INPUT,
 	.get_name = playlist_source_name,
 	.create = playlist_source_create,

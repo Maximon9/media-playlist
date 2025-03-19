@@ -59,6 +59,7 @@ void on_scene_initialized(enum obs_frontend_event event, void *private_data)
 
 		// Try creating the media source
 		media_source = obs_source_create_private("ffmpeg_source", "Video Source", settings);
+
 		obs_data_release(settings);
 
 		if (!media_source) {
@@ -82,16 +83,17 @@ void on_scene_initialized(enum obs_frontend_event event, void *private_data)
 // Called when the plugin is loaded
 bool obs_module_load(void)
 {
-	// obs_frontend_add_event_callback(on_scene_initialized, NULL);
-
 	obs_register_source(&playlist_source_template);
+
+	obs_frontend_add_event_callback(on_scene_initialized, NULL);
+
 	return true;
 }
 
 // Called when the plugin is unloaded
 void obs_module_unload(void)
 {
-	// obs_frontend_remove_event_callback(on_scene_initialized, NULL);
+	obs_frontend_remove_event_callback(on_scene_initialized, NULL);
 
 	// if (media_source) {
 	// 	obs_source_release(media_source);

@@ -343,6 +343,21 @@ void playlist_update(void *data, obs_data_t *settings)
 	// obs_source_update(playlist_data->source, props);
 }
 
+void print_source_info(obs_source_t *source, int depth)
+{
+	if (!source)
+		return;
+
+	// Get source type ID
+	const char *source_id = obs_source_get_id(source);
+	const char *source_name = obs_source_get_name(source);
+
+	// Print with indentation for hierarchy
+	for (int i = 0; i < depth; i++) {
+		printf("  ");
+	}
+	printf("Source: %s (Type: %s)\n", source_name, source_id);
+}
 void playlist_activate(void *data)
 {
 	obs_log(LOG_INFO, "playlist_activate");
@@ -397,7 +412,11 @@ void playlist_deactivate(void *data)
 
 void playlist_video_tick(void *data, float seconds)
 {
-	struct PlaylistSource *playlist_data = data;
+	// struct PlaylistSource *playlist_data = data;
+
+	// const audio_t *a = obs_get_audio();
+	// const struct audio_output_info *aoi = audio_output_get_info(a)
+
 	// if (playlist_data->debug) {
 	// 	obs_log_media_array(LOG_INFO, playlist_data->all_media, 90, "    ");
 	// }
