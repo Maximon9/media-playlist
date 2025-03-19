@@ -26,18 +26,46 @@ OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 
 obs_source_t *media_source = NULL;
 
+// Callback to handle scene initialization after OBS is fully loaded
+void on_scene_initialized(enum obs_frontend_event event, void *private_data)
+{
+	if (event != OBS_FRONTEND_EVENT_SCENE_CHANGED) {
+		return;
+	}
+
+	obs_log(LOG_INFO, "Scene is initialized. Adding media source...");
+
+	// Get the current scene from the source
+	obs_scene_t *scene = obs_scene_from_source(obs_frontend_get_current_scene());
+	if (!scene) {
+		obs_log(LOG_ERROR, "Failed to get current scene after initialization");
+		return;
+	}
+
+	// Add media source to the scene
+	obs_scene_add(scene, media_source);
+	obs_log(LOG_INFO, "Media source added to scene");
+
+	// Start media playback
+	obs_source_media_play_pause(media_source, false); // Play the media
+	obs_log(LOG_INFO, "Media playback started");
+}
+
+// Called when the plugin is loaded
 bool obs_module_load(void)
 {
-	// Create a media source for displaying video
+	obs_log(LOG_INFO, "Plugin loading...");
+
 	obs_data_t *settings = obs_data_create();
 	if (!settings) {
-		blog(LOG_ERROR, "Failed to create settings data");
+		obs_log(LOG_ERROR, "Failed to create settings data");
 		return false;
 	}
 
 	// Set up the video path for FFmpeg source
-	const char *video_path = "/path/to/video.mp4"; // Replace with your actual video path
-	blog(LOG_INFO, "Setting video source path: %s", video_path);
+	const char *video_path =
+		"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4"; // Replace with your actual video path
+	obs_log(LOG_INFO, "Setting video source path: %s", video_path);
 	obs_data_set_string(settings, "local_file", video_path);
 
 	// Try creating the media source
@@ -45,37 +73,31 @@ bool obs_module_load(void)
 	obs_data_release(settings);
 
 	if (!media_source) {
-		blog(LOG_ERROR, "Failed to create media source");
+		obs_log(LOG_ERROR, "Failed to create media source");
 		return false;
 	}
 
-	// Get the current scene from the frontend
-	obs_scene_t *scene = obs_scene_from_source(obs_frontend_get_current_scene());
-	if (!scene) {
-		blog(LOG_ERROR, "Failed to get current scene");
-		obs_source_release(media_source); // Clean up
-		return false;
-	}
+	// Register the event callback for when the scene is initialized
+	obs_frontend_add_event_callback(on_scene_initialized, NULL);
+	obs_log(LOG_INFO, "Event callback for scene initialization registered");
 
-	// Add media source to scene
-	obs_scene_add(scene, media_source);
-	blog(LOG_INFO, "Media source added to scene");
-
-	// Start media playback
-	obs_source_media_play_pause(media_source, false); // Play the media
-	blog(LOG_INFO, "Media playback started");
-
-	// obs_register_source(&playlist_source_template);
 	return true;
 }
 
+// Called when the plugin is unloaded
 void obs_module_unload(void)
 {
+	obs_log(LOG_INFO, "Unloading plugin...");
+
+	// Remove the event callback
+	obs_frontend_remove_event_callback(on_scene_initialized, NULL);
+
 	// Clean up media source
 	if (media_source) {
 		obs_source_release(media_source);
 		media_source = NULL;
-		blog(LOG_INFO, "Media source released successfully");
+		obs_log(LOG_INFO, "Media source released successfully");
 	}
-	obs_log(LOG_INFO, "plugin unloaded");
+
+	obs_log(LOG_INFO, "Plugin unloaded");
 }
