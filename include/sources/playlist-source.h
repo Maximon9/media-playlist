@@ -92,7 +92,7 @@ void media_set_time(void *data, int64_t miliseconds);
 enum obs_media_state media_get_state(void *data);
 
 static struct obs_source_info playlist_source_template = {
-	.id = "media_playlist_source_codeyan",
+	.id = "media_playlist",
 	.type = OBS_SOURCE_TYPE_INPUT,
 	.get_name = playlist_source_name,
 	.create = playlist_source_create,

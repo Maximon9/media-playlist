@@ -351,7 +351,12 @@ void playlist_activate(void *data)
 	if (playlist_data->media_source == NULL) {
 		playlist_data->media_source_settings = obs_data_create();
 
-		char id = "" obs_enum_source_types(0, &id);
+		for (size_t i = 0; i < 61; i++) {
+			const char *id = "";
+			obs_enum_source_types(i, &id);
+			blog(LOG_INFO, "This is an id: %s", id);
+		}
+
 		// const char *video_path =
 		// 	"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4"; // Replace with your actual video path
 		// obs_data_set_string(ffmpeg_settings, S_FFMPEG_LOCAL_FILE, video_path);
@@ -371,7 +376,7 @@ void playlist_activate(void *data)
 		// playlist_data->current_media =
 		// 	get_media(playlist_data->all_media, playlist_data->current_media_index);
 		// playlist_data->current_media_source;
-		play_video(playlist_data, playlist_data->current_media_index);
+		// play_video(playlist_data, playlist_data->current_media_index);
 		break;
 	case UNPAUSE:
 		/* code */
