@@ -15,7 +15,8 @@ static const char *audio_filter = " (*.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus 
 struct PlaylistSource {
 #pragma region Public
 	obs_source_t *source;
-	obs_source_t *current_media_source;
+	obs_source_t *media_source;
+	obs_data_t *media_source_settings;
 	int start_index;
 	int end_index;
 	enum StartBehavior playlist_start_behavior;

@@ -10,7 +10,8 @@
 #pragma region Media Functions
 void play_video(struct PlaylistSource *playlist_data, size_t index)
 {
-	if (!playlist_data || !playlist_data->all_media || !playlist_data->current_media_source)
+	if (!playlist_data || !playlist_data->all_media || !playlist_data->media_source ||
+	    !playlist_data->media_source_settings)
 		return;
 
 	if (index >= playlist_data->all_media->size)
@@ -23,25 +24,14 @@ void play_video(struct PlaylistSource *playlist_data, size_t index)
 		return;
 
 	// Set file path in ffmpeg_source
-	obs_data_t *ffmpeg_settings = obs_data_create();
+	obs_data_set_string(playlist_data->media_source_settings, S_FFMPEG_LOCAL_FILE, media_data->path);
 
-	obs_log(LOG_INFO, media_data->path);
-	obs_data_set_bool(ffmpeg_settings, S_FFMPEG_IS_LOCAL_FILE, true);
-	obs_data_set_string(ffmpeg_settings, S_FFMPEG_LOCAL_FILE, media_data->path);
+	// obs_log(LOG_INFO, " PRINTING: \n%s", obs_data_get_json_pretty(playlist_data->media_source_settings));
 
-	obs_log(LOG_INFO, " PRINTING: \n%s", obs_data_get_json_pretty(ffmpeg_settings));
-
-	obs_source_update(playlist_data->current_media_source, ffmpeg_settings);
-	obs_data_release(ffmpeg_settings);
-
-	enum obs_media_state state = obs_source_media_get_state(playlist_data->source);
-	obs_log(LOG_INFO, "Media source state before play: %d", state);
+	obs_source_update(playlist_data->media_source, playlist_data->media_source_settings);
 
 	// Set it as active
 	obs_source_media_play_pause(playlist_data->source, false);
-
-	state = obs_source_media_get_state(playlist_data->source);
-	obs_log(LOG_INFO, "Media source state after play: %d", state);
 }
 #pragma endregion
 
@@ -50,19 +40,13 @@ const char *playlist_source_name(void *data)
 	return "Playlist"; // This should match the filename (without extension) in data/
 }
 
-void enum_source_children(obs_source_t *parent, obs_source_t *child, void *param)
-{
-	if (child) {
-		int *count = (int *)param;
-		(*count)++; // Increment the count for each child source
-	}
-}
-
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 {
 	struct PlaylistSource *playlist_data = bzalloc(sizeof(*playlist_data));
 
 	playlist_data->source = source;
+	playlist_data->media_source = NULL;
+	playlist_data->media_source_settings = NULL;
 
 	playlist_data->all_media = NULL;
 
@@ -78,8 +62,6 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	playlist_data->run = false;
 	playlist_data->paused = false;
 
-	playlist_data->current_media_source = NULL;
-
 	update_playlist_data(playlist_data, settings);
 
 	return playlist_data;
@@ -89,8 +71,11 @@ void playlist_source_destroy(void *data)
 {
 	struct PlaylistSource *playlist_data = data;
 
-	if (playlist_data->current_media_source) {
-		obs_source_release(playlist_data->current_media_source);
+	if (playlist_data->media_source != NULL) {
+		obs_source_release(playlist_data->media_source);
+	}
+	if (playlist_data->media_source_settings != NULL) {
+		obs_data_release(playlist_data->media_source_settings);
 	}
 
 	free_media_array(playlist_data->all_media);
@@ -347,44 +332,19 @@ void playlist_activate(void *data)
 	obs_log(LOG_INFO, "playlist_activate");
 	struct PlaylistSource *playlist_data = data;
 
-	if (playlist_data->current_media_source == NULL) {
-		obs_data_t *ffmpeg_settings = obs_data_create();
+	if (playlist_data->media_source == NULL) {
+		playlist_data->media_source_settings = obs_data_create();
 
-		const char *video_path =
-			"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4"; // Replace with your actual video path
-		obs_data_set_string(ffmpeg_settings, S_FFMPEG_LOCAL_FILE, video_path);
-		obs_data_set_bool(ffmpeg_settings, S_FFMPEG_RESTART_PLAYBACK_ON_ACTIVE, false);
+		// const char *video_path =
+		// 	"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4"; // Replace with your actual video path
+		// obs_data_set_string(ffmpeg_settings, S_FFMPEG_LOCAL_FILE, video_path);
+		obs_data_set_bool(playlist_data->media_source_settings, S_FFMPEG_RESTART_PLAYBACK_ON_ACTIVE, false);
 
-		playlist_data->current_media_source =
-			obs_source_create_private("ffmpeg_source", "Video Source", ffmpeg_settings);
+		playlist_data->media_source = obs_source_create_private("ffmpeg_source", "Video Source",
+									playlist_data->media_source_settings);
 
-		obs_data_release(ffmpeg_settings);
-
-		// if (playlist_data->current_media_source) {
-		obs_log(LOG_INFO, "Current Media Before: %s",
-			obs_source_active(playlist_data->current_media_source) ? "true" : "false");
-
-		// obs_source_t *scene_source = obs_frontend_get_current_scene();
-
-		// obs_log(LOG_INFO, "Trying To Find Scene: %s", scene_source == NULL ? "null" : "cool");
-
-		// obs_scene_t *scene = obs_scene_from_source(scene_source);
-
-		// if (scene != NULL) {
-		// 	obs_log(LOG_INFO, "Found Scene");
-		// 	obs_scene_add(scene, playlist_data->current_media_source);
-		// }
-
-		obs_source_add_active_child(playlist_data->source, playlist_data->current_media_source);
-
-		obs_log(LOG_INFO, "Current Media After: %s",
-			obs_source_active(playlist_data->current_media_source) ? "true" : "false");
-		// }
+		obs_source_add_active_child(playlist_data->source, playlist_data->media_source);
 	}
-
-	// int child_count = 0;
-	// obs_source_enum_active_sources(playlist_data->source, enum_source_children, &child_count);
-	// obs_log(LOG_INFO, "Child Count: %d", child_count);
 
 	playlist_data->run = true;
 
@@ -394,7 +354,7 @@ void playlist_activate(void *data)
 		// playlist_data->current_media =
 		// 	get_media(playlist_data->all_media, playlist_data->current_media_index);
 		// playlist_data->current_media_source;
-		// play_video(playlist_data, playlist_data->current_media_index);
+		play_video(playlist_data, playlist_data->current_media_index);
 		break;
 	case UNPAUSE:
 		/* code */
@@ -426,8 +386,8 @@ void playlist_video_render(void *data, gs_effect_t *effect)
 {
 	struct PlaylistSource *playlist_data = data;
 
-	if (playlist_data->current_media_source != NULL) {
-		obs_source_video_render(playlist_data->current_media_source);
+	if (playlist_data->media_source != NULL) {
+		obs_source_video_render(playlist_data->media_source);
 	} else {
 		obs_source_video_render(NULL);
 	}
@@ -454,7 +414,9 @@ void media_play_pause(void *data, bool pause)
 	obs_log(LOG_INFO, "We be playing the video");
 	struct PlaylistSource *playlist_data = data;
 
-	obs_source_media_play_pause(playlist_data->current_media_source, pause);
+	if (playlist_data->media_source != NULL) {
+		obs_source_media_play_pause(playlist_data->media_source, pause);
+	}
 	playlist_data->paused = pause;
 }
 
@@ -462,8 +424,8 @@ void media_restart(void *data)
 {
 	struct PlaylistSource *playlist_data = data;
 
-	if (playlist_data->current_media_source != NULL) {
-		obs_source_media_restart(playlist_data->current_media_source);
+	if (playlist_data->media_source != NULL) {
+		obs_source_media_restart(playlist_data->media_source);
 	}
 }
 
@@ -471,8 +433,8 @@ void media_stop(void *data)
 {
 	struct PlaylistSource *playlist_data = data;
 
-	if (playlist_data->current_media_source != NULL) {
-		obs_source_media_stop(playlist_data->current_media_source);
+	if (playlist_data->media_source != NULL) {
+		obs_source_media_stop(playlist_data->media_source);
 	}
 }
 
@@ -480,8 +442,8 @@ void media_next(void *data)
 {
 	struct PlaylistSource *playlist_data = data;
 
-	if (playlist_data->current_media_source != NULL) {
-		obs_source_media_next(playlist_data->current_media_source);
+	if (playlist_data->media_source != NULL) {
+		obs_source_media_next(playlist_data->media_source);
 	}
 }
 
@@ -489,8 +451,8 @@ void media_previous(void *data)
 {
 	struct PlaylistSource *playlist_data = data;
 
-	if (playlist_data->current_media_source != NULL) {
-		obs_source_media_previous(playlist_data->current_media_source);
+	if (playlist_data->media_source != NULL) {
+		obs_source_media_previous(playlist_data->media_source);
 	}
 }
 
@@ -498,8 +460,8 @@ int64_t media_get_duration(void *data)
 {
 	struct PlaylistSource *playlist_data = data;
 
-	if (playlist_data->current_media_source != NULL) {
-		return obs_source_media_get_duration(playlist_data->current_media_source);
+	if (playlist_data->media_source != NULL) {
+		return obs_source_media_get_duration(playlist_data->media_source);
 	}
 	return 0;
 }
@@ -508,8 +470,8 @@ int64_t media_get_time(void *data)
 {
 	struct PlaylistSource *playlist_data = data;
 
-	if (playlist_data->current_media_source != NULL) {
-		return obs_source_media_get_time(playlist_data->current_media_source);
+	if (playlist_data->media_source != NULL) {
+		return obs_source_media_get_time(playlist_data->media_source);
 	}
 	return 0;
 }
@@ -518,8 +480,8 @@ void media_set_time(void *data, int64_t miliseconds)
 {
 	struct PlaylistSource *playlist_data = data;
 
-	if (playlist_data->current_media_source != NULL) {
-		obs_source_media_set_time(playlist_data->current_media_source, miliseconds);
+	if (playlist_data->media_source != NULL) {
+		obs_source_media_set_time(playlist_data->media_source, miliseconds);
 	}
 }
 
@@ -529,8 +491,9 @@ enum obs_media_state media_get_state(void *data)
 
 	enum obs_media_state media_state = OBS_MEDIA_STATE_NONE;
 
-	if (playlist_data->all_media != NULL && playlist_data->all_media->size > 0) {
-		media_state = obs_source_media_get_state(playlist_data->current_media_source);
+	if (playlist_data->all_media != NULL && playlist_data->all_media->size > 0 &&
+	    playlist_data->media_source != NULL) {
+		media_state = obs_source_media_get_state(playlist_data->media_source);
 	}
 
 	return media_state;
