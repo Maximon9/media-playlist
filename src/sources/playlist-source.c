@@ -1,6 +1,10 @@
 #pragma region Main
 #include "../include/sources/playlist-source.h"
 
+#define S_FFMPEG_LOCAL_FILE "local_file"
+#define S_FFMPEG_INPUT "input"
+#define S_FFMPEG_IS_LOCAL_FILE "is_local_file"
+
 #pragma region Media Functions
 void play_video(struct PlaylistSource *playlist_data, size_t index)
 {
@@ -18,12 +22,14 @@ void play_video(struct PlaylistSource *playlist_data, size_t index)
 
 	// Set file path in ffmpeg_source
 	obs_data_t *ffmpeg_settings = obs_data_create();
-	obs_data_set_string(ffmpeg_settings, "local_file", media_data->path);
+
+	obs_log(LOG_INFO, media_data->path);
+	obs_data_set_string(ffmpeg_settings, S_FFMPEG_LOCAL_FILE, media_data->path);
 	obs_source_update(playlist_data->current_media_source, ffmpeg_settings);
 	obs_data_release(ffmpeg_settings);
 
 	// Set it as active
-	obs_source_media_play_pause(playlist_data->current_media_source, false);
+	obs_source_media_play_pause(playlist_data->source, false);
 }
 #pragma endregion
 
@@ -50,12 +56,13 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	playlist_data->loop_count = 0;
 
 	playlist_data->run = false;
+	playlist_data->paused = false;
 
 	playlist_data->current_media_source =
 		obs_source_create_private("ffmpeg_source", "current_media_source", settings);
 
 	if (playlist_data->current_media_source) {
-		obs_source_add_active_child(source, playlist_data->current_media_source);
+		obs_source_add_active_child(playlist_data->source, playlist_data->current_media_source);
 	}
 
 	update_playlist_data(playlist_data, settings);
@@ -319,7 +326,6 @@ void playlist_update(void *data, obs_data_t *settings)
 
 void playlist_activate(void *data)
 {
-	obs_log(LOG_INFO, "playlist_activate");
 	struct PlaylistSource *playlist_data = data;
 	playlist_data->run = true;
 
@@ -374,7 +380,10 @@ void playlist_load(void *data, obs_data_t *settings)
 
 void media_play_pause(void *data, bool pause)
 {
-	obs_log(LOG_INFO, "media_play_pause");
+	struct PlaylistSource *playlist_data = data;
+
+	obs_source_media_play_pause(playlist_data->current_media_source, pause);
+	playlist_data->paused = pause;
 }
 
 void media_restart(void *data)
@@ -416,8 +425,18 @@ void media_set_time(void *data, int64_t miliseconds)
 
 enum obs_media_state media_get_state(void *data)
 {
+	struct PlaylistSource *playlist_data = data;
 	obs_log(LOG_INFO, "media_get_state");
-	return OBS_MEDIA_STATE_NONE;
+
+	enum obs_media_state media_state;
+
+	if (playlist_data->all_media->size > 0) {
+		media_state = obs_source_media_get_state(playlist_data->current_media_source);
+	} else {
+		media_state = OBS_MEDIA_STATE_NONE;
+	}
+
+	return media_state;
 }
 
 #pragma endregion

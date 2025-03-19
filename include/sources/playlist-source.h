@@ -29,11 +29,15 @@ struct PlaylistSource {
 #pragma endregion
 #pragma region Private
 	bool run;
+	bool paused;
 #pragma endregion
 };
 
 #pragma region Media Functions
-void play_video(struct PlaylistSource *playlist_data, size_t index);
+void set_media_index(struct PlaylistSource *playlist_data, size_t index);
+
+static void set_media_state(void *data, enum obs_media_state state);
+
 #pragma endregion
 
 const char *playlist_source_name(void *data);
@@ -117,4 +121,4 @@ static struct obs_source_info playlist_source_template = {
 
 };
 
-#endif // PLAYLIST_SOURCE_H
+#endif; // PLAYLIST_SOURCE_H
