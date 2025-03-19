@@ -33,48 +33,57 @@ void on_scene_initialized(enum obs_frontend_event event, void *private_data)
 		return;
 	}
 
-	obs_log(LOG_INFO, "Scene is initialized. Adding media source...");
-
 	// Get the current scene from the source
-	obs_scene_t *scene = obs_scene_from_source(obs_frontend_get_current_scene());
+	obs_source_t *scene_source = obs_frontend_get_current_scene();
+
+	obs_scene_t *scene = obs_scene_from_source(scene_source);
+
+	const char *scene_name = obs_source_get_name(scene_source);
+
 	if (!scene) {
 		obs_log(LOG_ERROR, "Failed to get current scene after initialization");
 		return;
 	}
 
-	// Add media source to the scene
-	obs_scene_add(scene, media_source);
-	obs_log(LOG_INFO, "Media source added to scene");
+	if (!media_source && scene_name == "Starting Soon") {
+		obs_data_t *settings = obs_data_create();
+		if (!settings) {
+			obs_log(LOG_ERROR, "Failed to create settings data");
+			return;
+		}
+
+		// Set up the video path for FFmpeg source
+		const char *video_path =
+			"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4"; // Replace with your actual video path
+		obs_log(LOG_INFO, "Setting video source path: %s", video_path);
+		obs_data_set_string(settings, "local_file", video_path);
+
+		// Try creating the media source
+		media_source = obs_source_create("ffmpeg_source", "Video Source", settings, NULL);
+		obs_data_release(settings);
+
+		if (!media_source) {
+			obs_log(LOG_ERROR, "Failed to create media source");
+			return;
+		}
+		obs_log(LOG_INFO, "Scene is initialized. Adding media source...");
+
+		// Add media source to the scene
+		obs_scene_add(scene, media_source);
+		obs_log(LOG_INFO, "Media source added to scene");
+	}
 
 	// Start media playback
-	obs_source_media_play_pause(media_source, false); // Play the media
-	obs_log(LOG_INFO, "Media playback started");
+	if (media_source) {
+		obs_source_media_play_pause(media_source, false); // Play the media
+		obs_log(LOG_INFO, "Media playback started");
+	}
 }
 
 // Called when the plugin is loaded
 bool obs_module_load(void)
 {
 	// Create a media source for displaying video
-	obs_data_t *settings = obs_data_create();
-	if (!settings) {
-		obs_log(LOG_ERROR, "Failed to create settings data");
-		return false;
-	}
-
-	// Set up the video path for FFmpeg source
-	const char *video_path =
-		"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4"; // Replace with your actual video path
-	obs_log(LOG_INFO, "Setting video source path: %s", video_path);
-	obs_data_set_string(settings, "local_file", video_path);
-
-	// Try creating the media source
-	media_source = obs_source_create("ffmpeg_source", "Video Source", settings, NULL);
-	obs_data_release(settings);
-
-	if (!media_source) {
-		obs_log(LOG_ERROR, "Failed to create media source");
-		return false;
-	}
 
 	// Register the event callback for when the scene is initialized
 	obs_frontend_add_event_callback(on_scene_initialized, NULL);
