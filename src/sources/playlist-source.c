@@ -502,17 +502,17 @@ bool playlist_audio_render(void *data, uint64_t *ts_out, struct obs_source_audio
 
 	obs_log(LOG_INFO, "Mixers: %d, Channels %d", mixers, channels);
 
-	// for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
-	// 	if ((mixers & (1 << mix)) == 0)
-	// 		continue;
+	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		if ((mixers & (1 << mix)) == 0)
+			continue;
 
-	// 	for (size_t ch = 0; ch < channels; ch++) {
-	// 		float *out = audio_output->output[mix].data[ch];
-	// 		float *in = audio_mix.output[mix].data[ch];
+		for (size_t ch = 0; ch < channels; ch++) {
+			float *out = audio_output->output[mix].data[ch];
+			float *in = audio_mix.output[mix].data[ch];
 
-	// 		memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
-	// 	}
-	// }
+			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+		}
+	}
 
 	// for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
 	// 	if ((mixers & (1 << mix)) == 0)
