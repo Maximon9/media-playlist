@@ -38,150 +38,145 @@ char *obs_array_to_string(obs_data_array_t *array)
 	return "[]";
 }
 
-void init_media_array(MediaFileDataArray *media_array, size_t initial_capacity)
-{
-	media_array->size = 0;
-	media_array->capacity = initial_capacity;
-	media_array->data = (MediaFileData *)malloc(media_array->capacity * sizeof(MediaFileData));
-}
+// void init_media_array(MediaFileDataArray *media_array, size_t initial_capacity)
+// {
+// 	media_array->size = 0;
+// 	media_array->capacity = initial_capacity;
+// 	media_array->data = (MediaFileData *)malloc(media_array->capacity * sizeof(MediaFileData));
+// }
 
-void push_media_back(MediaFileDataArray *media_array, const char *path)
-{
-	push_media_at(media_array, path, media_array->size);
-}
+// void push_media_back(MediaFileDataArray *media_array, const char *path)
+// {
+// 	push_media_at(media_array, path, media_array->size);
+// }
 
-void push_media_front(MediaFileDataArray *media_array, const char *path)
-{
-	push_media_at(media_array, path, 0);
-}
+// void push_media_front(MediaFileDataArray *media_array, const char *path)
+// {
+// 	push_media_at(media_array, path, 0);
+// }
 
-void push_media_at(MediaFileDataArray *media_array, const char *path, size_t index)
-{
-	// Create and insert new MediaFileData
-	MediaFileData new_entry = {0};
-	new_entry.path = strdup(path);
+// void push_media_at(MediaFileDataArray *media_array, const char *path, size_t index)
+// {
+// 	// Create and insert new MediaFileData
+// 	MediaFileData new_entry = {0};
+// 	new_entry.path = strdup(path);
 
-	// Extract filename from path
-	const char *last_slash = strrchr(path, '/');
-	new_entry.filename = strdup(last_slash ? last_slash + 1 : path);
+// 	// Extract filename from path
+// 	const char *last_slash = strrchr(path, '/');
+// 	new_entry.filename = strdup(last_slash ? last_slash + 1 : path);
 
-	// Generate a simple ID (you might replace this with a better approach)
-	// new_entry.id = strdup(new_entry.filename);
+// 	// Generate a simple ID (you might replace this with a better approach)
+// 	// new_entry.id = strdup(new_entry.filename);
 
-	// Set other default values
-	new_entry.is_url = false;
-	new_entry.is_folder = false;
-	// new_entry.parent = NULL;
-	// new_entry.parent_id = NULL;
-	new_entry.index = index;
+// 	// Set other default values
+// 	new_entry.is_url = false;
+// 	new_entry.is_folder = false;
+// 	// new_entry.parent = NULL;
+// 	// new_entry.parent_id = NULL;
+// 	new_entry.index = index;
 
-	push_media_file_data_at(media_array, new_entry, index);
-}
+// 	push_media_file_data_at(media_array, new_entry, index);
+// }
 
-void push_media_file_data_back(MediaFileDataArray *media_array, MediaFileData media_file_data)
-{
-	push_media_file_data_at(media_array, media_file_data, media_array->size);
-}
+// void push_media_file_data_back(MediaFileDataArray *media_array, MediaFileData media_file_data)
+// {
+// 	push_media_file_data_at(media_array, media_file_data, media_array->size);
+// }
 
-void push_media_file_data_front(MediaFileDataArray *media_array, MediaFileData media_file_data)
-{
-	push_media_file_data_at(media_array, media_file_data, 0);
-}
+// void push_media_file_data_front(MediaFileDataArray *media_array, MediaFileData media_file_data)
+// {
+// 	push_media_file_data_at(media_array, media_file_data, 0);
+// }
 
-void push_media_file_data_at(MediaFileDataArray *media_array, MediaFileData media_file_data, size_t index)
-{
-	// Ensure index is within bounds
-	if (index > media_array->size) {
-		index = media_array->size; // Append to the end if index is out of range
-	}
+// void push_media_file_data_at(MediaFileDataArray *media_array, MediaFileData media_file_data, size_t index)
+// {
+// 	// Ensure index is within bounds
+// 	if (index > media_array->size) {
+// 		index = media_array->size; // Append to the end if index is out of range
+// 	}
 
-	// Resize if needed
-	if (media_array->size >= media_array->capacity) {
-		size_t new_capacity = (media_array->capacity == 0) ? 1 : media_array->capacity * 2;
-		MediaFileData *new_data = realloc(media_array->data, new_capacity * sizeof(MediaFileData));
-		if (!new_data)
-			return; // Memory allocation failed
-		media_array->data = new_data;
-		media_array->capacity = new_capacity;
-	}
+// 	// Resize if needed
+// 	if (media_array->size >= media_array->capacity) {
+// 		size_t new_capacity = (media_array->capacity == 0) ? 1 : media_array->capacity * 2;
+// 		MediaFileData *new_data = realloc(media_array->data, new_capacity * sizeof(MediaFileData));
+// 		if (!new_data)
+// 			return; // Memory allocation failed
+// 		media_array->data = new_data;
+// 		media_array->capacity = new_capacity;
+// 	}
 
-	// Shift elements to the right
-	memmove(&media_array->data[index + 1], &media_array->data[index],
-		(media_array->size - index) * sizeof(MediaFileData));
+// 	// Shift elements to the right
+// 	memmove(&media_array->data[index + 1], &media_array->data[index],
+// 		(media_array->size - index) * sizeof(MediaFileData));
 
-	// Insert into array
-	media_array->data[index] = media_file_data;
-	media_array->size++;
-}
+// 	// Insert into array
+// 	media_array->data[index] = media_file_data;
+// 	media_array->size++;
+// }
 
-void pop_media_back(MediaFileDataArray *media_array)
-{
-	pop_media_at(media_array, media_array->size);
-}
+// void pop_media_back(MediaFileDataArray *media_array)
+// {
+// 	pop_media_at(media_array, media_array->size);
+// }
 
-void pop_media_front(MediaFileDataArray *media_array)
-{
-	pop_media_at(media_array, 0);
-}
+// void pop_media_front(MediaFileDataArray *media_array)
+// {
+// 	pop_media_at(media_array, 0);
+// }
 
-void pop_media_at(MediaFileDataArray *media_array, size_t index)
-{
-	if (index >= media_array->size)
-		return;
+// void pop_media_at(MediaFileDataArray *media_array, size_t index)
+// {
+// 	if (index >= media_array->size)
+// 		return;
 
-	free(media_array->data[index].path);
-	free(media_array->data[index].filename);
+// 	free(media_array->data[index].path);
+// 	free(media_array->data[index].filename);
 
-	for (size_t i = index; i < media_array->size - 1; i++) {
-		media_array->data[i] = media_array->data[i + 1];
-	}
+// 	for (size_t i = index; i < media_array->size - 1; i++) {
+// 		media_array->data[i] = media_array->data[i + 1];
+// 	}
 
-	media_array->size--;
+// 	media_array->size--;
 
-	if (media_array->size > 0 && media_array->size <= media_array->capacity / 4) {
-		media_array->capacity /= 2;
-		media_array->data =
-			(MediaFileData *)realloc(media_array->data, media_array->capacity * sizeof(MediaFileData));
-	}
-}
+// 	if (media_array->size > 0 && media_array->size <= media_array->capacity / 4) {
+// 		media_array->capacity /= 2;
+// 		media_array->data =
+// 			(MediaFileData *)realloc(media_array->data, media_array->capacity * sizeof(MediaFileData));
+// 	}
+// }
 
-// Function to get a string by index
-const MediaFileData *get_media(MediaFileDataArray *media_array, size_t index)
-{
-	if (index >= media_array->size)
-		return NULL; // Out of bounds
-	return &media_array->data[index];
-}
+// // Function to get a string by index
+// const MediaFileData *get_media(MediaFileDataArray *media_array, size_t index)
+// {
+// 	if (index >= media_array->size)
+// 		return NULL; // Out of bounds
+// 	return &media_array->data[index];
+// }
 
-// Function to free the dynamic string array
-void free_media_array(MediaFileDataArray *media_array)
-{
-	if (media_array != NULL) {
-		if (media_array->size > 0) {
-			for (size_t i = 0; i < media_array->size; i++) {
-				free(media_array->data[i].path);
-				free(media_array->data[i].filename);
-			}
-		}
-		if (media_array->data != NULL) {
-			free(media_array->data);
-		}
-		free(media_array);
-	}
-}
+// // Function to free the dynamic string array
+// void free_media_array(MediaFileDataArray *media_array)
+// {
+// 	if (media_array != NULL) {
+// 		if (media_array->size > 0) {
+// 			for (size_t i = 0; i < media_array->size; i++) {
+// 				free(media_array->data[i].path);
+// 				free(media_array->data[i].filename);
+// 			}
+// 		}
+// 		if (media_array->data != NULL) {
+// 			free(media_array->data);
+// 		}
+// 		free(media_array);
+// 	}
+// }
 
-MediaFileDataArray *obs_data_array_retain(obs_data_array_t *obs_playlist)
+void obs_data_array_retain(MediaFileDataArray *media_file_data_array, obs_data_array_t *obs_playlist)
 {
 	size_t array_size = obs_data_array_count(obs_playlist);
-	if (array_size == 0)
-		return NULL;
-
-	MediaFileDataArray *media_file_data_array = malloc(sizeof(MediaFileDataArray));
-	if (!media_file_data_array)
-		return NULL;
-
-	// Initialize with an initial capacity of 4 (or any number you choose)
-	init_media_array(media_file_data_array, 4);
+	if (array_size == 0) {
+		da_free(*media_file_data_array);
+		return;
+	}
 
 	for (size_t i = 0; i < array_size; ++i) {
 		obs_data_t *data = obs_data_array_item(obs_playlist, i);
@@ -196,22 +191,21 @@ MediaFileDataArray *obs_data_array_retain(obs_data_array_t *obs_playlist)
 			continue;               // Skip if no valid string was found
 		}
 		// Use the method call syntax; this passes media_file_data_array as the first parameter.
-		push_media_back(media_file_data_array, element);
+		da_push_back(*media_file_data_array, element);
 		obs_data_release(data);
 	}
 	obs_data_array_release(obs_playlist);
-	return media_file_data_array;
 }
 
 char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent)
 {
-	if (media_array->size == 0)
+	if (media_array->num == 0)
 		return strdup("[]"); // Return empty brackets if no elements
 
 	// Calculate the initial length of the compact format
 	size_t total_length = 3; // For "[" and "]\0"
-	for (size_t i = 0; i < media_array->size; i++) {
-		total_length += strlen(media_array->data[i].path) + 4; // Quotes, comma, space
+	for (size_t i = 0; i < media_array->num; i++) {
+		total_length += strlen(media_array->array[i].path) + 4; // Quotes, comma, space
 	}
 
 	// Allocate memory for the final string (before prettification)
@@ -221,11 +215,11 @@ char *stringify_media_array(const MediaFileDataArray *media_array, size_t thresh
 
 	// Apply compact format first
 	strcpy(result, "[");
-	for (size_t i = 0; i < media_array->size; i++) {
+	for (size_t i = 0; i < media_array->num; i++) {
 		strcat(result, "\"");
-		strcat(result, media_array->data[i].path);
+		strcat(result, media_array->array[i].path);
 		strcat(result, "\"");
-		if (i < media_array->size - 1)
+		if (i < media_array->num - 1)
 			strcat(result, ", ");
 	}
 	strcat(result, "]");
@@ -233,9 +227,9 @@ char *stringify_media_array(const MediaFileDataArray *media_array, size_t thresh
 	// If the compact string exceeds the threshold, prettify the result
 	if (strlen(result) > threshold) {
 		size_t prettified_length = 3; // For "[\n" and "]\n"
-		for (size_t i = 0; i < media_array->size; i++) {
+		for (size_t i = 0; i < media_array->num; i++) {
 			prettified_length +=
-				strlen(indent) + strlen(media_array->data[i].path) + 4; // Indent, quotes, and comma
+				strlen(indent) + strlen(media_array->array[i].path) + 4; // Indent, quotes, and comma
 		}
 
 		// Allocate memory for the prettified string
@@ -247,13 +241,13 @@ char *stringify_media_array(const MediaFileDataArray *media_array, size_t thresh
 
 		// Construct the prettified string
 		strcpy(prettified_result, "[\n");
-		for (size_t i = 0; i < media_array->size; i++) {
+		for (size_t i = 0; i < media_array->num; i++) {
 			strcat(prettified_result, indent); // Add indentation before each element
 			strcat(prettified_result, "\"");
-			strcat(prettified_result, media_array->data[i].path);
+			strcat(prettified_result, media_array->array[i].path);
 			strcat(prettified_result, "\"");
 
-			if (i < media_array->size - 1) {
+			if (i < media_array->num - 1) {
 				strcat(prettified_result, ",\n");
 			}
 		}

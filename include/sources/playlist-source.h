@@ -47,7 +47,7 @@ struct PlaylistSource {
 };
 
 #pragma region Media Functions
-void play_video(struct PlaylistSource *playlist_data, size_t index);
+void playlist_switch_index(struct PlaylistSource *playlist_data, size_t index);
 
 void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted);
 #pragma endregion
