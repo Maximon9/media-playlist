@@ -11,15 +11,15 @@
 #pragma region Media Functions
 void playlist_switch_index(struct PlaylistSource *playlist_data, size_t index)
 {
-	if (!playlist_data || !playlist_data->all_media || !playlist_data->media_source ||
+	if (!playlist_data || playlist_data->all_media.num > 0 || !playlist_data->media_source ||
 	    !playlist_data->media_source_settings)
 		return;
 
-	if (index >= playlist_data->all_media->num)
+	if (index >= playlist_data->all_media.num)
 		return;
 
 	// Get video file path from the array
-	const MediaFileData *media_data = &playlist_data->all_media->array[index];
+	const MediaFileData *media_data = &playlist_data->all_media.array[index];
 
 	if (!media_data)
 		return;
@@ -139,7 +139,7 @@ void playlist_source_destroy(void *data)
 	pthread_mutex_destroy(&playlist_data->mutex);
 	pthread_mutex_destroy(&playlist_data->audio_mutex);
 
-	free_media_array(playlist_data->all_media);
+	free_media_array(&playlist_data->all_media);
 
 	// if (playlist_data->current_media != NULL) {
 	// 	free(playlist_data->current_media);
@@ -175,11 +175,7 @@ obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 {
 	obs_properties_t *props = obs_properties_create();
 
-	int all_media_size = 0;
-
-	if (playlist_data->all_media != NULL) {
-		all_media_size = (int)playlist_data->all_media->num;
-	}
+	int all_media_size = (int)playlist_data->all_media.num;
 
 	int last_index = all_media_size - 1;
 
@@ -273,23 +269,18 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	bool previous_size_initialized = false;
 	size_t previous_size = 0;
 	if (playlist_data->all_media.num > 0) {
-		previous_size = playlist_data->all_media->num;
+		previous_size = playlist_data->all_media.num;
 		previous_size_initialized = true;
-		clear_media_array(playlist_data->all_media);
+		clear_media_array(&playlist_data->all_media);
 	}
 
-	// obs_data_array_retain(playlist_data->all_media, obs_data_get_array(settings, "playlist"));
+	obs_data_array_retain(&playlist_data->all_media, obs_data_get_array(settings, "playlist"));
 
 	if (playlist_data->debug == true) {
-		obs_log(LOG_INFO, "NERD");
-		obs_log_media_array(LOG_INFO, playlist_data->all_media, 90, "    ", true);
+		obs_log_media_array(LOG_INFO, &playlist_data->all_media, 90, "    ", true);
 	}
 
-	int all_media_size = 0;
-
-	if (playlist_data->all_media != NULL) {
-		all_media_size = (int)playlist_data->all_media->num;
-	}
+	int all_media_size = (int)playlist_data->all_media.num;
 
 	bool update_start_index_ui = false;
 	bool update_end_index_ui = false;
@@ -339,7 +330,7 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	}
 
 	if (previous_size_initialized == true) {
-		if (playlist_data->all_media->num != 0 && previous_size != playlist_data->all_media->num) {
+		if (playlist_data->all_media.num != 0 && previous_size != playlist_data->all_media.num) {
 			update_properties = true;
 			if (playlist_data->end_index == previous_size - 1) {
 				playlist_data->end_index = last_index;
@@ -390,58 +381,58 @@ void playlist_update(void *data, obs_data_t *settings)
 void playlist_activate(void *data)
 {
 	obs_log(LOG_INFO, "playlist_activate");
-	// struct PlaylistSource *playlist_data = data;
+	struct PlaylistSource *playlist_data = data;
 
-	// playlist_data->run = true;
-	// switch (playlist_data->playlist_start_behavior) {
-	// case RESTART:
-	// 	obs_log(LOG_INFO, "We restarted the entire playlist");
-	// 	playlist_data->current_media_index = 0;
-	// 	// playlist_data->current_media =
-	// 	// 	get_media(playlist_data->all_media, playlist_data->current_media_index);
-	// 	// playlist_data->current_media_source;
-	// 	playlist_switch_index(playlist_data, playlist_data->current_media_index);
-	// 	// obs_source_media_play_pause(playlist_data->source, false);
-	// 	// obs_source_media_stop(playlist_data->source);
-	// 	obs_source_media_restart(playlist_data->source);
-	// 	break;
-	// case UNPAUSE:
-	// 	/* code */
-	// 	break;
-	// case PAUSE:
-	// 	/* code */
-	// 	break;
-	// default:
-	// 	break;
-	// }
+	playlist_data->run = true;
+	switch (playlist_data->playlist_start_behavior) {
+	case RESTART:
+		obs_log(LOG_INFO, "We restarted the entire playlist");
+		playlist_data->current_media_index = 0;
+		// playlist_data->current_media =
+		// 	get_media(playlist_data->all_media, playlist_data->current_media_index);
+		// playlist_data->current_media_source;
+		playlist_switch_index(playlist_data, playlist_data->current_media_index);
+		// obs_source_media_play_pause(playlist_data->source, false);
+		// obs_source_media_stop(playlist_data->source);
+		obs_source_media_restart(playlist_data->source);
+		break;
+	case UNPAUSE:
+		/* code */
+		break;
+	case PAUSE:
+		/* code */
+		break;
+	default:
+		break;
+	}
 }
 
 void playlist_deactivate(void *data)
 {
 	obs_log(LOG_INFO, "playlist_deactivate");
+	struct PlaylistSource *playlist_data = data;
 	// struct PlaylistSource *playlist_data = data;
-	// // struct PlaylistSource *playlist_data = data;
-	// playlist_data->run = false;
-	// switch (playlist_data->playlist_start_behavior) {
-	// case RESTART:
-	// 	// playlist_data->current_media_index = 0;
-	// 	// playlist_data->current_media =
-	// 	// 	get_media(playlist_data->all_media, playlist_data->current_media_index);
-	// 	// playlist_data->current_media_source;
-	// 	// playlist_switch_index(playlist_data, playlist_data->current_media_index);
-	// 	// obs_source_media_play_pause(playlist_data->source, false);
-	// 	// obs_source_media_stop(playlist_data->source);
-	// 	obs_source_media_stop(playlist_data->source);
-	// 	break;
-	// case UNPAUSE:
-	// 	/* code */
-	// 	break;
-	// case PAUSE:
-	// 	/* code */
-	// 	break;
-	// default:
-	// 	break;
-	// }
+	playlist_data->run = false;
+	switch (playlist_data->playlist_start_behavior) {
+	case RESTART:
+		// playlist_data->current_media_index = 0;
+		// playlist_data->current_media =
+		// 	get_media(playlist_data->all_media, playlist_data->current_media_index);
+		// playlist_data->current_media_source;
+		// playlist_switch_index(playlist_data, playlist_data->current_media_index);
+		// obs_source_media_play_pause(playlist_data->source, false);
+		// obs_source_media_stop(playlist_data->source);
+		obs_source_media_stop(playlist_data->source);
+		break;
+	case UNPAUSE:
+		/* code */
+		break;
+	case PAUSE:
+		/* code */
+		break;
+	default:
+		break;
+	}
 }
 
 void playlist_video_tick(void *data, float seconds)
@@ -641,8 +632,7 @@ enum obs_media_state media_get_state(void *data)
 {
 	struct PlaylistSource *playlist_data = data;
 
-	if (playlist_data->all_media != NULL && playlist_data->all_media->num > 0 &&
-	    playlist_data->media_source != NULL) {
+	if (playlist_data->all_media.num > 0 && playlist_data->media_source != NULL) {
 		return obs_source_media_get_state(playlist_data->media_source);
 	}
 	return OBS_MEDIA_STATE_NONE;
