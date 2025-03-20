@@ -170,12 +170,12 @@ char *obs_array_to_string(obs_data_array_t *array)
 // 	}
 // }
 
-void obs_data_array_retain(MediaFileDataArray *media_file_data_array, obs_data_array_t *obs_playlist)
+MediaFileDataArray *obs_data_array_retain(MediaFileDataArray *media_file_data_array, obs_data_array_t *obs_playlist)
 {
 	size_t array_size = obs_data_array_count(obs_playlist);
 	if (array_size == 0) {
 		da_free(*media_file_data_array);
-		return;
+		return NULL;
 	}
 
 	for (size_t i = 0; i < array_size; ++i) {
@@ -195,13 +195,14 @@ void obs_data_array_retain(MediaFileDataArray *media_file_data_array, obs_data_a
 		obs_data_release(data);
 	}
 	obs_data_array_release(obs_playlist);
+	return media_file_data_array;
 }
 
 char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent)
 {
-	if (media_array->num == 0)
+	if (media_array == NULL && media_array->num == 0) {
 		return strdup("[]"); // Return empty brackets if no elements
-
+	}
 	// Calculate the initial length of the compact format
 	size_t total_length = 3; // For "[" and "]\0"
 	for (size_t i = 0; i < media_array->num; i++) {
