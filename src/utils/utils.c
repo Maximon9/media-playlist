@@ -58,25 +58,14 @@ void push_media_front(MediaFileDataArray *media_array, const char *path)
 void push_media_at(MediaFileDataArray *media_array, const char *path, size_t index)
 {
 	// Create and insert new MediaFileData
-	MediaFileData new_entry = {0};
-	new_entry.path = strdup(path);
-
-	// Extract filename from path
 	const char *last_slash = strrchr(path, '/');
-	new_entry.filename = strdup(last_slash ? last_slash + 1 : path);
 
-	// Generate a simple ID (you might replace this with a better approach)
-	// new_entry.id = strdup(new_entry.filename);
+	const MediaFileData new_entry = {.path = strdup(path),
+					 .filename = strdup(last_slash ? last_slash + 1 : path),
+					 .is_url = false,
+					 .index = index};
 
-	// Set other default values
-	new_entry.is_url = false;
-	new_entry.is_folder = false;
-	// new_entry.parent = NULL;
-	// new_entry.parent_id = NULL;
-	new_entry.index = index;
-
-	const MediaFileData *void_new_entry = &new_entry;
-	da_insert(*media_array, index, void_new_entry);
+	da_insert(*media_array, index, &new_entry);
 }
 
 /*
@@ -181,6 +170,19 @@ const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t ind
 }
 
 // Function to free the dynamic string array
+void clear_media_array(MediaFileDataArray *media_array)
+{
+	if (media_array != NULL) {
+		if (media_array->num > 0) {
+			for (size_t i = 0; i < media_array->num; i++) {
+				free(get_media(media_array, i)->path);
+				free(get_media(media_array, i)->filename);
+			}
+		}
+		da_clear(*media_array);
+	}
+}
+
 void free_media_array(MediaFileDataArray *media_array)
 {
 	if (media_array != NULL) {
@@ -191,36 +193,34 @@ void free_media_array(MediaFileDataArray *media_array)
 			}
 		}
 		da_free(*media_array);
-		bfree(media_array);
 	}
 }
 
-MediaFileDataArray *obs_data_array_retain(obs_data_array_t *obs_playlist)
+void obs_data_array_retain(MediaFileDataArray *media_file_data_array, obs_data_array_t *obs_playlist)
 {
 	size_t array_size = obs_data_array_count(obs_playlist);
 	if (array_size == 0) {
-		return NULL;
+		obs_data_array_release(obs_playlist);
+		return;
 	}
-	MediaFileDataArray *media_file_data_array = malloc(sizeof(MediaFileDataArray));
 
-	// for (size_t i = 0; i < array_size; ++i) {
-	// 	obs_data_t *data = obs_data_array_item(obs_playlist, i);
+	for (size_t i = 0; i < array_size; ++i) {
+		obs_data_t *data = obs_data_array_item(obs_playlist, i);
 
-	// 	if (data == NULL) {
-	// 		continue; // Skip if data is NULL (avoid potential crash or issues)
-	// 	}
+		if (data == NULL) {
+			continue; // Skip if data is NULL (avoid potential crash or issues)
+		}
 
-	// 	const char *element = obs_data_get_string(data, "value");
-	// 	if (element == NULL) {
-	// 		obs_data_release(data); // Release memory for the current element before skipping
-	// 		continue;               // Skip if no valid string was found
-	// 	}
-	// 	// Use the method call syntax; this passes media_file_data_array as the first parameter.
-	// 	push_media_back(media_file_data_array, element);
-	// 	obs_data_release(data);
-	// }
+		const char *element = obs_data_get_string(data, "value");
+		if (element == NULL) {
+			obs_data_release(data); // Release memory for the current element before skipping
+			continue;               // Skip if no valid string was found
+		}
+		// Use the method call syntax; this passes media_file_data_array as the first parameter.
+		push_media_back(media_file_data_array, element);
+		obs_data_release(data);
+	}
 	obs_data_array_release(obs_playlist);
-	return media_file_data_array;
 }
 
 char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent,
@@ -281,8 +281,7 @@ char *stringify_media_array(const MediaFileDataArray *media_array, size_t thresh
 			strcat(prettified_result, "\"");
 			if (only_file_name) {
 				strcat(prettified_result, get_media(media_array, i)->filename);
-			}
-			{
+			} else {
 				strcat(prettified_result, get_media(media_array, i)->path);
 			}
 			strcat(prettified_result, "\"");

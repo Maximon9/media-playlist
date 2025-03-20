@@ -29,7 +29,7 @@ struct PlaylistSource {
 	int loop_index;
 	bool infinite;
 	int loop_count;
-	MediaFileDataArray *all_media;
+	MediaFileDataArray all_media;
 	// const MediaFileData *current_media;
 	size_t current_media_index;
 	bool debug;

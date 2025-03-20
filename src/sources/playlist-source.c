@@ -84,7 +84,13 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	obs_source_add_active_child(playlist_data->source, playlist_data->media_source);
 	obs_source_add_audio_capture_callback(playlist_data->media_source, playlist_audio_callback, playlist_data);
 
-	playlist_data->all_media = NULL;
+	// MediaFileDataArray all_media;
+
+	// da_init(all_media);
+
+	// playlist_data->all_media = &all_media;
+
+	da_init(playlist_data->all_media);
 
 	playlist_data->start_index = 0;
 	playlist_data->end_index = 0;
@@ -266,15 +272,16 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 	bool previous_size_initialized = false;
 	size_t previous_size = 0;
-	if (playlist_data->all_media != NULL) {
+	if (playlist_data->all_media.num > 0) {
 		previous_size = playlist_data->all_media->num;
 		previous_size_initialized = true;
-		free_media_array(playlist_data->all_media);
+		clear_media_array(playlist_data->all_media);
 	}
 
-	playlist_data->all_media = obs_data_array_retain(obs_data_get_array(settings, "playlist"));
+	// obs_data_array_retain(playlist_data->all_media, obs_data_get_array(settings, "playlist"));
 
 	if (playlist_data->debug == true) {
+		obs_log(LOG_INFO, "NERD");
 		obs_log_media_array(LOG_INFO, playlist_data->all_media, 90, "    ", true);
 	}
 

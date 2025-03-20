@@ -10,7 +10,7 @@ typedef struct {
 	char *filename; // filename with ext, ONLY for folder item checking
 	// char *id;
 	bool is_url;
-	bool is_folder;
+	// bool is_folder;
 	// MediaFileDataArray folder_items;
 	// struct MediaFileData *parent;
 	// const char *parent_id; // for folder items
@@ -65,11 +65,15 @@ void free_media_array(MediaFileDataArray *media_array);
  */
 
 const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index);
-// Function to free the dynamic string array
+
+// Function to clear the dynamic media file data array
+void clear_media_array(MediaFileDataArray *media_array);
+
+// Function to free the dynamic media file data array
 void free_media_array(MediaFileDataArray *media_array);
 
 // Turns an obs_data_array_t into a MediaFileDataArray
-MediaFileDataArray *obs_data_array_retain(obs_data_array_t *obs_playlist);
+void obs_data_array_retain(MediaFileDataArray *media_file_data_array, obs_data_array_t *obs_playlist);
 
 // Turns the media array into a string
 char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent,
