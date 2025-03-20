@@ -4,17 +4,25 @@
 #include <obs-module.h>
 #include <plugin-support.h>
 #include <util/darray.h>
+#include <util/dstr.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <util/platform.h>
+
+static const char *media_filter =
+	" (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm *.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
+static const char *video_filter = " (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm);;";
+static const char *audio_filter = " (*.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
 
 typedef struct {
 	char *path;
-	char *filename; // filename with ext, ONLY for folder item checking
-	// char *id;
-	bool is_url;
+	char *filename;
+	char *name;
+	char *ext;
 	// bool is_folder;
-	// MediaFileDataArray folder_items;
-	// struct MediaFileData *parent;
-	// const char *parent_id; // for folder items
-	size_t index; // makes it easier to switch back to non-shuffle mode
+	// const MediaFileData *parent;
+	size_t index;
 } MediaFileData;
 
 // typedef struct {
@@ -24,20 +32,21 @@ typedef struct {
 // } MediaFileDataArray;
 typedef DARRAY(MediaFileData) MediaFileDataArray;
 
-char *obs_array_to_string(obs_data_array_t *array);
+static char *obs_array_to_string(obs_data_array_t *array);
 
 // Function to initialize the dynamic string array
 // void init_media_array(MediaFileDataArray *media_array, size_t initial_capacity);
 
 // Function to add a media from a string path to the end of array
-void push_media_back(MediaFileDataArray *media_array, const char *path);
+static void push_media_back(MediaFileDataArray *media_array, const char *path);
 
 // Function to add a media from a string path to the front of array
-void push_media_front(MediaFileDataArray *media_array, const char *path);
+static void push_media_front(MediaFileDataArray *media_array, const char *path);
 
 // Function to add a media from a string path to the array at a specific index
-void push_media_at(MediaFileDataArray *media_array, const char *path, size_t index);
+static void push_media_at(MediaFileDataArray *media_array, const char *path, size_t index);
 
+static const MediaFileData create_media_file_data_from_path(const char *path, size_t index);
 /*
 // Function to add a media from a MediaFileData to the end of array
 void push_media_file_data_back(MediaFileDataArray *media_array, MediaFileData media_file_data);
@@ -64,7 +73,7 @@ Function to free the dynamic media array
 void free_media_array(MediaFileDataArray *media_array);
  */
 
-const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index);
+static const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index);
 
 // Function to clear the dynamic media file data array
 void clear_media_array(MediaFileDataArray *media_array);
@@ -72,15 +81,18 @@ void clear_media_array(MediaFileDataArray *media_array);
 // Function to free the dynamic media file data array
 void free_media_array(MediaFileDataArray *media_array);
 
+// Returns true if extension is valid
+static bool valid_extension(const char *ext);
+
 // Turns an obs_data_array_t into a MediaFileDataArray
-void obs_data_array_retain(MediaFileDataArray *media_file_data_array, obs_data_array_t *obs_playlist);
+void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_data_array_t *obs_playlist);
 
 // Turns the media array into a string
-char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent,
-			    bool only_file_name);
+static char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent,
+				   bool only_file_name);
 
 // Logs the media array in the obs log files
 void obs_log_media_array(int log_level, char *format, const MediaFileDataArray *media_array, size_t threshold,
 			 const char *indent, bool only_file_name);
 
-#endif // UTILS_H
+#endif; // UTILS_H

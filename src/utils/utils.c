@@ -2,7 +2,7 @@
 
 #include "../include/utils/utils.h"
 
-char *obs_array_to_string(obs_data_array_t *array)
+static char *obs_array_to_string(obs_data_array_t *array)
 {
 	size_t array_size = obs_data_array_count(array);
 
@@ -45,27 +45,54 @@ char *obs_array_to_string(obs_data_array_t *array)
 	media_array->data = (MediaFileData *)malloc(media_array->capacity * sizeof(MediaFileData));
 } */
 
-void push_media_back(MediaFileDataArray *media_array, const char *path)
+static void push_media_back(MediaFileDataArray *media_array, const char *path)
 {
 	push_media_at(media_array, path, media_array->num);
 }
 
-void push_media_front(MediaFileDataArray *media_array, const char *path)
+static void push_media_front(MediaFileDataArray *media_array, const char *path)
 {
 	push_media_at(media_array, path, 0);
 }
 
-void push_media_at(MediaFileDataArray *media_array, const char *path, size_t index)
+static void push_media_at(MediaFileDataArray *media_array, const char *path, size_t index)
+{
+	const MediaFileData new_entry = create_media_file_data_from_path(path, index);
+	da_insert(*media_array, index, &new_entry);
+}
+
+static const MediaFileData create_media_file_data_from_path(const char *path, size_t index)
 {
 	// Create and insert new MediaFileData
 	const char *last_slash = strrchr(path, '/');
+	const char *temp_file_name = last_slash ? last_slash + 1 : path;
+
+	char *file_name = strdup(temp_file_name);
+
+	const char *dot_pos = strrchr(temp_file_name, '.');
+
+	char *ext = strdup(dot_pos ? dot_pos + 1 : "None");
+
+	char *name;
+	if (dot_pos != NULL) {
+		// Calculate the length of the name (without the extension)
+		size_t name_len = dot_pos - temp_file_name; // Length of name without the extension
+		name = malloc(name_len + 1);                // Allocate memory for the name part
+
+		if (name != NULL) {
+			memcpy(name, temp_file_name, name_len); // Copy the name part
+			name[name_len] = '\0';                  // Null-terminate the name
+		}
+	} else {
+		name = strdup(file_name); // If no extension, the full name is used
+	}
 
 	const MediaFileData new_entry = {.path = strdup(path),
-					 .filename = strdup(last_slash ? last_slash + 1 : path),
-					 .is_url = false,
+					 .filename = file_name,
+					 .name = name,
+					 .ext = ext,
 					 .index = index};
-
-	da_insert(*media_array, index, &new_entry);
+	return new_entry;
 }
 
 /*
@@ -162,7 +189,7 @@ void free_media_array(MediaFileDataArray *media_array)
 }
 */
 
-const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index)
+static const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index)
 {
 	if (index >= media_array->num)
 		return NULL; // Out of bounds
@@ -177,6 +204,8 @@ void clear_media_array(MediaFileDataArray *media_array)
 			for (size_t i = 0; i < media_array->num; i++) {
 				free(get_media(media_array, i)->path);
 				free(get_media(media_array, i)->filename);
+				free(get_media(media_array, i)->name);
+				free(get_media(media_array, i)->ext);
 			}
 		}
 		da_clear(*media_array);
@@ -190,13 +219,38 @@ void free_media_array(MediaFileDataArray *media_array)
 			for (size_t i = 0; i < media_array->num; i++) {
 				free(get_media(media_array, i)->path);
 				free(get_media(media_array, i)->filename);
+				free(get_media(media_array, i)->name);
+				free(get_media(media_array, i)->ext);
 			}
 		}
 		da_free(*media_array);
 	}
 }
 
-void obs_data_array_retain(MediaFileDataArray *media_file_data_array, obs_data_array_t *obs_playlist)
+static bool valid_extension(const char *ext)
+{
+	struct dstr haystack = {0};
+	struct dstr needle = {0};
+	bool valid = false;
+
+	if (!ext || !*ext)
+		return false;
+
+	dstr_copy(&haystack, media_filter);
+	dstr_cat(&haystack, video_filter);
+	dstr_cat(&haystack, audio_filter);
+
+	dstr_cat_ch(&needle, '*');
+	dstr_cat(&needle, ext);
+
+	valid = dstr_find_i(&haystack, needle.array);
+
+	dstr_free(&haystack);
+	dstr_free(&needle);
+	return valid;
+}
+
+void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_data_array_t *obs_playlist)
 {
 	size_t array_size = obs_data_array_count(obs_playlist);
 	if (array_size == 0) {
@@ -216,15 +270,22 @@ void obs_data_array_retain(MediaFileDataArray *media_file_data_array, obs_data_a
 			obs_data_release(data); // Release memory for the current element before skipping
 			continue;               // Skip if no valid string was found
 		}
-		// Use the method call syntax; this passes media_file_data_array as the first parameter.
-		push_media_back(media_file_data_array, element);
+
+		os_dir_t *dir = os_opendir(element);
+
+		if (dir) {
+
+		} else {
+			push_media_back(media_file_data_array, element);
+		}
+
 		obs_data_release(data);
 	}
 	obs_data_array_release(obs_playlist);
 }
 
-char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent,
-			    bool only_file_name)
+static char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent,
+				   bool only_file_name)
 {
 	if (media_array == NULL || media_array->num <= 0) {
 		return strdup("[]"); // Return empty brackets if no elements

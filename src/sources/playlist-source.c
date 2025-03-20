@@ -273,7 +273,7 @@ static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_
 		clear_media_array(&playlist_data->all_media);
 	}
 
-	obs_data_array_retain(&playlist_data->all_media, obs_data_get_array(settings, "playlist"));
+	obs_data_media_array_retain(&playlist_data->all_media, obs_data_get_array(settings, "playlist"));
 
 	if (playlist_data->debug == true) {
 		obs_log_media_array(LOG_INFO, "All Media:\n", &playlist_data->all_media, 90, "    ", true);

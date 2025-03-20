@@ -12,11 +12,6 @@
 #include "../include/utils/utils.h"
 #include "../include/utils/enum-utils.h"
 
-static const char *media_filter =
-	" (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm *.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
-static const char *video_filter = " (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm);;";
-static const char *audio_filter = " (*.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
-
 struct PlaylistSource {
 #pragma region Public
 	obs_source_t *source;
