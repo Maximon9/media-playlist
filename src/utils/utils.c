@@ -226,7 +226,7 @@ static const MediaFileData *get_media(const MediaFileDataArray *media_array, siz
 	return &media_array->array[index];
 }
 
-char *upper_snake_case_to_title_case(const char *name)
+char *screaming_snake_case_to_title_case(const char *name)
 {
 	if (!name)
 		return NULL;

@@ -185,13 +185,17 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
 					 media_filter, "");
 
+	obs_properties_add_int_slider(props, "start_index", "Start Index", 0, last_index, 1);
+
+	obs_properties_add_int_slider(props, "end_index", "End Index", 0, last_index, 1);
+
 	obs_property_t *psb_property = obs_properties_add_list(
 		props, "playlist_start_behavior", "Playlist Start Behavior", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 
 	long long i = 0;
 	const char *name = StartBehavior[i];
 	while (name != "") {
-		char *display_name = upper_snake_case_to_title_case(name);
+		char *display_name = screaming_snake_case_to_title_case(name);
 		if (!display_name) {
 			continue;
 		}
@@ -207,7 +211,7 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 	i = 0;
 	name = EndBehavior[i];
 	while (name != "") {
-		char *display_name = upper_snake_case_to_title_case(name);
+		char *display_name = screaming_snake_case_to_title_case(name);
 		if (!display_name) {
 			continue;
 		}
@@ -227,10 +231,6 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 			obs_properties_add_int(props, "loop_count", "Loop Count", 0, INT_MAX, 1);
 		}
 	}
-
-	obs_properties_add_int_slider(props, "start_index", "Start Index", 0, last_index, 1);
-
-	obs_properties_add_int_slider(props, "end_index", "End Index", 0, last_index, 1);
 
 	obs_properties_add_bool(props, "debug", "Debug");
 	return props;
@@ -307,34 +307,37 @@ static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_
 			update_properties = true;
 		}
 		playlist_data->infinite = infinite;
+		if (playlist_data->infinite) {
+			playlist_data->loop_count = (int)obs_data_get_int(settings, "loop_count");
+		}
 	}
 	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX) {
-		bool update_loop_index_ui = false;
-
-		int loop_index = (int)obs_data_get_int(settings, "loop_index");
-		int loop_count = (int)obs_data_get_int(settings, "loop_count");
-
+		playlist_data->loop_index = (int)obs_data_get_int(settings, "loop_index");
 		if (playlist_data->debug == true) {
-			obs_log(LOG_INFO, "Infinite New Value: %s", loop_index);
-			obs_log(LOG_INFO, "Infinite New Value: %s", playlist_data->infinite == true ? "true" : "false");
-			obs_log(LOG_INFO, "Infinite New Value: %s", loop_count);
+			obs_log(LOG_INFO, "Infinite New Value: %d", playlist_data->loop_index);
 		}
 
-		playlist_data->loop_index = loop_index;
-		playlist_data->loop_count = loop_count;
+		bool update_loop_index_ui = false;
 
 		if (playlist_data->loop_index < 0) {
 			playlist_data->loop_index = playlist_data->start_index;
 			update_loop_index_ui = true;
-			update_properties = true;
 		} else if (playlist_data->end_index >= all_media_size) {
 			playlist_data->loop_index = last_index;
 			update_loop_index_ui = true;
-			update_properties = true;
 		}
 
 		if (update_loop_index_ui) {
+			update_properties = true;
 			obs_data_set_int(settings, "loop_index", playlist_data->loop_index);
+		}
+	}
+
+	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX ||
+	    playlist_data->playlist_end_behavior == LOOP_AT_END) {
+		if (playlist_data->debug == true) {
+			obs_log(LOG_INFO, "Infinite New Value: %s", playlist_data->infinite == true ? "true" : "false");
+			obs_log(LOG_INFO, "Infinite New Value: %d", playlist_data->loop_count);
 		}
 	}
 
