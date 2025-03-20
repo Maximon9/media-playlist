@@ -207,6 +207,7 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 		obs_properties_add_bool(props, "infinite", "infinite");
 		if (playlist_data->infinite == false) {
 			obs_properties_add_int(props, "loop_count", "Loop Count", 0, INT_MAX, 1);
+
 			obs_property_t *leb_property = obs_properties_add_list(props, "loop_end_behavior",
 									       "Loop End Behavior", OBS_COMBO_TYPE_LIST,
 									       OBS_COMBO_FORMAT_INT);

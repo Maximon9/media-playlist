@@ -3,6 +3,7 @@
 #include "../include/utils/utils.h"
 
 #pragma region Media Array Utils
+
 static char *obs_array_to_string(obs_data_array_t *array)
 {
 	size_t array_size = obs_data_array_count(array);
@@ -349,9 +350,11 @@ void obs_log_media_array(int log_level, char *format, const MediaFileDataArray *
 	free(result);
 	free(concat_result);
 }
+
 #pragma endregion
 
 #pragma region Utils
+
 char *screaming_snake_case_to_title_case(const char *name)
 {
 	if (!name)
@@ -393,6 +396,7 @@ void add_enums_to_property_list(obs_property_t *property, const char *Enum[])
 		free(display_name);
 	}
 }
+
 #pragma endregion
 
 #pragma endregion

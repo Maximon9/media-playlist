@@ -12,6 +12,8 @@
 #include "../include/utils/utils.h"
 #include "../include/utils/enum-utils.h"
 
+#pragma region Custom Types
+
 struct PlaylistSource {
 #pragma region Public
 	obs_source_t *source;
@@ -24,7 +26,7 @@ struct PlaylistSource {
 	int loop_index;
 	bool infinite;
 	int loop_count;
-	enum EndBehavior playlist_end_behavior;
+	enum LoopEndBehavior loop_end_behavior;
 	bool rest_playlist_after_last_loop;
 	MediaFileDataArray all_media;
 	// const MediaFileData *current_media;
@@ -43,11 +45,25 @@ struct PlaylistSource {
 #pragma endregion
 };
 
+#pragma endregion
+
 #pragma region Media Functions
+
 static void playlist_switch_index(struct PlaylistSource *playlist_data, size_t index);
 
 static void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted);
+
 #pragma endregion
+
+#pragma region Property Managment
+
+static obs_properties_t *make_playlist_properties();
+
+static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings);
+
+#pragma endregion
+
+#pragma region Playlist Main Functions
 
 const char *playlist_source_name(void *data);
 
@@ -61,11 +77,7 @@ uint32_t playlist_source_height(void *data);
 
 void playlist_get_defaults(obs_data_t *settings);
 
-static obs_properties_t *make_playlist_properties();
-
 obs_properties_t *playlist_get_properties(void *data);
-
-static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings);
 
 void playlist_update(void *data, obs_data_t *settings);
 
@@ -104,6 +116,10 @@ void media_set_time(void *data, int64_t miliseconds);
 
 enum obs_media_state media_get_state(void *data);
 
+#pragma endregion
+
+#pragma region Playlist Template
+
 static struct obs_source_info playlist_source_template = {
 	.id = "media_playlist_code_maximon9",
 	.type = OBS_SOURCE_TYPE_INPUT,
@@ -135,5 +151,7 @@ static struct obs_source_info playlist_source_template = {
 	.media_set_time = media_set_time,
 	.media_get_state = media_get_state,
 };
+
+#pragma endregion
 
 #endif; // PLAYLIST_SOURCE_H

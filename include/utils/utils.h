@@ -27,6 +27,7 @@ typedef struct {
 typedef DARRAY(MediaFileData) MediaFileDataArray;
 
 #pragma region Media Array Utils
+
 static char *obs_array_to_string(obs_data_array_t *array);
 
 static void push_media_back(MediaFileDataArray *media_array, const char *path);
@@ -57,10 +58,15 @@ static char *stringify_media_array(const MediaFileDataArray *media_array, size_t
 // Logs the media array in the obs log files
 void obs_log_media_array(int log_level, char *format, const MediaFileDataArray *media_array, size_t threshold,
 			 const char *indent, bool only_file_name);
+
 #pragma endregion
 
 #pragma region Utils
+
 char *screaming_snake_case_to_title_case(const char *name);
 
 void add_enums_to_property_list(obs_property_t *property, const char *StartBehavior[]);
+
+#pragma endregion
+
 #endif; // UTILS_H
