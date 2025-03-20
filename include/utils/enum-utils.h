@@ -2,9 +2,11 @@
 #define ENUM_UTILS_H
 
 // Define the StartBehavior enum values
-#define ENUM_START_BEHAVIOR_LIST \
-	X(RESTART)               \
-	X(UNPAUSE)               \
+#define ENUM_START_BEHAVIOR_LIST   \
+	X(RESTART_ENTIRE_PLAYLIST) \
+	X(RESTART_AT_CURRENT_INEX) \
+	X(KEEP_SAME_BEHAVIOR)      \
+	X(UNPAUSE)                 \
 	X(PAUSE)
 
 // Define the EndBehavior enum values

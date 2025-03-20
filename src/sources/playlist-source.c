@@ -384,7 +384,7 @@ void playlist_activate(void *data)
 
 	playlist_data->run = true;
 	switch (playlist_data->playlist_start_behavior) {
-	case RESTART:
+	case RESTART_ENTIRE_PLAYLIST:
 		obs_log(LOG_INFO, "We restarted the entire playlist");
 		playlist_data->current_media_index = 0;
 		// playlist_data->current_media =
@@ -395,7 +395,13 @@ void playlist_activate(void *data)
 		// obs_source_media_stop(playlist_data->source);
 		obs_source_media_restart(playlist_data->source);
 		break;
+	case RESTART_AT_CURRENT_INEX:
+		/* code */
+		break;
 	case UNPAUSE:
+		/* code */
+		break;
+	case KEEP_SAME_BEHAVIOR:
 		/* code */
 		break;
 	case PAUSE:
@@ -413,17 +419,16 @@ void playlist_deactivate(void *data)
 	// struct PlaylistSource *playlist_data = data;
 	playlist_data->run = false;
 	switch (playlist_data->playlist_start_behavior) {
-	case RESTART:
-		// playlist_data->current_media_index = 0;
-		// playlist_data->current_media =
-		// 	get_media(playlist_data->all_media, playlist_data->current_media_index);
-		// playlist_data->current_media_source;
-		// playlist_switch_index(playlist_data, playlist_data->current_media_index);
-		// obs_source_media_play_pause(playlist_data->source, false);
-		// obs_source_media_stop(playlist_data->source);
+	case RESTART_ENTIRE_PLAYLIST:
 		obs_source_media_stop(playlist_data->source);
 		break;
+	case RESTART_AT_CURRENT_INEX:
+		/* code */
+		break;
 	case UNPAUSE:
+		/* code */
+		break;
+	case KEEP_SAME_BEHAVIOR:
 		/* code */
 		break;
 	case PAUSE:

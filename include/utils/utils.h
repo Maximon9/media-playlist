@@ -75,8 +75,10 @@ void free_media_array(MediaFileDataArray *media_array);
 
 static const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index);
 
-// Function to clear the dynamic media file data array
-void clear_media_array(MediaFileDataArray *media_array);
+char *upper_snake_case_to_title_case(const char *name)
+
+	// Function to clear the dynamic media file data array
+	void clear_media_array(MediaFileDataArray *media_array);
 
 // Function to free the dynamic media file data array
 void free_media_array(MediaFileDataArray *media_array);

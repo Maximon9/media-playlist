@@ -95,6 +95,36 @@ static const MediaFileData create_media_file_data_from_path(const char *path, si
 	return new_entry;
 }
 
+static const MediaFileData create_media_file_data_from_path_and_file_name(const char *path, const char *file_name,
+									  size_t index)
+{
+	// Create and insert new MediaFileData
+	const char *dot_pos = strrchr(file_name, '.');
+
+	char *ext = strdup(dot_pos ? dot_pos + 1 : "None");
+
+	char *name;
+	if (dot_pos != NULL) {
+		// Calculate the length of the name (without the extension)
+		size_t name_len = dot_pos - file_name; // Length of name without the extension
+		name = malloc(name_len + 1);           // Allocate memory for the name part
+
+		if (name != NULL) {
+			memcpy(name, file_name, name_len); // Copy the name part
+			name[name_len] = '\0';             // Null-terminate the name
+		}
+	} else {
+		name = strdup(file_name); // If no extension, the full name is used
+	}
+
+	const MediaFileData new_entry = {.path = strdup(path),
+					 .filename = strdup(file_name),
+					 .name = name,
+					 .ext = ext,
+					 .index = index};
+	return new_entry;
+}
+
 /*
 void push_media_file_data_back(MediaFileDataArray *media_array, MediaFileData media_file_data)
 {
@@ -196,6 +226,32 @@ static const MediaFileData *get_media(const MediaFileDataArray *media_array, siz
 	return &media_array->array[index];
 }
 
+char *upper_snake_case_to_title_case(const char *name)
+{
+	if (!name)
+		return NULL;
+
+	size_t len = strlen(name);
+	char *output = malloc(len + 1); // Allocate memory for new string
+	if (!output)
+		return NULL;
+
+	int capitalize_next = 1; // Ensure first letter is uppercase
+
+	for (size_t i = 0; i < len; i++) {
+		if (name[i] == '_') {
+			output[i] = ' ';     // Replace underscore with space
+			capitalize_next = 1; // Next letter should be capitalized
+		} else {
+			output[i] = capitalize_next ? toupper(name[i]) : tolower(name[i]);
+			capitalize_next = 0;
+		}
+	}
+
+	output[len] = '\0'; // Null-terminate the string
+	return output;
+}
+
 // Function to free the dynamic string array
 void clear_media_array(MediaFileDataArray *media_array)
 {
@@ -274,7 +330,43 @@ void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_
 		os_dir_t *dir = os_opendir(element);
 
 		if (dir) {
+			struct os_dirent *entry;
+			while (true) {
 
+				const char *ext;
+
+				entry = os_readdir(dir);
+				if (!entry)
+					break;
+
+				if (entry->directory)
+					continue;
+
+				ext = os_get_path_extension(entry->d_name);
+				if (!valid_extension(ext))
+					continue;
+
+				// Allocate memory dynamically for full path
+				size_t path_len =
+					strlen(element) + strlen(entry->d_name) + 2; // +2 for '/' and null terminator
+				char *full_path = malloc(path_len);
+				if (!full_path) {
+					obs_log(LOG_INFO, "Memory allocation failed for: %s\n", entry->d_name);
+					continue;
+				}
+				snprintf(full_path, path_len, "%s/%s", element, entry->d_name);
+
+				// obs_log(LOG_INFO, "\nFound file: \n%s\n%s\n%s\n", element, entry->d_name, full_path);
+
+				const MediaFileData new_entry = create_media_file_data_from_path_and_file_name(
+					full_path, entry->d_name, media_file_data_array->num);
+				da_insert(*media_file_data_array, media_file_data_array->num, &new_entry);
+
+				// Free allocated memory
+				free(full_path);
+			}
+
+			os_closedir(dir);
 		} else {
 			push_media_back(media_file_data_array, element);
 		}
