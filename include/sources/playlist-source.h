@@ -83,6 +83,8 @@ void playlist_video_render(void *data, gs_effect_t *effect);
 bool playlist_audio_render(void *data, uint64_t *ts_out, struct obs_source_audio_mix *audio_output, uint32_t mixers,
 			   size_t channels, size_t sample_rate);
 
+void playlist_enum_active_sources(void *data, obs_source_enum_proc_t enum_callback, void *param);
+
 void playlist_save(void *data, obs_data_t *settings);
 
 void playlist_load(void *data, obs_data_t *settings);
@@ -122,6 +124,7 @@ static struct obs_source_info playlist_source_template = {
 	.video_tick = playlist_video_tick,
 	.video_render = playlist_video_render,
 	.audio_render = playlist_audio_render,
+	.enum_active_sources = playlist_enum_active_sources,
 	.save = playlist_save,
 	.load = playlist_load,
 	.icon_type = OBS_ICON_TYPE_MEDIA,
