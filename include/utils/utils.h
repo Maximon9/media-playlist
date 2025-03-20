@@ -6,8 +6,9 @@
 #include <util/darray.h>
 #include <util/dstr.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
 #include <util/platform.h>
 
 static const char *media_filter =
@@ -75,10 +76,10 @@ void free_media_array(MediaFileDataArray *media_array);
 
 static const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index);
 
-char *upper_snake_case_to_title_case(const char *name)
+char *upper_snake_case_to_title_case(const char *name);
 
-	// Function to clear the dynamic media file data array
-	void clear_media_array(MediaFileDataArray *media_array);
+// Function to clear the dynamic media file data array
+void clear_media_array(MediaFileDataArray *media_array);
 
 // Function to free the dynamic media file data array
 void free_media_array(MediaFileDataArray *media_array);
