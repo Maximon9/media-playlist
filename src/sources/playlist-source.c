@@ -192,34 +192,12 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 	obs_property_t *psb_property = obs_properties_add_list(
 		props, "playlist_start_behavior", "Playlist Start Behavior", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 
-	long long i = 0;
-	const char *name = StartBehavior[i];
-	while (name != "") {
-		char *display_name = screaming_snake_case_to_title_case(name);
-		if (!display_name) {
-			continue;
-		}
-		obs_property_list_add_int(psb_property, display_name, i);
-		i++;
-		name = StartBehavior[i];
-		free(display_name);
-	}
+	add_enums_to_property_list(psb_property, StartBehavior);
 
 	obs_property_t *peb_property = obs_properties_add_list(props, "playlist_end_behavior", "Playlist End Behavior",
 							       OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 
-	i = 0;
-	name = EndBehavior[i];
-	while (name != "") {
-		char *display_name = screaming_snake_case_to_title_case(name);
-		if (!display_name) {
-			continue;
-		}
-		obs_property_list_add_int(peb_property, display_name, i);
-		i++;
-		name = EndBehavior[i];
-		free(display_name);
-	}
+	add_enums_to_property_list(peb_property, EndBehavior);
 
 	if (playlist_data->playlist_end_behavior == LOOP_AT_INDEX) {
 		obs_properties_add_int_slider(props, "loop_index", "Loop Index", 0, last_index, 1);
@@ -229,6 +207,10 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 		obs_properties_add_bool(props, "infinite", "infinite");
 		if (playlist_data->infinite == false) {
 			obs_properties_add_int(props, "loop_count", "Loop Count", 0, INT_MAX, 1);
+			obs_property_t *leb_property = obs_properties_add_list(props, "loop_end_behavior",
+									       "Loop End Behavior", OBS_COMBO_TYPE_LIST,
+									       OBS_COMBO_FORMAT_INT);
+			add_enums_to_property_list(peb_property, LoopEndBehavior);
 		}
 	}
 

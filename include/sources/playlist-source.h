@@ -24,6 +24,8 @@ struct PlaylistSource {
 	int loop_index;
 	bool infinite;
 	int loop_count;
+	enum EndBehavior playlist_end_behavior;
+	bool rest_playlist_after_last_loop;
 	MediaFileDataArray all_media;
 	// const MediaFileData *current_media;
 	size_t current_media_index;

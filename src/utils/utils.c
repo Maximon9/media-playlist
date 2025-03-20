@@ -2,6 +2,7 @@
 
 #include "../include/utils/utils.h"
 
+#pragma region Media Array Utils
 static char *obs_array_to_string(obs_data_array_t *array)
 {
 	size_t array_size = obs_data_array_count(array);
@@ -37,13 +38,6 @@ static char *obs_array_to_string(obs_data_array_t *array)
 	return result;
 	return "[]";
 }
-
-/* void init_media_array(MediaFileDataArray *media_array, size_t initial_capacity)
-{
-	media_array->size = 0;
-	media_array->capacity = initial_capacity;
-	media_array->data = (MediaFileData *)malloc(media_array->capacity * sizeof(MediaFileData));
-} */
 
 static void push_media_back(MediaFileDataArray *media_array, const char *path)
 {
@@ -125,100 +119,6 @@ static const MediaFileData create_media_file_data_from_path_and_file_name(const 
 	return new_entry;
 }
 
-/*
-void push_media_file_data_back(MediaFileDataArray *media_array, MediaFileData media_file_data)
-{
-	push_media_file_data_at(media_array, media_file_data, media_array->size);
-}
-
-void push_media_file_data_front(MediaFileDataArray *media_array, MediaFileData media_file_data)
-{
-	push_media_file_data_at(media_array, media_file_data, 0);
-}
-
-void push_media_file_data_at(MediaFileDataArray *media_array, MediaFileData media_file_data, size_t index)
-{
-	// Ensure index is within bounds
-	if (index > media_array->size) {
-		index = media_array->size; // Append to the end if index is out of range
-	}
-
-	// Resize if needed
-	if (media_array->size >= media_array->capacity) {
-		size_t new_capacity = (media_array->capacity == 0) ? 1 : media_array->capacity * 2;
-		MediaFileData *new_data = realloc(media_array->data, new_capacity * sizeof(MediaFileData));
-		if (!new_data)
-			return; // Memory allocation failed
-		media_array->data = new_data;
-		media_array->capacity = new_capacity;
-	}
-
-	// Shift elements to the right
-	memmove(&media_array->data[index + 1], &media_array->data[index],
-		(media_array->size - index) * sizeof(MediaFileData));
-
-	// Insert into array
-	media_array->data[index] = media_file_data;
-	media_array->size++;
-}
-
-void pop_media_back(MediaFileDataArray *media_array)
-{
-	pop_media_at(media_array, media_array->size);
-}
-
-void pop_media_front(MediaFileDataArray *media_array)
-{
-	pop_media_at(media_array, 0);
-}
-
-void pop_media_at(MediaFileDataArray *media_array, size_t index)
-{
-	if (index >= media_array->size)
-		return;
-
-	free(media_array->data[index].path);
-	free(media_array->data[index].filename);
-
-	for (size_t i = index; i < media_array->size - 1; i++) {
-		media_array->data[i] = media_array->data[i + 1];
-	}
-
-	media_array->size--;
-
-	if (media_array->size > 0 && media_array->size <= media_array->capacity / 4) {
-		media_array->capacity /= 2;
-		media_array->data =
-			(MediaFileData *)realloc(media_array->data, media_array->capacity * sizeof(MediaFileData));
-	}
-}
-
-// Function to get a string by index
-const MediaFileData *get_media(MediaFileDataArray *media_array, size_t index)
-{
-	if (index >= media_array->size)
-		return NULL; // Out of bounds
-	return &media_array->data[index];
-}
-
-// Function to free the dynamic string array
-void free_media_array(MediaFileDataArray *media_array)
-{
-	if (media_array != NULL) {
-		if (media_array->size > 0) {
-			for (size_t i = 0; i < media_array->size; i++) {
-				free(media_array->data[i].path);
-				free(media_array->data[i].filename);
-			}
-		}
-		if (media_array->data != NULL) {
-			free(media_array->data);
-		}
-		free(media_array);
-	}
-}
-*/
-
 static const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index)
 {
 	if (index >= media_array->num)
@@ -226,33 +126,6 @@ static const MediaFileData *get_media(const MediaFileDataArray *media_array, siz
 	return &media_array->array[index];
 }
 
-char *screaming_snake_case_to_title_case(const char *name)
-{
-	if (!name)
-		return NULL;
-
-	size_t len = strlen(name);
-	char *output = malloc(len + 1); // Allocate memory for new string
-	if (!output)
-		return NULL;
-
-	int capitalize_next = 1; // Ensure first letter is uppercase
-
-	for (size_t i = 0; i < len; i++) {
-		if (name[i] == '_') {
-			output[i] = ' ';     // Replace underscore with space
-			capitalize_next = 1; // Next letter should be capitalized
-		} else {
-			output[i] = capitalize_next ? toupper(name[i]) : tolower(name[i]);
-			capitalize_next = 0;
-		}
-	}
-
-	output[len] = '\0'; // Null-terminate the string
-	return output;
-}
-
-// Function to free the dynamic string array
 void clear_media_array(MediaFileDataArray *media_array)
 {
 	if (media_array != NULL) {
@@ -476,5 +349,50 @@ void obs_log_media_array(int log_level, char *format, const MediaFileDataArray *
 	free(result);
 	free(concat_result);
 }
+#pragma endregion
+
+#pragma region Utils
+char *screaming_snake_case_to_title_case(const char *name)
+{
+	if (!name)
+		return NULL;
+
+	size_t len = strlen(name);
+	char *output = malloc(len + 1); // Allocate memory for new string
+	if (!output)
+		return NULL;
+
+	int capitalize_next = 1; // Ensure first letter is uppercase
+
+	for (size_t i = 0; i < len; i++) {
+		if (name[i] == '_') {
+			output[i] = ' ';     // Replace underscore with space
+			capitalize_next = 1; // Next letter should be capitalized
+		} else {
+			output[i] = capitalize_next ? toupper(name[i]) : tolower(name[i]);
+			capitalize_next = 0;
+		}
+	}
+
+	output[len] = '\0'; // Null-terminate the string
+	return output;
+}
+
+void add_enums_to_property_list(obs_property_t *property, const char *Enum[])
+{
+	long long i = 0;
+	const char *name = Enum[i];
+	while (name != "") {
+		char *display_name = screaming_snake_case_to_title_case(name);
+		if (!display_name) {
+			continue;
+		}
+		obs_property_list_add_int(property, display_name, i);
+		i++;
+		name = Enum[i];
+		free(display_name);
+	}
+}
+#pragma endregion
 
 #pragma endregion

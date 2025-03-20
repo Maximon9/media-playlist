@@ -4,5 +4,6 @@
 
 const char *StartBehavior[] = {ENUM_START_BEHAVIOR_LIST ""};
 const char *EndBehavior[] = {ENUM_END_BEHAVIOR_LIST ""};
+const char *LoopEndBehavior[] = {ENUM_LOOP_END_BEHAVIOR_LIST ""};
 
 #undef X
