@@ -305,8 +305,23 @@ void obs_log_media_array(int log_level, char *format, const MediaFileDataArray *
 			 const char *indent, bool only_file_name)
 {
 	char *result = stringify_media_array(media_array, threshold, indent, only_file_name);
-	obs_log(log_level, strcat(format, result));
+
+	size_t total_length = strlen(format) + strlen(result) + 1;
+	char *concat_result = malloc(total_length);
+
+	if (!concat_result) {
+		perror("Failed to allocate memory");
+		free(result);
+		return;
+	}
+
+	strcpy(concat_result, format);
+	strcat(concat_result, result);
+
+	obs_log(log_level, concat_result);
+
 	free(result);
+	free(concat_result);
 }
 
 #pragma endregion
