@@ -68,7 +68,6 @@ const char *playlist_source_name(void *data)
 
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 {
-	obs_log(LOG_INFO, "Created Sourced Maybe???");
 	struct PlaylistSource *playlist_data = bzalloc(sizeof(*playlist_data));
 
 	playlist_data->source = source;
@@ -135,7 +134,7 @@ void playlist_source_destroy(void *data)
 	pthread_mutex_destroy(&playlist_data->audio_mutex);
 
 	if (playlist_data->all_media != NULL) {
-		da_free(*playlist_data->all_media);
+		free_media_array(playlist_data->all_media);
 	}
 
 	// if (playlist_data->current_media != NULL) {
@@ -249,12 +248,12 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 	playlist_data->debug = obs_data_get_bool(settings, "debug");
 	if (playlist_data->debug == true) {
-		obs_log(LOG_DEBUG, "Debug: %s", playlist_data->debug ? "true" : "false");
+		obs_log(LOG_INFO, "Debug: %s", playlist_data->debug ? "true" : "false");
 	}
 
 	playlist_data->playlist_start_behavior = obs_data_get_int(settings, "playlist_start_behavior");
 	if (playlist_data->debug == true) {
-		obs_log(LOG_DEBUG, "Start Behavior: %s", StartBehavior[playlist_data->playlist_start_behavior]);
+		obs_log(LOG_INFO, "Start Behavior: %s", StartBehavior[playlist_data->playlist_start_behavior]);
 	}
 
 	enum EndBehavior playlist_end_behavior = obs_data_get_int(settings, "playlist_end_behavior");
@@ -264,16 +263,15 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 	playlist_data->playlist_end_behavior = playlist_end_behavior;
 	if (playlist_data->debug == true) {
-		obs_log(LOG_DEBUG, "end Behavior: %s", EndBehavior[playlist_data->playlist_end_behavior]);
+		obs_log(LOG_INFO, "end Behavior: %s", EndBehavior[playlist_data->playlist_end_behavior]);
 	}
 
 	bool previous_size_initialized = false;
 	size_t previous_size = 0;
-	// obs_log(LOG_INFO, "Sizes: %d", previous_size);
-	if (playlist_data->all_media != NULL && playlist_data->all_media->num > 0) {
+	if (playlist_data->all_media != NULL) {
 		previous_size = playlist_data->all_media->num;
 		previous_size_initialized = true;
-		da_free(*playlist_data->all_media);
+		free_media_array(playlist_data->all_media);
 	}
 
 	MediaFileDataArray all_media;
@@ -282,8 +280,8 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 	playlist_data->all_media = obs_data_array_retain(&all_media, obs_data_get_array(settings, "playlist"));
 	if (playlist_data->debug == true) {
-		obs_log(LOG_DEBUG, "NERD");
-		obs_log_media_array(LOG_DEBUG, playlist_data->all_media, 90, "    ");
+		obs_log(LOG_INFO, "NERD");
+		obs_log_media_array(LOG_INFO, playlist_data->all_media, 90, "    ", true);
 	}
 
 	int all_media_size = 0;
@@ -291,8 +289,6 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	if (playlist_data->all_media != NULL) {
 		all_media_size = (int)playlist_data->all_media->num;
 	}
-
-	// obs_log(LOG_INFO, "Sizes: %d, %s", previous_size, playlist_data->all_media->size);
 
 	bool update_start_index_ui = false;
 	bool update_end_index_ui = false;
@@ -349,10 +345,6 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 				update_end_index_ui = true;
 			}
 		}
-	}
-
-	if (playlist_data->all_media != NULL && playlist_data->debug) {
-		obs_log_media_array(LOG_INFO, playlist_data->all_media, 90, "    ");
 	}
 
 	if (playlist_data->start_index > previous_end_index) {

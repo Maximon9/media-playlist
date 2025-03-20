@@ -1,3 +1,4 @@
+#pragma region Main
 /*
 Sequential Media Source
 Copyright (C) 2025 Maximon9
@@ -82,9 +83,20 @@ void on_scene_initialized(enum obs_frontend_event event, void *private_data)
 	// }
 }
 
+// MediaFileDataArray test_array;
+
 // Called when the plugin is loaded
 bool obs_module_load(void)
 {
+	// da_init(test_array);
+
+	// push_media_back(
+	// 	&test_array,
+	// 	"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4");
+
+	// obs_log(LOG_INFO, "NERD");
+	// obs_log_media_array(LOG_INFO, &test_array, 90, "    ");
+
 	obs_register_source(&playlist_source_template);
 
 	// obs_frontend_add_event_callback(on_scene_initialized, NULL);
@@ -102,6 +114,7 @@ void obs_module_unload(void)
 	// 	media_source = NULL;
 	// 	obs_log(LOG_INFO, "Media source released successfully");
 	// }
-
+	// da_free(test_array);
 	obs_log(LOG_INFO, "Plugin unloaded");
 }
+#pragma endregion
