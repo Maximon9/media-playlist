@@ -263,7 +263,7 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 	playlist_data->playlist_end_behavior = playlist_end_behavior;
 	if (playlist_data->debug == true) {
-		obs_log(LOG_INFO, "end Behavior: %s", EndBehavior[playlist_data->playlist_end_behavior]);
+		obs_log(LOG_INFO, "End Behavior: %s", EndBehavior[playlist_data->playlist_end_behavior]);
 	}
 
 	bool previous_size_initialized = false;
@@ -277,7 +277,7 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	obs_data_array_retain(&playlist_data->all_media, obs_data_get_array(settings, "playlist"));
 
 	if (playlist_data->debug == true) {
-		obs_log_media_array(LOG_INFO, &playlist_data->all_media, 90, "    ", true);
+		obs_log_media_array(LOG_INFO, "All Media:\n", &playlist_data->all_media, 90, "    ", true);
 	}
 
 	int all_media_size = (int)playlist_data->all_media.num;

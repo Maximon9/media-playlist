@@ -301,11 +301,11 @@ char *stringify_media_array(const MediaFileDataArray *media_array, size_t thresh
 	return result; // Return the compact string if it's within the threshold
 }
 
-void obs_log_media_array(int log_level, const MediaFileDataArray *media_array, size_t threshold, const char *indent,
-			 bool only_file_name)
+void obs_log_media_array(int log_level, char *format, const MediaFileDataArray *media_array, size_t threshold,
+			 const char *indent, bool only_file_name)
 {
 	char *result = stringify_media_array(media_array, threshold, indent, only_file_name);
-	obs_log(log_level, result);
+	obs_log(log_level, strcat(format, result));
 	free(result);
 }
 

@@ -80,7 +80,7 @@ char *stringify_media_array(const MediaFileDataArray *media_array, size_t thresh
 			    bool only_file_name);
 
 // Logs the media array in the obs log files
-void obs_log_media_array(int log_level, const MediaFileDataArray *media_array, size_t threshold, const char *indent,
-			 bool only_file_name);
+void obs_log_media_array(int log_level, char *format, const MediaFileDataArray *media_array, size_t threshold,
+			 const char *indent, bool only_file_name);
 
 #endif // UTILS_H
