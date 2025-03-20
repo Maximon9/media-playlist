@@ -488,40 +488,38 @@ bool playlist_audio_render(void *data, uint64_t *ts_out, struct obs_source_audio
 	if (!playlist_data->media_source)
 		return false;
 
-	struct obs_source_audio_mix audio_mix = {0};
 	uint64_t source_ts;
 
-	/*if (obs_source_audio_pending(mps->current_media_source))
-		return false;*/
-
-	source_ts = obs_source_get_audio_timestamp(playlist_data->source);
+	source_ts = obs_source_get_audio_timestamp(playlist_data->media_source);
 	if (!source_ts)
 		return false;
 
-	obs_source_get_audio_mix(playlist_data->media_source, &audio_mix);
+	// Get the audio from the child source (ffmpeg_source)
+	struct obs_source_audio_mix child_audio_output = {0};
 
-	obs_log(LOG_INFO, "Mixers: %d, Channels %d", mixers, channels);
+	// Retrieve the audio mix from the child source
+	obs_source_get_audio_mix(playlist_data->media_source, &child_audio_output);
 
+	// Iterate over all mixer outputs (for each mixer)
 	for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
+		// Skip if this mixer is not active in the 'mixers' bitmask
 		if ((mixers & (1 << mix)) == 0)
 			continue;
 
+		// Iterate over all channels
 		for (size_t ch = 0; ch < channels; ch++) {
+			// Get pointers to the input and output buffers
 			float *out = audio_output->output[mix].data[ch];
-			float *in = audio_mix.output[mix].data[ch];
+			float *in = child_audio_output.output[mix].data[ch];
 
-			memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
+			// Ensure the buffers are not null
+			if (out && in) {
+				// Use memcpy to copy the audio frames into the output buffer
+				// Make sure we do not copy beyond the size of the buffer (use frames_per_channel)
+				memcpy(out, in, AUDIO_OUTPUT_FRAMES * sizeof(float));
+			}
 		}
 	}
-
-	// for (size_t mix = 0; mix < MAX_AUDIO_MIXES; mix++) {
-	// 	if ((mixers & (1 << mix)) == 0)
-	// 		continue;
-
-	// 	struct audio_output_data *out = &audio_output->output[mix];
-	// 	struct audio_output_data *in = &audio_mix.output[mix];
-	// 	memcpy(out, in, AUDIO_OUTPUT_FRAMES * MAX_AUDIO_CHANNELS * sizeof(float));
-	// }
 
 	*ts_out = source_ts;
 
