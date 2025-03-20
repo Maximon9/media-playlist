@@ -11,7 +11,7 @@
 #pragma region Media Functions
 void playlist_switch_index(struct PlaylistSource *playlist_data, size_t index)
 {
-	if (!playlist_data || playlist_data->all_media.num > 0 || !playlist_data->media_source ||
+	if (!playlist_data || playlist_data->all_media.num <= 0 || !playlist_data->media_source ||
 	    !playlist_data->media_source_settings)
 		return;
 
