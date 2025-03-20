@@ -191,33 +191,34 @@ void free_media_array(MediaFileDataArray *media_array)
 			}
 		}
 		da_free(*media_array);
+		bfree(media_array);
 	}
 }
 
-MediaFileDataArray *obs_data_array_retain(MediaFileDataArray *media_file_data_array, obs_data_array_t *obs_playlist)
+MediaFileDataArray *obs_data_array_retain(obs_data_array_t *obs_playlist)
 {
 	size_t array_size = obs_data_array_count(obs_playlist);
 	if (array_size == 0) {
-		free_media_array(media_file_data_array);
 		return NULL;
 	}
+	MediaFileDataArray *media_file_data_array = malloc(sizeof(MediaFileDataArray));
 
-	for (size_t i = 0; i < array_size; ++i) {
-		obs_data_t *data = obs_data_array_item(obs_playlist, i);
+	// for (size_t i = 0; i < array_size; ++i) {
+	// 	obs_data_t *data = obs_data_array_item(obs_playlist, i);
 
-		if (data == NULL) {
-			continue; // Skip if data is NULL (avoid potential crash or issues)
-		}
+	// 	if (data == NULL) {
+	// 		continue; // Skip if data is NULL (avoid potential crash or issues)
+	// 	}
 
-		const char *element = obs_data_get_string(data, "value");
-		if (element == NULL) {
-			obs_data_release(data); // Release memory for the current element before skipping
-			continue;               // Skip if no valid string was found
-		}
-		// Use the method call syntax; this passes media_file_data_array as the first parameter.
-		push_media_back(media_file_data_array, element);
-		obs_data_release(data);
-	}
+	// 	const char *element = obs_data_get_string(data, "value");
+	// 	if (element == NULL) {
+	// 		obs_data_release(data); // Release memory for the current element before skipping
+	// 		continue;               // Skip if no valid string was found
+	// 	}
+	// 	// Use the method call syntax; this passes media_file_data_array as the first parameter.
+	// 	push_media_back(media_file_data_array, element);
+	// 	obs_data_release(data);
+	// }
 	obs_data_array_release(obs_playlist);
 	return media_file_data_array;
 }

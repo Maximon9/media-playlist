@@ -133,9 +133,7 @@ void playlist_source_destroy(void *data)
 	pthread_mutex_destroy(&playlist_data->mutex);
 	pthread_mutex_destroy(&playlist_data->audio_mutex);
 
-	if (playlist_data->all_media != NULL) {
-		free_media_array(playlist_data->all_media);
-	}
+	free_media_array(playlist_data->all_media);
 
 	// if (playlist_data->current_media != NULL) {
 	// 	free(playlist_data->current_media);
@@ -274,13 +272,9 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 		free_media_array(playlist_data->all_media);
 	}
 
-	MediaFileDataArray all_media;
+	playlist_data->all_media = obs_data_array_retain(obs_data_get_array(settings, "playlist"));
 
-	da_init(all_media);
-
-	playlist_data->all_media = obs_data_array_retain(&all_media, obs_data_get_array(settings, "playlist"));
 	if (playlist_data->debug == true) {
-		obs_log(LOG_INFO, "NERD");
 		obs_log_media_array(LOG_INFO, playlist_data->all_media, 90, "    ", true);
 	}
 
