@@ -4,12 +4,11 @@
 #define S_FFMPEG_LOG_CHANGES "log_changes"
 #define S_FFMPEG_RESTART_PLAYBACK_ON_ACTIVE "restart_on_activate"
 #define S_FFMPEG_LOCAL_FILE "local_file"
-#define S_FFMPEG_INPUT "input"
 #define S_FFMPEG_IS_LOCAL_FILE "is_local_file"
 #define S_CURRENT_MEDIA_INDEX "current_media_index"
 
 #pragma region Media Functions
-void playlist_switch_index(struct PlaylistSource *playlist_data, size_t index)
+static void playlist_switch_index(struct PlaylistSource *playlist_data, size_t index)
 {
 	if (!playlist_data || playlist_data->all_media.num <= 0 || !playlist_data->media_source ||
 	    !playlist_data->media_source_settings)
@@ -40,7 +39,7 @@ void playlist_switch_index(struct PlaylistSource *playlist_data, size_t index)
 	// obs_source_media_play_pause(playlist_data->source, false);
 }
 
-void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted)
+static void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted)
 {
 	UNUSED_PARAMETER(muted);
 	UNUSED_PARAMETER(source);
@@ -171,7 +170,7 @@ void playlist_get_defaults(obs_data_t *settings)
 	obs_data_set_default_bool(settings, "debug", false);
 }
 
-obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
+static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 {
 	obs_properties_t *props = obs_properties_create();
 
@@ -237,7 +236,7 @@ obs_properties_t *playlist_get_properties(void *data)
  * @param settings The settings of the playlist source.
  * @return void
  */
-void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings)
+static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings)
 {
 	bool update_properties = false;
 	// int previous_start_index = playlist_data->start_index;

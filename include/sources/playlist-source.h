@@ -47,9 +47,9 @@ struct PlaylistSource {
 };
 
 #pragma region Media Functions
-void playlist_switch_index(struct PlaylistSource *playlist_data, size_t index);
+static void playlist_switch_index(struct PlaylistSource *playlist_data, size_t index);
 
-void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted);
+static void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted);
 #pragma endregion
 
 const char *playlist_source_name(void *data);
@@ -64,11 +64,11 @@ uint32_t playlist_source_height(void *data);
 
 void playlist_get_defaults(obs_data_t *settings);
 
-obs_properties_t *make_playlist_properties();
+static obs_properties_t *make_playlist_properties();
 
 obs_properties_t *playlist_get_properties(void *data);
 
-void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings);
+static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings);
 
 void playlist_update(void *data, obs_data_t *settings);
 
@@ -137,7 +137,6 @@ static struct obs_source_info playlist_source_template = {
 	.media_get_time = media_get_time,
 	.media_set_time = media_set_time,
 	.media_get_state = media_get_state,
-
 };
 
 #endif; // PLAYLIST_SOURCE_H
