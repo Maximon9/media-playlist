@@ -83,10 +83,6 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 
 	obs_properties_add_bool(props, "shuffle_queue", "Shuffle Queue");
 
-	if (playlist_data->shuffle_queue) {
-		obs_properties_add_int(props, "song_history_limit", "Song History Limit", 0, INT_MAX, 1);
-	}
-
 	obs_properties_add_int_slider(props, "start_index", "Start Index", 0, last_index, 1);
 
 	obs_properties_add_int_slider(props, "end_index", "End Index", 0, last_index, 1);
@@ -166,13 +162,7 @@ static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_
 		obs_log_media_array(LOG_INFO, "All Media:\n", &playlist_data->all_media, 90, "    ", true);
 	}
 
-	playlist_data->start_index = (int)obs_data_get_int(settings, "start_index");
-	playlist_data->end_index = (int)obs_data_get_int(settings, "end_index");
-
 	int all_media_size = (int)playlist_data->all_media.num;
-
-	bool update_start_index_ui = false;
-	bool update_end_index_ui = false;
 
 	int last_index = all_media_size - 1;
 
@@ -201,9 +191,9 @@ static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_
 		bool update_loop_index_ui = false;
 
 		if (playlist_data->loop_index < 0) {
-			playlist_data->loop_index = playlist_data->start_index;
+			playlist_data->loop_index = 0;
 			update_loop_index_ui = true;
-		} else if (playlist_data->end_index >= all_media_size) {
+		} else if (playlist_data->loop_index >= all_media_size) {
 			playlist_data->loop_index = last_index;
 			update_loop_index_ui = true;
 		}
@@ -222,38 +212,9 @@ static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_
 		}
 	}
 
-	if (previous_size_initialized == true) {
-		if (playlist_data->all_media.num != 0 && previous_size != playlist_data->all_media.num) {
-			update_properties = true;
-			if (playlist_data->end_index == previous_size - 1) {
-				playlist_data->end_index = last_index;
-				update_end_index_ui = true;
-			}
-		}
-	}
-
-	if (playlist_data->start_index > previous_end_index) {
-		playlist_data->start_index = previous_end_index;
-		update_start_index_ui = true;
+	if (previous_size_initialized == true && playlist_data->all_media.num != 0 &&
+	    previous_size != playlist_data->all_media.num) {
 		update_properties = true;
-	}
-
-	if (playlist_data->end_index < playlist_data->start_index) {
-		playlist_data->end_index = playlist_data->start_index;
-		update_end_index_ui = true;
-		update_properties = true;
-	} else if (playlist_data->end_index >= all_media_size) {
-		playlist_data->end_index = last_index;
-		update_end_index_ui = true;
-		update_properties = true;
-	}
-
-	if (update_start_index_ui) {
-		obs_data_set_int(settings, "start_index", playlist_data->start_index);
-	}
-
-	if (update_end_index_ui) {
-		obs_data_set_int(settings, "end_index", playlist_data->end_index);
 	}
 
 	if (update_properties == true) {
@@ -299,9 +260,6 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	da_init(playlist_data->queue);
 
 	da_init(playlist_data->previous_queue);
-
-	playlist_data->start_index = 0;
-	playlist_data->end_index = 0;
 
 	// playlist_data->current_media = NULL;
 	playlist_data->current_media_index = 0;
