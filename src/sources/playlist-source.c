@@ -63,6 +63,10 @@ static void playlist_audio_callback(void *data, obs_source_t *source, const stru
 
 #pragma region Property Managment
 
+#pragma region Button Callbacks
+static void shuffle_list(obs_properties_t *props, obs_property_t *property, void *data) {}
+#pragma endregion
+
 static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 {
 	obs_properties_t *props = obs_properties_create();
@@ -75,6 +79,9 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 		last_index += 1;
 	}
 	// obs_properties_add_button(props, "");
+	obs_properties_add_button(props, "shuffle_actual_list", "Shuffle Actual List", shuffle_list);
+
+	obs_properties_add_bool(props, "shuffle", "Shuffle");
 
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
 					 media_filter, "");
@@ -98,7 +105,7 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 	}
 	if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
 	    playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_END) {
-		obs_properties_add_bool(props, "infinite", "infinite");
+		obs_properties_add_bool(props, "infinite", "Infinite");
 		if (playlist_data->infinite == false) {
 			obs_properties_add_int(props, "loop_count", "Loop Count", 0, INT_MAX, 1);
 

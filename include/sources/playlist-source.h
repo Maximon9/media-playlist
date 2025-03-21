@@ -16,8 +16,7 @@
 
 struct PlaylistSource {
 #pragma region Public
-	bool shuffle_frontend;
-	bool shuffle_backend;
+	bool shuffle;
 	obs_source_t *source;
 	obs_source_t *media_source;
 	obs_data_t *media_source_settings;
@@ -51,6 +50,12 @@ struct PlaylistSource {
 #pragma endregion
 
 #pragma region Media Functions
+
+#pragma region Button Callbacks
+
+static void shuffle_list(obs_properties_t *props, obs_property_t *property, void *data);
+
+#pragma endregion
 
 static void playlist_switch_index(struct PlaylistSource *playlist_data, size_t index);
 
