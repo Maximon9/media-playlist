@@ -83,10 +83,6 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 
 	obs_properties_add_bool(props, "shuffle_queue", "Shuffle Queue");
 
-	obs_properties_add_int_slider(props, "start_index", "Start Index", 0, last_index, 1);
-
-	obs_properties_add_int_slider(props, "end_index", "End Index", 0, last_index, 1);
-
 	obs_property_t *psb_property = obs_properties_add_list(
 		props, "playlist_start_behavior", "Playlist Start Behavior", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 
@@ -113,6 +109,7 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 		}
 	}
 
+	obs_properties_add_int(props, "song_history_limit", "Song History Limit", 0, INT_MAX, 1);
 	obs_properties_add_bool(props, "debug", "Debug");
 	return props;
 }
@@ -125,8 +122,6 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings)
 {
 	bool update_properties = false;
-	// int previous_start_index = playlist_data->start_index;
-	int previous_end_index = playlist_data->end_index;
 
 	playlist_data->debug = obs_data_get_bool(settings, "debug");
 	if (playlist_data->debug == true) {
@@ -329,8 +324,6 @@ uint32_t playlist_source_height(void *data)
 
 void playlist_get_defaults(obs_data_t *settings)
 {
-	// obs_data_set_default_int(settings, "start_index", 0);
-	// obs_data_set_default_int(settings, "end_index", 0);
 	// obs_data_set_default_int(settings, "playlist_start_behavior", 0);
 	// obs_data_set_default_int(settings, "playlist_end_behavior", 0);
 	// obs_data_set_default_int(settings, "loop_index", 0);
