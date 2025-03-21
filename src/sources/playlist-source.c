@@ -358,11 +358,26 @@ void playlist_activate(void *data)
 	switch (playlist_data->playlist_start_behavior) {
 	case START_BEHAVIOR_RESTART_ENTIRE_PLAYLIST:
 		obs_log(LOG_INFO, "We restarted the entire playlist");
-		playlist_data->current_media_index = 0;
+		// playlist_data->current_media_index = 0;
 		// playlist_data->current_media =
 		// 	get_media(playlist_data->all_media, playlist_data->current_media_index);
 		// playlist_data->current_media_source;
-		playlist_switch_index(playlist_data, playlist_data->current_media_index);
+		// playlist_switch_index(playlist_data, playlist_data->current_media_index);
+
+		// da_
+		obs_log_media_array(LOG_INFO, "Testing Queue 1:", &playlist_data->all_media, 90, "    ", true);
+		for (size_t i = 0; i < playlist_data->queue.num; i++) {
+			da_erase(playlist_data->queue, i);
+		}
+
+		for (size_t i = 0; i < playlist_data->all_media.num; i++) {
+			const MediaFileData *media_file_data = get_media(&playlist_data->all_media, i);
+			da_push_back(playlist_data->queue, media_file_data);
+		}
+
+		obs_log_media_array(LOG_INFO, "Testing Queue 2:", &playlist_data->queue, 90, "    ", true);
+		obs_log_media_array(LOG_INFO, "Testing Queue 3:", &playlist_data->all_media, 90, "    ", true);
+
 		// obs_source_media_play_pause(playlist_data->source, false);
 		// obs_source_media_stop(playlist_data->source);
 		obs_source_media_restart(playlist_data->source);

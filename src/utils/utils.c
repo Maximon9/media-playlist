@@ -42,7 +42,7 @@ static void pop_media_at(MediaFileDataArray *media_array, size_t index)
 	da_erase(*media_array, index);
 }
 
-static const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index)
+const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index)
 {
 	if (index >= media_array->num)
 		return NULL; // Out of bounds

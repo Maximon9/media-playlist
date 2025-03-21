@@ -41,7 +41,7 @@ static void pop_media_front(MediaFileDataArray *media_array);
 
 static void pop_media_at(MediaFileDataArray *media_array, size_t index);
 
-static const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index);
+const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index);
 
 void clear_media_array(MediaFileDataArray *media_array);
 
