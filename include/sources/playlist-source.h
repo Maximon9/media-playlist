@@ -57,7 +57,7 @@ static void shuffle_list(obs_properties_t *props, obs_property_t *property, void
 
 #pragma endregion
 
-static void playlist_switch_index(struct PlaylistSource *playlist_data, size_t index);
+static void playlist_queue(struct PlaylistSource *playlist_data);
 
 static void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted);
 
