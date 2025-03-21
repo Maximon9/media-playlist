@@ -74,6 +74,7 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 	if (last_index < 0) {
 		last_index += 1;
 	}
+	// obs_properties_add_button(props, "");
 
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
 					 media_filter, "");
@@ -255,6 +256,7 @@ static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_
 #pragma endregion
 
 #pragma region Playlist Main Functions
+
 const char *playlist_source_name(void *data)
 {
 	return "Playlist"; // This should match the filename (without extension) in data/
