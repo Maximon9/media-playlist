@@ -180,6 +180,7 @@ static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_
 		playlist_data->infinite = infinite;
 		if (playlist_data->infinite) {
 			playlist_data->loop_count = (int)obs_data_get_int(settings, "loop_count");
+			playlist_data->loop_end_behavior = obs_data_get_int(settings, "loop_end_behavior");
 		}
 	}
 	if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_INDEX) {
