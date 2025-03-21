@@ -2,49 +2,36 @@
 #define ENUM_UTILS_H
 
 // Define the StartBehavior enum values
-#define ENUM_START_BEHAVIOR_LIST     \
-	SX(RESTART_ENTIRE_PLAYLIST)  \
-	SX(RESTART_AT_CURRENT_INDEX) \
-	SX(KEEP_SAME_BEHAVIOR)       \
-	SX(UNPAUSE)                  \
-	SX(PAUSE)
+#define ENUM_START_BEHAVIOR_LIST                  \
+	X(START_BEHAVIOR_RESTART_ENTIRE_PLAYLIST) \
+	X(START_BEHAVIOR_RESTART_AT_CURRENT_INEX) \
+	X(START_BEHAVIOR_KEEP_SAME_BEHAVIOR)      \
+	X(START_BEHAVIOR_UNPAUSE)                 \
+	X(START_BEHAVIOR_PAUSE)
 
 // Define the EndBehavior enum values
-#define ENUM_END_BEHAVIOR_LIST \
-	EX(STOP)               \
-	EX(LOOP)               \
-	EX(LOOP_AT_INDEX)      \
-	EX(LOOP_AT_END)
+#define ENUM_END_BEHAVIOR_LIST        \
+	X(END_BEHAVIOR_STOP)          \
+	X(END_BEHAVIOR_LOOP)          \
+	X(END_BEHAVIOR_LOOP_AT_INDEX) \
+	X(END_BEHAVIOR_LOOP_AT_END)
 
-// Define the LoopEndBehavior enum values
 #define ENUM_LOOP_END_BEHAVIOR_LIST \
-	LX(STOP)                    \
-	LX(RESTART)
+	X(LOOP_END_BEHAVIOR_STOP)   \
+	X(LOOP_END_BEHAVIOR_RESTART)
 
-// Define the enum values for StartBehavior, EndBehavior, and LoopEndBehavior
-#define SX(name) name,
-typedef enum { ENUM_START_BEHAVIOR_LIST } StartBehavior;
-#undef SX
-
-#define EX(name) name,
-typedef enum { ENUM_END_BEHAVIOR_LIST } EndBehavior;
-#undef EX
-
-#define LX(name) name,
-typedef enum { ENUM_LOOP_END_BEHAVIOR_LIST } LoopEndBehavior;
-#undef LX
+// Define the enum values for StartBehavior and EndBehavior
+#define X(name) name,
+typedef enum { ENUM_START_BEHAVIOR_LIST } e_StartBehavior;
+typedef enum { ENUM_END_BEHAVIOR_LIST } e_EndBehavior;
+typedef enum { ENUM_LOOP_END_BEHAVIOR_LIST } e_LoopEndBehavior;
+#undef X
 
 // Create lookup tables using macros for the string representations
-#define SX(name) #name,
-const char *StartBehaviorStrings[];
-#undef SX
-
-#define EX(name) #name,
-const char *EndBehaviorStrings[];
-#undef EX
-
-#define LX(name) #name,
-const char *LoopEndBehaviorStrings[];
-#undef LX
+#define X(name) #name,
+const char *StartBehavior[];
+const char *EndBehavior[];
+const char *LoopEndBehavior[];
+#undef X
 
 #endif // ENUM_UTILS_H

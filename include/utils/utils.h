@@ -10,6 +10,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <util/platform.h>
+#include "../include/utils/enum-utils.h"
 
 static const char *media_filter =
 	" (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm *.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
@@ -65,7 +66,9 @@ void obs_log_media_array(int log_level, char *format, const MediaFileDataArray *
 
 char *screaming_snake_case_to_title_case(const char *name);
 
-void add_enums_to_property_list(obs_property_t *property, const char *StartBehavior[]);
+char *remove_screaming_case_words_front(const char *name, size_t count);
+
+void add_enums_to_property_list(obs_property_t *property, const char *Enum[], int word_count_to_remove);
 
 #pragma endregion
 
