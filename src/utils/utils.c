@@ -20,6 +20,28 @@ static void push_media_at(MediaFileDataArray *media_array, const char *path, siz
 	da_insert(*media_array, index, &new_entry);
 }
 
+static void pop_media_back(MediaFileDataArray *media_array)
+{
+	pop_media_at(media_array, media_array->num);
+}
+
+static void pop_media_front(MediaFileDataArray *media_array)
+{
+	pop_media_at(media_array, 0);
+}
+
+static void pop_media_at(MediaFileDataArray *media_array, size_t index)
+{
+	const MediaFileData *data = get_media(media_array, index);
+	if (!data)
+		return;
+	free(data->path);
+	free(data->filename);
+	free(data->name);
+	free(data->ext);
+	da_erase(*media_array, index);
+}
+
 static const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index)
 {
 	if (index >= media_array->num)
@@ -32,10 +54,13 @@ void clear_media_array(MediaFileDataArray *media_array)
 	if (media_array != NULL) {
 		if (media_array->num > 0) {
 			for (size_t i = 0; i < media_array->num; i++) {
-				free(get_media(media_array, i)->path);
-				free(get_media(media_array, i)->filename);
-				free(get_media(media_array, i)->name);
-				free(get_media(media_array, i)->ext);
+				const MediaFileData *data = get_media(media_array, i);
+				if (!data)
+					return;
+				free(data->path);
+				free(data->filename);
+				free(data->name);
+				free(data->ext);
 			}
 		}
 		da_clear(*media_array);
@@ -47,10 +72,13 @@ void free_media_array(MediaFileDataArray *media_array)
 	if (media_array != NULL) {
 		if (media_array->num > 0) {
 			for (size_t i = 0; i < media_array->num; i++) {
-				free(get_media(media_array, i)->path);
-				free(get_media(media_array, i)->filename);
-				free(get_media(media_array, i)->name);
-				free(get_media(media_array, i)->ext);
+				const MediaFileData *data = get_media(media_array, i);
+				if (!data)
+					return;
+				free(data->path);
+				free(data->filename);
+				free(data->name);
+				free(data->ext);
 			}
 		}
 		da_free(*media_array);
