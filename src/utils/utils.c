@@ -279,7 +279,7 @@ void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_
 }
 
 static char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent,
-				   bool only_file_name)
+				   e_MediaStringifyTYPE media_stringify_type)
 {
 	if (media_array == NULL || media_array->num <= 0) {
 		return strdup("[]"); // Return empty brackets if no elements
@@ -287,10 +287,21 @@ static char *stringify_media_array(const MediaFileDataArray *media_array, size_t
 	// Calculate the initial length of the compact format
 	size_t total_length = 3; // For "[" and "]\0"
 	for (size_t i = 0; i < media_array->num; i++) {
-		if (only_file_name) {
-			total_length += strlen(get_media(media_array, i)->filename) + 4; // Quotes, comma, space
-		} else {
-			total_length += strlen(get_media(media_array, i)->path) + 4; // Quotes, comma, space
+		const MediaFileData *media_file_data = get_media(media_array, i)
+
+			switch (media_stringify_type)
+		{
+		case MEDIA_STRINGIFY_TYPE_PATH:
+			total_length += strlen(media_file_data->path) + 4; // Quotes, comma, space
+			break;
+		case MEDIA_STRINGIFY_TYPE_FILENAME:
+			total_length += strlen(media_file_data->filename) + 4; // Quotes, comma, space
+			break;
+		case MEDIA_STRINGIFY_TYPE_NAME:
+			total_length += strlen(media_file_data->name) + 4; // Quotes, comma, space
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -303,10 +314,18 @@ static char *stringify_media_array(const MediaFileDataArray *media_array, size_t
 	strcpy(result, "[");
 	for (size_t i = 0; i < media_array->num; i++) {
 		strcat(result, "\"");
-		if (only_file_name) {
-			strcat(result, get_media(media_array, i)->filename);
-		} else {
+		switch (media_stringify_type) {
+		case MEDIA_STRINGIFY_TYPE_PATH:
 			strcat(result, get_media(media_array, i)->path);
+			break;
+		case MEDIA_STRINGIFY_TYPE_FILENAME:
+			strcat(result, get_media(media_array, i)->filename);
+			break;
+		case MEDIA_STRINGIFY_TYPE_NAME:
+			strcat(result, get_media(media_array, i)->name);
+			break;
+		default:
+			break;
 		}
 		strcat(result, "\"");
 		if (i < media_array->num - 1)
@@ -334,6 +353,19 @@ static char *stringify_media_array(const MediaFileDataArray *media_array, size_t
 		for (size_t i = 0; i < media_array->num; i++) {
 			strcat(prettified_result, indent); // Add indentation before each element
 			strcat(prettified_result, "\"");
+			switch (media_stringify_type) {
+			case MEDIA_STRINGIFY_TYPE_PATH:
+				strcat(result, get_media(media_array, i)->path);
+				break;
+			case MEDIA_STRINGIFY_TYPE_FILENAME:
+				strcat(result, get_media(media_array, i)->filename);
+				break;
+			case MEDIA_STRINGIFY_TYPE_NAME:
+				strcat(result, get_media(media_array, i)->name);
+				break;
+			default:
+				break;
+			}
 			if (only_file_name) {
 				strcat(prettified_result, get_media(media_array, i)->filename);
 			} else {
@@ -357,9 +389,9 @@ static char *stringify_media_array(const MediaFileDataArray *media_array, size_t
 }
 
 void obs_log_media_array(int log_level, char *format, const MediaFileDataArray *media_array, size_t threshold,
-			 const char *indent, bool only_file_name)
+			 const char *indent, e_MediaStringifyTYPE media_stringify_type)
 {
-	char *result = stringify_media_array(media_array, threshold, indent, only_file_name);
+	char *result = stringify_media_array(media_array, threshold, indent, media_stringify_type);
 
 	size_t total_length = strlen(format) + strlen(result) + 1;
 	char *concat_result = malloc(total_length);

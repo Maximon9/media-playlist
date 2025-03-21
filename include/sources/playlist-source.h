@@ -31,6 +31,8 @@ struct PlaylistSource {
 	bool rest_playlist_after_last_loop;
 	MediaFileDataArray all_media;
 	size_t current_media_index;
+	int song_history_limit;
+	int queue_list_size;
 	bool debug;
 #pragma endregion
 #pragma region Private

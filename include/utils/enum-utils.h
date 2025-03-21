@@ -20,11 +20,17 @@
 	X(LOOP_END_BEHAVIOR_STOP)   \
 	X(LOOP_END_BEHAVIOR_RESTART)
 
+#define ENUM_MEDIA_STRINGIFY_TYPE        \
+	X(MEDIA_STRINGIFY_TYPE_PATH)     \
+	X(MEDIA_STRINGIFY_TYPE_FILENAME) \
+	X(MEDIA_STRINGIFY_TYPE_NAME)
+
 // Define the enum values for StartBehavior and EndBehavior
 #define X(name) name,
 typedef enum { ENUM_START_BEHAVIOR_LIST } e_StartBehavior;
 typedef enum { ENUM_END_BEHAVIOR_LIST } e_EndBehavior;
 typedef enum { ENUM_LOOP_END_BEHAVIOR_LIST } e_LoopEndBehavior;
+typedef enum { ENUM_MEDIA_STRINGIFY_TYPE } e_MediaStringifyTYPE;
 #undef X
 
 // Create lookup tables using macros for the string representations
@@ -32,6 +38,7 @@ typedef enum { ENUM_LOOP_END_BEHAVIOR_LIST } e_LoopEndBehavior;
 const char *StartBehavior[];
 const char *EndBehavior[];
 const char *LoopEndBehavior[];
+const char *MediaStringifyTYPE[];
 #undef X
 
 #endif // ENUM_UTILS_H
