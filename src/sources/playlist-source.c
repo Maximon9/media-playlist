@@ -8,6 +8,7 @@
 #define S_CURRENT_MEDIA_INDEX "current_media_index"
 
 #pragma region Media Functions
+
 static void playlist_switch_index(struct PlaylistSource *playlist_data, size_t index)
 {
 	if (!playlist_data || playlist_data->all_media.num <= 0 || !playlist_data->media_source ||
@@ -103,13 +104,14 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 			obs_property_t *leb_property = obs_properties_add_list(props, "loop_end_behavior",
 									       "Loop End Behavior", OBS_COMBO_TYPE_LIST,
 									       OBS_COMBO_FORMAT_INT);
-			add_enums_to_property_list(peb_property, LoopEndBehavior, 3);
+			add_enums_to_property_list(leb_property, LoopEndBehavior, 3);
 		}
 	}
 
 	obs_properties_add_bool(props, "debug", "Debug");
 	return props;
 }
+
 /**
  * @brief Updates the playlist data.
  * @param settings The settings of the playlist source.
