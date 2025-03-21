@@ -61,8 +61,11 @@ static bool valid_extension(const char *ext);
 void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_data_array_t *obs_playlist);
 
 // Turns the media array into a string
-static char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent,
-				   e_MediaStringifyTYPE media_stringify_type);
+char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent,
+			    e_MediaStringifyTYPE media_stringify_type);
+
+char *stringify_media_queue_array(const MediaFileDataArray *media_array, int *queue_limit, const char *indent,
+				  e_MediaStringifyTYPE media_stringify_type);
 
 // Logs the media array in the obs log files
 void obs_log_media_array(int log_level, char *format, const MediaFileDataArray *media_array, size_t threshold,
@@ -71,6 +74,8 @@ void obs_log_media_array(int log_level, char *format, const MediaFileDataArray *
 #pragma endregion
 
 #pragma region Utils
+
+char *concat_mem_string(char *_Destination, const char *_Source);
 
 char *screaming_snake_case_to_title_case(const char *name);
 

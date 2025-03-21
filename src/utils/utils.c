@@ -278,8 +278,8 @@ void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_
 	obs_data_array_release(obs_playlist);
 }
 
-static char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent,
-				   e_MediaStringifyTYPE media_stringify_type)
+char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent,
+			    e_MediaStringifyTYPE media_stringify_type)
 {
 	if (media_array == NULL || media_array->num <= 0) {
 		return strdup("[]"); // Return empty brackets if no elements
@@ -287,10 +287,9 @@ static char *stringify_media_array(const MediaFileDataArray *media_array, size_t
 	// Calculate the initial length of the compact format
 	size_t total_length = 3; // For "[" and "]\0"
 	for (size_t i = 0; i < media_array->num; i++) {
-		const MediaFileData *media_file_data = get_media(media_array, i)
+		const MediaFileData *media_file_data = get_media(media_array, i);
 
-			switch (media_stringify_type)
-		{
+		switch (media_stringify_type) {
 		case MEDIA_STRINGIFY_TYPE_PATH:
 			total_length += strlen(media_file_data->path) + 4; // Quotes, comma, space
 			break;
@@ -314,15 +313,18 @@ static char *stringify_media_array(const MediaFileDataArray *media_array, size_t
 	strcpy(result, "[");
 	for (size_t i = 0; i < media_array->num; i++) {
 		strcat(result, "\"");
+
+		const MediaFileData *media_file_data = get_media(media_array, i);
+
 		switch (media_stringify_type) {
 		case MEDIA_STRINGIFY_TYPE_PATH:
-			strcat(result, get_media(media_array, i)->path);
+			strcat(result, media_file_data->path);
 			break;
 		case MEDIA_STRINGIFY_TYPE_FILENAME:
-			strcat(result, get_media(media_array, i)->filename);
+			strcat(result, media_file_data->filename);
 			break;
 		case MEDIA_STRINGIFY_TYPE_NAME:
-			strcat(result, get_media(media_array, i)->name);
+			strcat(result, media_file_data->name);
 			break;
 		default:
 			break;
@@ -353,23 +355,21 @@ static char *stringify_media_array(const MediaFileDataArray *media_array, size_t
 		for (size_t i = 0; i < media_array->num; i++) {
 			strcat(prettified_result, indent); // Add indentation before each element
 			strcat(prettified_result, "\"");
+
+			const MediaFileData *media_file_data = get_media(media_array, i);
+
 			switch (media_stringify_type) {
 			case MEDIA_STRINGIFY_TYPE_PATH:
-				strcat(result, get_media(media_array, i)->path);
+				strcat(prettified_result, media_file_data->path);
 				break;
 			case MEDIA_STRINGIFY_TYPE_FILENAME:
-				strcat(result, get_media(media_array, i)->filename);
+				strcat(prettified_result, media_file_data->filename);
 				break;
 			case MEDIA_STRINGIFY_TYPE_NAME:
-				strcat(result, get_media(media_array, i)->name);
+				strcat(prettified_result, media_file_data->name);
 				break;
 			default:
 				break;
-			}
-			if (only_file_name) {
-				strcat(prettified_result, get_media(media_array, i)->filename);
-			} else {
-				strcat(prettified_result, get_media(media_array, i)->path);
 			}
 			strcat(prettified_result, "\"");
 
@@ -386,6 +386,63 @@ static char *stringify_media_array(const MediaFileDataArray *media_array, size_t
 	}
 
 	return result; // Return the compact string if it's within the threshold
+}
+char *stringify_media_queue_array(const MediaFileDataArray *media_array, int *queue_limit, const char *indent,
+				  e_MediaStringifyTYPE media_stringify_type)
+{
+	size_t queue_size_list = (size_t)(queue_limit);
+	if (media_array == NULL || queue_limit == NULL || media_array->num <= 0) {
+		return strdup("[]"); // Return empty brackets if no elements
+	}
+
+	size_t min_size = min(media_array->num, queue_size_list);
+	size_t prettified_length = 3; // For "[\n" and "]\n"
+	for (size_t i = 0; i < min_size; i++) {
+		prettified_length +=
+			strlen(indent) + strlen(get_media(media_array, i)->path) + 4; // Indent, quotes, and comma
+	}
+
+	// Allocate memory for the prettified string
+	char *prettified_result = (char *)malloc(prettified_length * sizeof(char));
+	if (!prettified_result) {
+		return NULL;
+	}
+
+	// Construct the prettified string
+	strcpy(prettified_result, "[\n");
+
+	for (size_t i = 0; i < min_size; i++) {
+		if (i >= (size_t)queue_limit) {
+			break;
+		}
+		strcat(prettified_result, indent); // Add indentation before each element
+		strcat(prettified_result, "\"");
+
+		const MediaFileData *media_file_data = get_media(media_array, i);
+
+		switch (media_stringify_type) {
+		case MEDIA_STRINGIFY_TYPE_PATH:
+			strcat(prettified_result, media_file_data->path);
+			break;
+		case MEDIA_STRINGIFY_TYPE_FILENAME:
+			strcat(prettified_result, media_file_data->filename);
+			break;
+		case MEDIA_STRINGIFY_TYPE_NAME:
+			strcat(prettified_result, media_file_data->name);
+			break;
+		default:
+			break;
+		}
+		strcat(prettified_result, "\"");
+
+		if (i < (min_size - 1)) {
+			strcat(prettified_result, ",\n");
+		}
+	}
+
+	strcat(prettified_result, "\n]");
+
+	return prettified_result;
 }
 
 void obs_log_media_array(int log_level, char *format, const MediaFileDataArray *media_array, size_t threshold,
@@ -414,6 +471,21 @@ void obs_log_media_array(int log_level, char *format, const MediaFileDataArray *
 #pragma endregion
 
 #pragma region Utils
+
+char *concat_mem_string(char *_Destination, const char *_Source)
+{
+	size_t total_length = strlen(_Destination) + strlen(_Source) + 1;
+	char *concat_result = malloc(total_length);
+
+	if (!concat_result) {
+		perror("Failed to allocate memory");
+		return NULL;
+	}
+
+	strcpy(concat_result, _Destination);
+	strcat(concat_result, _Source);
+	return concat_result;
+}
 
 char *screaming_snake_case_to_title_case(const char *name)
 {

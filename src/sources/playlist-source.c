@@ -34,6 +34,7 @@ static void playlist_media_source_ended(void *data, calldata_t *callback)
 		// 	break;
 		// }
 		playlist_queue(playlist_data);
+		obs_source_update_properties(playlist_data->source);
 	} else {
 		switch (playlist_data->end_index) {
 		case END_BEHAVIOR_STOP:
@@ -122,11 +123,16 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 	if (last_index < 0) {
 		last_index += 1;
 	}
-	// obs_properties_add_button(props, "");
 
-	char *result = stringify_media_array(playlist_data->queue, 90, "    ", true)
-		obs_data_set_string(settings, "queue", )
-			obs_properties_add_text(props, "queue", "Queue", OBS_TEXT_INFO);
+	obs_log(LOG_INFO, "Queue Size List Test: %d", playlist_data->queue_list_size);
+	char *result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size, "    ",
+						   MEDIA_STRINGIFY_TYPE_NAME);
+	char *concat_result = concat_mem_string("Queue: ", result);
+
+	obs_properties_add_text(props, "queue", concat_result, OBS_TEXT_INFO);
+
+	free(result);
+	free(concat_result);
 
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
 					 media_filter, "");
@@ -175,13 +181,14 @@ static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_
 {
 	bool update_properties = false;
 
-	playlist_data->song_history_limit = (int)obs_data_get_int(settings, "song_history_limit");
+	int song_history_limit = (int)obs_data_get_int(settings, "song_history_limit");
+	playlist_data->song_history_limit = &song_history_limit;
 
 	int queue_list_size = (int)obs_data_get_int(settings, "queue_list_size");
-	if (playlist_data->queue_list_size != queue_list_size) {
+	if (playlist_data->queue_list_size == NULL || *playlist_data->queue_list_size != queue_list_size) {
 		update_properties = true;
 	}
-	playlist_data->queue_list_size = queue_list_size;
+	playlist_data->queue_list_size = &queue_list_size;
 
 	playlist_data->debug = obs_data_get_bool(settings, "debug");
 	if (playlist_data->debug == true) {
@@ -240,7 +247,7 @@ static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_
 	if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_INDEX) {
 		playlist_data->loop_index = (int)obs_data_get_int(settings, "loop_index");
 		if (playlist_data->debug == true) {
-			obs_log(LOG_INFO, "Infinite New Value: %d", playlist_data->loop_index);
+			obs_log(LOG_INFO, "Loop Index: %d", playlist_data->loop_index);
 		}
 
 		bool update_loop_index_ui = false;
@@ -262,8 +269,8 @@ static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_
 	if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
 	    playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_END) {
 		if (playlist_data->debug == true) {
-			obs_log(LOG_INFO, "Infinite New Value: %s", playlist_data->infinite == true ? "true" : "false");
-			obs_log(LOG_INFO, "Infinite New Value: %d", playlist_data->loop_count);
+			obs_log(LOG_INFO, "Infinite: %s", playlist_data->infinite == true ? "true" : "false");
+			obs_log(LOG_INFO, "Loop Count: %d", playlist_data->loop_count);
 		}
 	}
 
@@ -324,6 +331,8 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	playlist_data->loop_index = 0;
 	playlist_data->infinite = true;
 	playlist_data->loop_count = 0;
+	playlist_data->song_history_limit = NULL;
+	playlist_data->queue_list_size = NULL;
 
 	playlist_data->run = false;
 	playlist_data->paused = false;
@@ -448,6 +457,7 @@ void playlist_activate(void *data)
 		// obs_source_media_play_pause(playlist_data->source, false);
 		// obs_source_media_stop(playlist_data->source);
 		playlist_queue(playlist_data);
+		obs_source_update_properties(playlist_data->source);
 		break;
 	case START_BEHAVIOR_RESTART_AT_CURRENT_INEX:
 		/* code */
