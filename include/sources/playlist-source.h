@@ -16,7 +16,7 @@
 
 struct PlaylistSource {
 #pragma region Public
-	bool shuffle;
+	bool shuffle_queue;
 	obs_source_t *source;
 	obs_source_t *media_source;
 	obs_data_t *media_source_settings;
@@ -30,12 +30,12 @@ struct PlaylistSource {
 	enum LoopEndBehavior loop_end_behavior;
 	bool rest_playlist_after_last_loop;
 	MediaFileDataArray all_media;
-	MediaFileDataArray the_playlist;
-	// const MediaFileData *current_media;
 	size_t current_media_index;
 	bool debug;
 #pragma endregion
 #pragma region Private
+	MediaFileDataArray queue;
+	MediaFileDataArray previous_queue;
 	bool run;
 	bool paused;
 	pthread_mutex_t mutex;

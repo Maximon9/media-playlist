@@ -4,42 +4,6 @@
 
 #pragma region Media Array Utils
 
-static char *obs_array_to_string(obs_data_array_t *array)
-{
-	size_t array_size = obs_data_array_count(array);
-
-	if (array == NULL || array_size == 0) {
-		return "[]";
-	}
-
-	// Estimate maximum size for the string (2 chars per element + commas + brackets)
-	size_t estimated_size = array_size * 2 + array_size - 1 + 2; // Two chars per element + commas + brackets
-	char *result = (char *)malloc(estimated_size * sizeof(char));
-
-	// Start the string with the opening bracket
-	strcpy(result, "[");
-
-	// Loop through the array and append each element
-	for (size_t i = 0; i < array_size; ++i) {
-		// Convert element to string (single character)
-		obs_data_t *data = obs_data_array_item(array, i);
-		const char *element[2] = {obs_data_get_string(data, "value"), '\0'}; // Create a single char string
-
-		strcat(result, *element);
-
-		// Add a comma if not the last element
-		if (i < array_size - 1) {
-			strcat(result, ", ");
-		}
-	}
-
-	// End the string with the closing bracket
-	strcat(result, "]");
-
-	return result;
-	return "[]";
-}
-
 static void push_media_back(MediaFileDataArray *media_array, const char *path)
 {
 	push_media_at(media_array, path, media_array->num);
@@ -54,6 +18,43 @@ static void push_media_at(MediaFileDataArray *media_array, const char *path, siz
 {
 	const MediaFileData new_entry = create_media_file_data_from_path(path, index);
 	da_insert(*media_array, index, &new_entry);
+}
+
+static const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index)
+{
+	if (index >= media_array->num)
+		return NULL; // Out of bounds
+	return &media_array->array[index];
+}
+
+void clear_media_array(MediaFileDataArray *media_array)
+{
+	if (media_array != NULL) {
+		if (media_array->num > 0) {
+			for (size_t i = 0; i < media_array->num; i++) {
+				free(get_media(media_array, i)->path);
+				free(get_media(media_array, i)->filename);
+				free(get_media(media_array, i)->name);
+				free(get_media(media_array, i)->ext);
+			}
+		}
+		da_clear(*media_array);
+	}
+}
+
+void free_media_array(MediaFileDataArray *media_array)
+{
+	if (media_array != NULL) {
+		if (media_array->num > 0) {
+			for (size_t i = 0; i < media_array->num; i++) {
+				free(get_media(media_array, i)->path);
+				free(get_media(media_array, i)->filename);
+				free(get_media(media_array, i)->name);
+				free(get_media(media_array, i)->ext);
+			}
+		}
+		da_free(*media_array);
+	}
 }
 
 static const MediaFileData create_media_file_data_from_path(const char *path, size_t index)
@@ -120,41 +121,40 @@ static const MediaFileData create_media_file_data_from_path_and_file_name(const 
 	return new_entry;
 }
 
-static const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index)
+static char *obs_array_to_string(obs_data_array_t *array)
 {
-	if (index >= media_array->num)
-		return NULL; // Out of bounds
-	return &media_array->array[index];
-}
+	size_t array_size = obs_data_array_count(array);
 
-void clear_media_array(MediaFileDataArray *media_array)
-{
-	if (media_array != NULL) {
-		if (media_array->num > 0) {
-			for (size_t i = 0; i < media_array->num; i++) {
-				free(get_media(media_array, i)->path);
-				free(get_media(media_array, i)->filename);
-				free(get_media(media_array, i)->name);
-				free(get_media(media_array, i)->ext);
-			}
-		}
-		da_clear(*media_array);
+	if (array == NULL || array_size == 0) {
+		return "[]";
 	}
-}
 
-void free_media_array(MediaFileDataArray *media_array)
-{
-	if (media_array != NULL) {
-		if (media_array->num > 0) {
-			for (size_t i = 0; i < media_array->num; i++) {
-				free(get_media(media_array, i)->path);
-				free(get_media(media_array, i)->filename);
-				free(get_media(media_array, i)->name);
-				free(get_media(media_array, i)->ext);
-			}
+	// Estimate maximum size for the string (2 chars per element + commas + brackets)
+	size_t estimated_size = array_size * 2 + array_size - 1 + 2; // Two chars per element + commas + brackets
+	char *result = (char *)malloc(estimated_size * sizeof(char));
+
+	// Start the string with the opening bracket
+	strcpy(result, "[");
+
+	// Loop through the array and append each element
+	for (size_t i = 0; i < array_size; ++i) {
+		// Convert element to string (single character)
+		obs_data_t *data = obs_data_array_item(array, i);
+		const char *element[2] = {obs_data_get_string(data, "value"), '\0'}; // Create a single char string
+
+		strcat(result, *element);
+
+		// Add a comma if not the last element
+		if (i < array_size - 1) {
+			strcat(result, ", ");
 		}
-		da_free(*media_array);
 	}
+
+	// End the string with the closing bracket
+	strcat(result, "]");
+
+	return result;
+	return "[]";
 }
 
 static bool valid_extension(const char *ext)

@@ -29,15 +29,17 @@ typedef DARRAY(MediaFileData) MediaFileDataArray;
 
 #pragma region Media Array Utils
 
-static char *obs_array_to_string(obs_data_array_t *array);
-
 static void push_media_back(MediaFileDataArray *media_array, const char *path);
 
 static void push_media_front(MediaFileDataArray *media_array, const char *path);
 
 static void push_media_at(MediaFileDataArray *media_array, const char *path, size_t index);
 
-static const MediaFileData create_media_file_data_from_path(const char *path, size_t index);
+static void pop_media_back(MediaFileDataArray *media_array);
+
+static void pop_media_front(MediaFileDataArray *media_array);
+
+static void pop_media_at(MediaFileDataArray *media_array, size_t index);
 
 static const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index);
 
@@ -45,7 +47,13 @@ void clear_media_array(MediaFileDataArray *media_array);
 
 void free_media_array(MediaFileDataArray *media_array);
 
-/*  */
+static const MediaFileData create_media_file_data_from_path(const char *path, size_t index);
+
+static const MediaFileData create_media_file_data_from_path_and_file_name(const char *path, const char *file_name,
+									  size_t index);
+
+static char *obs_array_to_string(obs_data_array_t *array);
+
 // Returns true if extension is valid
 static bool valid_extension(const char *ext);
 

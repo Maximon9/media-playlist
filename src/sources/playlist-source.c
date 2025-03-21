@@ -63,10 +63,6 @@ static void playlist_audio_callback(void *data, obs_source_t *source, const stru
 
 #pragma region Property Managment
 
-#pragma region Button Callbacks
-static void shuffle_list(obs_properties_t *props, obs_property_t *property, void *data) {}
-#pragma endregion
-
 static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 {
 	obs_properties_t *props = obs_properties_create();
@@ -79,12 +75,17 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 		last_index += 1;
 	}
 	// obs_properties_add_button(props, "");
-	obs_properties_add_button(props, "shuffle_actual_list", "Shuffle Actual List", shuffle_list);
 
-	obs_properties_add_bool(props, "shuffle", "Shuffle");
+	obs_properties_add_text(props, "queue", "Queue", OBS_TEXT_INFO);
 
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
 					 media_filter, "");
+
+	obs_properties_add_bool(props, "shuffle_queue", "Shuffle Queue");
+
+	if (playlist_data->shuffle_queue) {
+		obs_properties_add_int(props, "song_history_limit", "Song History Limit", 0, INT_MAX, 1);
+	}
 
 	obs_properties_add_int_slider(props, "start_index", "Start Index", 0, last_index, 1);
 
@@ -295,6 +296,10 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	da_init(playlist_data->all_media);
 
+	da_init(playlist_data->queue);
+
+	da_init(playlist_data->previous_queue);
+
 	playlist_data->start_index = 0;
 	playlist_data->end_index = 0;
 
@@ -343,6 +348,8 @@ void playlist_source_destroy(void *data)
 	pthread_mutex_destroy(&playlist_data->audio_mutex);
 
 	free_media_array(&playlist_data->all_media);
+	free_media_array(&playlist_data->queue);
+	free_media_array(&playlist_data->previous_queue);
 
 	// if (playlist_data->current_media != NULL) {
 	// 	free(playlist_data->current_media);
@@ -369,9 +376,11 @@ void playlist_get_defaults(obs_data_t *settings)
 	// obs_data_set_default_int(settings, "playlist_start_behavior", 0);
 	// obs_data_set_default_int(settings, "playlist_end_behavior", 0);
 	// obs_data_set_default_int(settings, "loop_index", 0);
+	obs_data_set_default_bool(settings, "shuffle_queue", false);
 	obs_data_set_default_bool(settings, "infinite", true);
 	// obs_data_set_default_int(settings, "loop_count", 0);
 	obs_data_set_default_bool(settings, "debug", false);
+	obs_data_set_default_bool(settings, "song_history_limit", 100);
 }
 
 obs_properties_t *playlist_get_properties(void *data)
