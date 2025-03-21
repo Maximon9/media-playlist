@@ -381,14 +381,20 @@ char *screaming_snake_case_to_title_case(const char *name)
 	return output;
 }
 
-void remove_front_words(char *str, int *count)
+void remove_front_words(char *str, int count)
 {
 	if (!str || !count)
 		return;
 
 	char *token;
-	int *w_count = 0;
-	char result[1024] = ""; // Result string to store the final output
+	int w_count = 0;
+	size_t result_size = 256;           // Initial size of the result string
+	char *result = malloc(result_size); // Allocate memory for the result string
+	if (result == NULL) {
+		printf("Memory allocation failed\n");
+		return;
+	}
+	result[0] = '\0'; // Initialize the result string to empty
 
 	// Get the first token (word)
 	token = strtok(str, " ");
@@ -396,12 +402,22 @@ void remove_front_words(char *str, int *count)
 	// Skip the first 'num_words' words
 	while (token != NULL && w_count < count) {
 		token = strtok(NULL, " ");
-		*w_count++;
+		w_count++;
 	}
 
 	// After skipping 'num_words', append the rest of the words to the result
 	while (token != NULL) {
+		size_t token_len = strlen(token);
 		if (strlen(result) > 0) {
+			// Ensure there's enough space to append a space and token
+			if (strlen(result) + 1 + token_len >= result_size) {
+				result_size *= 2; // Double the size of the buffer if needed
+				result = realloc(result, result_size);
+				if (result == NULL) {
+					printf("Memory allocation failed\n");
+					return;
+				}
+			}
 			strcat(result, " "); // Add a space between words
 		}
 		strcat(result, token);
@@ -410,6 +426,9 @@ void remove_front_words(char *str, int *count)
 
 	// Copy the result back into the original string
 	strcpy(str, result);
+
+	// Free the dynamically allocated memory for result
+	free(result);
 }
 
 void add_enums_to_property_list(obs_property_t *property, const char *Enum[], int word_count_to_remove)
@@ -418,7 +437,7 @@ void add_enums_to_property_list(obs_property_t *property, const char *Enum[], in
 	const char *name = Enum[i];
 	while (name != "") {
 		char *display_name = screaming_snake_case_to_title_case(name);
-		remove_front_words(display_name, &word_count_to_remove);
+		remove_front_words(display_name, word_count_to_remove);
 		if (!display_name) {
 			continue;
 		}
