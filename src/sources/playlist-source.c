@@ -33,7 +33,6 @@ void playlist_media_source_ended(void *data, calldata_t *callback)
 		// 	break;
 		// }
 		obs_source_media_next(playlist_data->source);
-		obs_source_update_properties(playlist_data->source);
 	} else {
 		switch (playlist_data->end_index) {
 		case END_BEHAVIOR_STOP:
@@ -766,7 +765,7 @@ void media_next(void *data)
 
 	if (playlist_data->queue.num > 0) {
 		if (uses_song_history_limit(playlist_data) == true) {
-			const MediaFileData *media_file_data = get_media(&playlist_data->all_media, 0);
+			const MediaFileData *media_file_data = get_media(&playlist_data->queue, 0);
 
 			const MediaFileData new_entry = create_media_file_data_with_all_info(
 				media_file_data->path, media_file_data->filename, media_file_data->name,
@@ -792,6 +791,8 @@ void media_next(void *data)
 	}
 
 	pthread_mutex_unlock(&playlist_data->mutex);
+
+	obs_source_update_properties(playlist_data->source);
 }
 
 void media_previous(void *data)
@@ -821,6 +822,7 @@ void media_previous(void *data)
 	}
 
 	pthread_mutex_unlock(&playlist_data->mutex);
+	obs_source_update_properties(playlist_data->source);
 }
 
 int64_t media_get_duration(void *data)
