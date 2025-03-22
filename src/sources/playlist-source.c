@@ -8,6 +8,12 @@
 #define S_CURRENT_MEDIA_INDEX "current_media_index"
 
 #pragma region Media Functions
+const char *get_current_media_input(obs_data_t *settings)
+{
+	const char *path = obs_data_get_string(settings, S_FFMPEG_LOCAL_FILE);
+	return path;
+}
+
 void refresh_queue_list(struct PlaylistSource *playlist_data)
 {
 	clear_media_array(&playlist_data->queue);
@@ -310,13 +316,14 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 				for (size_t i = 0; i < existing_indices.num; i++) {
 					const size_t queue_index = existing_indices.array[i];
-					const MediaFileData *media_file_data = get_media(&playlist_data->all_media, i);
+					obs_log(LOG_INFO, "Existing Index: %d", queue_index);
+					// const MediaFileData *media_file_data = get_media(&playlist_data->all_media, i);
 
-					const MediaFileData new_entry = create_media_file_data_with_all_info(
-						media_file_data->path, media_file_data->filename, media_file_data->name,
-						media_file_data->ext, media_file_data->index);
+					// const MediaFileData new_entry = create_media_file_data_with_all_info(
+					// 	media_file_data->path, media_file_data->filename, media_file_data->name,
+					// 	media_file_data->ext, media_file_data->index);
 
-					push_media_file_data_back(&new_queue, new_entry);
+					// push_media_file_data_back(&new_queue, new_entry);
 				}
 
 				move_media_array(&playlist_data->queue, &new_queue);
@@ -324,7 +331,17 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 			da_free(existing_indices);
 
-			playlist_queue(playlist_data);
+			const char *media_input = get_current_media_input(playlist_data->media_source_settings);
+			const char *current_queue_path = get_media(&playlist_data->queue, 0)->path;
+
+			obs_log(LOG_INFO, "Comparing Strings: %s",
+				strcmp(media_input, current_queue_path) == 0 ? "true" : "false");
+
+			if (strcmp(media_input, current_queue_path) == 0) {
+				playlist_queue(playlist_data);
+			} else {
+				playlist_queue_restart(playlist_data);
+			}
 		}
 	}
 	playlist_data->all_media_initialized = true;

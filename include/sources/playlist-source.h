@@ -53,6 +53,7 @@ struct PlaylistSource {
 #pragma endregion
 
 #pragma region Media Functions
+const char *get_current_media_input(obs_data_t *settings);
 
 void refresh_queue_list(struct PlaylistSource *playlist_data);
 

@@ -1,4 +1,3 @@
-#pragma region Main
 /*
 Sequential Media Source
 Copyright (C) 2025 Maximon9
@@ -17,9 +16,9 @@ You should have received a copy of the GNU General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
+#pragma region Main
+
 #include "../include/sources/playlist-source.h"
-// #include <obs-module.h>
-// #include <plugin-support.h>
 
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
@@ -98,9 +97,38 @@ bool obs_module_load(void)
 	// obs_log(LOG_INFO, "NERD");
 	// obs_log_media_array(LOG_INFO, &test_array, 90, "    ");
 
-	obs_register_source(&playlist_source_template);
+	// obs_register_source(&playlist_source_template);
 
 	// obs_frontend_add_event_callback(on_scene_initialized, NULL);
+
+	// Initialize two MediaFileData arrays
+	MediaFileDataArray source, destination;
+
+	init_media_array(&source, 5);
+	init_media_array(&destination, 5);
+
+	// Add some media to the source array
+	push_media_back(&source, "path1/file1.mp4");
+	push_media_back(&source, "path2/file2.mp4");
+	push_media_back(&source, "path3/file3.mp4");
+
+	// Add some media to the destination array
+	push_media_back(&destination, "pathA/fileA.mp4");
+	push_media_back(&destination, "pathB/fileB.mp4");
+
+	// Now, move the source array into the destination array
+	move_media_array(&destination, &source);
+
+	// The source array is now empty and its data is transferred to the destination array
+
+	// Print the contents of the destination array to verify
+	for (size_t i = 0; i < destination.size; i++) {
+		const MediaFileData *data = get_media(&destination, i);
+		printf("Media %zu: %s, %s, %s, %s\n", i, data->path, data->filename, data->name, data->ext);
+	}
+
+	// Clean up memory
+	free_media_array(&destination); // This will free all media and the destination array
 
 	return true;
 }
@@ -118,4 +146,5 @@ void obs_module_unload(void)
 	// da_free(test_array);
 	obs_log(LOG_INFO, "Playlist Plugin Unloaded");
 }
+
 #pragma endregion
