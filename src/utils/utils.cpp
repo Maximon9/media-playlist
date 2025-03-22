@@ -463,7 +463,7 @@ string stringify_media_queue_array(const MediaFileDataArray *media_array, int qu
 		return "[]"; // Return empty brackets if no elements
 	}
 
-	size_t min_size = min(media_array->size(), queue_size_list);
+	size_t min_size = std::min(media_array->size(), queue_size_list);
 
 	if (min_size <= 0) {
 		return "[]"; // Return empty brackets if no elements

@@ -23,13 +23,6 @@
 namespace fs = std::filesystem;
 using string = std::string;
 
-auto min = [](auto a, auto b) {
-	return std::min(a, b);
-};
-auto swap = [](auto a, auto b) {
-	return std::swap(a, b);
-};
-
 static const char *media_filter =
 	" (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm *.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
 static const char *video_filter = " (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm);;";

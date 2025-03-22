@@ -872,7 +872,7 @@ void media_previous(void *data)
 		}
 	} else if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP) {
 		obs_log(LOG_INFO, "Queue Size: %d", playlist_data->queue.size() - 1);
-		swap(playlist_data->queue[playlist_data->queue.size() - 1], playlist_data->queue[0]);
+		std::swap(playlist_data->queue[playlist_data->queue.size() - 1], playlist_data->queue[0]);
 		playlist_queue_restart(playlist_data);
 	}
 
