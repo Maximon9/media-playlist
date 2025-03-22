@@ -590,6 +590,11 @@ char *stringify_media_queue_array(const MediaFileDataArray *media_array, int que
 	}
 
 	size_t min_size = min(media_array->size, queue_size_list);
+
+	if (min_size <= 0) {
+		return strdup("[]"); // Return empty brackets if no elements
+	}
+
 	size_t prettified_length = 3; // For "[\n" and "]\n"
 	for (size_t i = 0; i < min_size; i++) {
 		prettified_length +=

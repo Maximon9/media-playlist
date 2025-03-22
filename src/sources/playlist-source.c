@@ -186,8 +186,11 @@ obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 
 	pthread_mutex_lock(&playlist_data->mutex);
 
+	// obs_log_media_array(LOG_INFO, "Queue Array:\n", &playlist_data->queue, 0, "    ", MEDIA_STRINGIFY_TYPE_NAME);
+
 	char *result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size, "    ",
 						   MEDIA_STRINGIFY_TYPE_NAME);
+
 	char *concat_result = concat_mem_string("Queue: ", result);
 
 	obs_properties_add_text(props, "queue", concat_result, OBS_TEXT_INFO);
@@ -248,7 +251,9 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 		update_properties = true;
 	}
 
+	obs_log(LOG_INFO, "Queue List Size 1: %d", queue_list_size);
 	playlist_data->queue_list_size = queue_list_size;
+	obs_log(LOG_INFO, "Queue List Size 2: %d", playlist_data->queue_list_size);
 
 	if (playlist_data->debug == true) {
 		obs_log(LOG_INFO, "Queue List Size: %d", playlist_data->queue_list_size);
@@ -278,57 +283,48 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	if (media_arrays_are_equal == false && playlist_data->all_media_initialized == true) {
 		update_properties = true;
 
-		if (uses_song_history_limit(playlist_data) == true ||
-		    playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP) {
-			if (playlist_data->queue.size > 0) {
-				const MediaFileData *queued_media_file_data = get_media(&playlist_data->queue, 0);
-
-				const MediaFileData queued_media_file_data_dup = create_media_file_data_with_all_info(
-					queued_media_file_data->path, queued_media_file_data->filename,
-					queued_media_file_data->name, queued_media_file_data->ext,
-					queued_media_file_data->index);
-
-				if (queued_media_file_data_dup.index < playlist_data->all_media.size) {
-					for (size_t i = queued_media_file_data_dup.index;
-					     i < playlist_data->all_media.size; i++) {
-						const MediaFileData *media_file_data =
-							get_media(&playlist_data->all_media, i);
-
-						const MediaFileData new_entry = create_media_file_data_with_all_info(
-							media_file_data->path, media_file_data->filename,
-							media_file_data->name, media_file_data->ext,
-							media_file_data->index);
-
-						push_media_file_data_back(&playlist_data->queue, new_entry);
-					}
-
-					for (size_t i = 0; i < queued_media_file_data_dup.index; i++) {
-						const MediaFileData *media_file_data =
-							get_media(&playlist_data->all_media, i);
-
-						const MediaFileData new_entry = create_media_file_data_with_all_info(
-							media_file_data->path, media_file_data->filename,
-							media_file_data->name, media_file_data->ext,
-							media_file_data->index);
-
-						push_media_file_data_back(&playlist_data->queue, new_entry);
-					}
-					playlist_queue(playlist_data);
-				} else {
-					refresh_queue_list(playlist_data);
-					playlist_queue_restart(playlist_data);
-				}
-			} else {
-				refresh_queue_list(playlist_data);
-				playlist_queue_restart(playlist_data);
-			}
-		} else {
-			refresh_queue_list(playlist_data);
-			obs_log_media_array(LOG_INFO, "Queue Array:\n", &playlist_data->queue, 0, "    ",
-					    MEDIA_STRINGIFY_TYPE_NAME);
-		}
 		if (old_media_size == 0 && new_media_size != 0) {
+			refresh_queue_list(playlist_data);
 			playlist_queue_restart(playlist_data);
+		} else {
+			SizeTArray existing_indices;
+
+			da_init(existing_indices);
+
+			const size_t *queue_size = &playlist_data->queue.size;
+
+			if (queue_size != NULL) {
+				for (size_t i = 0; i < *queue_size; i++) {
+					size_t queue_index = get_media(&playlist_data->queue, i)->index;
+					const MediaFileData *media_file_data =
+						get_media(&playlist_data->all_media, queue_index);
+					if (media_file_data == NULL) {
+						da_push_back(existing_indices, &queue_index);
+					}
+				}
+			}
+
+			if (existing_indices.num > 0) {
+				MediaFileDataArray new_queue;
+				init_media_array(&new_queue, 2);
+
+				for (size_t i = 0; i < existing_indices.num; i++) {
+					const size_t queue_index = existing_indices.array[i];
+					const MediaFileData *media_file_data = get_media(&playlist_data->all_media, i);
+
+					const MediaFileData new_entry = create_media_file_data_with_all_info(
+						media_file_data->path, media_file_data->filename, media_file_data->name,
+						media_file_data->ext, media_file_data->index);
+
+					push_media_file_data_back(&new_queue, new_entry);
+				}
+
+				move_media_array(&playlist_data->queue, &new_queue);
+			}
+
+			da_free(existing_indices);
+
+			playlist_queue(playlist_data);
 		}
 	}
 	playlist_data->all_media_initialized = true;
@@ -477,11 +473,8 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	playlist_data->loop_index = 0;
 	playlist_data->infinite = true;
 	playlist_data->loop_count = 0;
-	playlist_data->song_history_limit = 0;
-	playlist_data->queue_list_size = 0;
-
-	playlist_data->run = false;
-	playlist_data->paused = false;
+	playlist_data->song_history_limit = 100;
+	playlist_data->queue_list_size = 5;
 
 	// pthread_mutex_init_value(&playlist_data->mutex);
 	if (pthread_mutex_init(&playlist_data->mutex, NULL) != 0)
@@ -553,8 +546,8 @@ void playlist_get_defaults(obs_data_t *settings)
 	obs_data_set_default_bool(settings, "infinite", true);
 	// obs_data_set_default_int(settings, "loop_count", 0);
 	obs_data_set_default_bool(settings, "debug", false);
-	obs_data_set_default_bool(settings, "song_history_limit", 100);
-	obs_data_set_default_bool(settings, "queue_list_size", 5);
+	obs_data_set_default_int(settings, "song_history_limit", 100);
+	obs_data_set_default_int(settings, "queue_list_size", 5);
 }
 
 obs_properties_t *playlist_get_properties(void *data)
@@ -576,7 +569,6 @@ void playlist_activate(void *data)
 	obs_log(LOG_INFO, "playlist_activate");
 	struct PlaylistSource *playlist_data = data;
 
-	playlist_data->run = true;
 	switch (playlist_data->playlist_start_behavior) {
 	case START_BEHAVIOR_RESTART_ENTIRE_PLAYLIST:
 		obs_log(LOG_INFO, "We restarted the entire playlist");
@@ -620,7 +612,6 @@ void playlist_deactivate(void *data)
 	obs_log(LOG_INFO, "playlist_deactivate");
 	struct PlaylistSource *playlist_data = data;
 	// struct PlaylistSource *playlist_data = data;
-	playlist_data->run = false;
 	switch (playlist_data->playlist_start_behavior) {
 	case START_BEHAVIOR_RESTART_ENTIRE_PLAYLIST:
 		// obs_set_output_source(0, playlist_data->media_source);
@@ -767,7 +758,6 @@ void media_play_pause(void *data, bool pause)
 		obs_log(LOG_INFO, "We be playing the video");
 		obs_source_media_play_pause(playlist_data->media_source, pause);
 	}
-	playlist_data->paused = pause;
 }
 
 void media_restart(void *data)

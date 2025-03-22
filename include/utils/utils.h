@@ -31,6 +31,8 @@ typedef struct {
 	size_t capacity;
 } MediaFileDataArray;
 
+typedef DARRAY(size_t) SizeTArray;
+
 // typedef DARRAY(MediaFileData) MediaFileDataArray;
 
 #pragma region Media Array Utils
