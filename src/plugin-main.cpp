@@ -60,7 +60,7 @@ bool obs_module_load(void)
 	// obs_log(LOG_INFO, "NERD");
 	// obs_log_media_array(LOG_INFO, &test_array, 90, "    ");
 
-	// obs_register_source(&playlist_source_template);
+	obs_register_source(&playlist_source_template);
 
 	// obs_frontend_add_event_callback(on_scene_initialized, NULL);
 
