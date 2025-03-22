@@ -387,10 +387,11 @@ char *stringify_media_array(const MediaFileDataArray *media_array, size_t thresh
 
 	return result; // Return the compact string if it's within the threshold
 }
-char *stringify_media_queue_array(const MediaFileDataArray *media_array, int *queue_limit, const char *indent,
+char *stringify_media_queue_array(const MediaFileDataArray *media_array, int queue_limit, const char *indent,
 				  e_MediaStringifyTYPE media_stringify_type)
 {
 	size_t queue_size_list = (size_t)(queue_limit);
+
 	if (media_array == NULL || queue_limit == NULL || media_array->num <= 0) {
 		return strdup("[]"); // Return empty brackets if no elements
 	}

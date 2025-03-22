@@ -124,8 +124,7 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 		last_index += 1;
 	}
 
-	obs_log(LOG_INFO, "Queue Size List Test: %d", playlist_data->queue_list_size);
-	char *result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size, "    ",
+	char *result = stringify_media_queue_array(&playlist_data->queue, &playlist_data->queue_list_size, "    ",
 						   MEDIA_STRINGIFY_TYPE_NAME);
 	char *concat_result = concat_mem_string("Queue: ", result);
 
@@ -181,14 +180,18 @@ static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_
 {
 	bool update_properties = false;
 
-	int song_history_limit = (int)obs_data_get_int(settings, "song_history_limit");
-	playlist_data->song_history_limit = &song_history_limit;
+	playlist_data->song_history_limit = (int)obs_data_get_int(settings, "song_history_limit");
 
 	int queue_list_size = (int)obs_data_get_int(settings, "queue_list_size");
-	if (playlist_data->queue_list_size == NULL || *playlist_data->queue_list_size != queue_list_size) {
+	if (playlist_data->queue_list_size != queue_list_size) {
 		update_properties = true;
 	}
-	playlist_data->queue_list_size = &queue_list_size;
+
+	playlist_data->queue_list_size = queue_list_size;
+
+	if (playlist_data->debug == true) {
+		obs_log(LOG_INFO, "Queue List Size: %d", playlist_data->queue_list_size);
+	}
 
 	playlist_data->debug = obs_data_get_bool(settings, "debug");
 	if (playlist_data->debug == true) {
@@ -331,8 +334,8 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	playlist_data->loop_index = 0;
 	playlist_data->infinite = true;
 	playlist_data->loop_count = 0;
-	playlist_data->song_history_limit = NULL;
-	playlist_data->queue_list_size = NULL;
+	playlist_data->song_history_limit = 0;
+	playlist_data->queue_list_size = 0;
 
 	playlist_data->run = false;
 	playlist_data->paused = false;
@@ -419,8 +422,7 @@ obs_properties_t *playlist_get_properties(void *data)
 
 void playlist_update(void *data, obs_data_t *settings)
 {
-	struct PlaylistSource *playlist_data = data;
-	update_playlist_data(playlist_data, settings);
+	update_playlist_data(data, settings);
 
 	// Ensure properties are refreshed or updated if necessary
 	// obs_properties_t *props = make_playlist_properties(playlist_data);
