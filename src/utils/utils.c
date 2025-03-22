@@ -403,7 +403,6 @@ char *stringify_media_queue_array(const MediaFileDataArray *media_array, int que
 				  e_MediaStringifyTYPE media_stringify_type)
 {
 	size_t queue_size_list = (size_t)(queue_limit);
-	obs_log(LOG_INFO, "What is going on: %d", queue_size_list);
 
 	if (media_array == NULL || media_array->num <= 0) {
 		return strdup("[]"); // Return empty brackets if no elements
