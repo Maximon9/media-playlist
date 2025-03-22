@@ -489,12 +489,12 @@ bool compare_media_file_data(const MediaFileData *data_1, const MediaFileData *d
 	return false;
 }
 
-bool compare_media_file_data_arrays(MediaFileDataArray *array_1, MediaFileDataArray *array_2)
+bool compare_media_file_data_arrays(const MediaFileDataArray *array_1, const MediaFileDataArray *array_2)
 {
 	if (array_1->num == array_2->num) {
 		for (size_t i = 0; i < array_1->num; i++) {
-			const MediaFileDataArray *data_1 = get_media(array_1, i);
-			const MediaFileDataArray *data_2 = get_media(array_2, i);
+			const MediaFileData *data_1 = get_media(array_1, i);
+			const MediaFileData *data_2 = get_media(array_2, i);
 			if (compare_media_file_data(data_1, data_2) == false) {
 				return false;
 			}
