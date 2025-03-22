@@ -130,7 +130,7 @@ enum obs_media_state media_get_state(void *data);
 
 #pragma region Playlist Template
 
-struct obs_source_info playlist_source_template = {
+static struct obs_source_info playlist_source_template = {
 	.id = "media_playlist_code_maximon9",
 	.type = OBS_SOURCE_TYPE_INPUT,
 	.get_name = playlist_source_name,
