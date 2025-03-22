@@ -257,9 +257,7 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 		update_properties = true;
 	}
 
-	obs_log(LOG_INFO, "Queue List Size 1: %d", queue_list_size);
 	playlist_data->queue_list_size = queue_list_size;
-	obs_log(LOG_INFO, "Queue List Size 2: %d", playlist_data->queue_list_size);
 
 	if (playlist_data->debug == true) {
 		obs_log(LOG_INFO, "Queue List Size: %d", playlist_data->queue_list_size);
@@ -314,17 +312,17 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 				MediaFileDataArray new_queue;
 				init_media_array(&new_queue, 2);
 
-				for (size_t i = 0; i < existing_indices.num; i++) {
-					const size_t queue_index = existing_indices.array[i];
-					obs_log(LOG_INFO, "Existing Index: %d", queue_index);
-					// const MediaFileData *media_file_data = get_media(&playlist_data->all_media, i);
+				// for (size_t i = 0; i < existing_indices.num; i++) {
+				// 	const size_t queue_index = existing_indices.array[i];
+				// 	obs_log(LOG_INFO, "Existing Index: %d", queue_index);
+				// const MediaFileData *media_file_data = get_media(&playlist_data->all_media, i);
 
-					// const MediaFileData new_entry = create_media_file_data_with_all_info(
-					// 	media_file_data->path, media_file_data->filename, media_file_data->name,
-					// 	media_file_data->ext, media_file_data->index);
+				// const MediaFileData new_entry = create_media_file_data_with_all_info(
+				// 	media_file_data->path, media_file_data->filename, media_file_data->name,
+				// 	media_file_data->ext, media_file_data->index);
 
-					// push_media_file_data_back(&new_queue, new_entry);
-				}
+				// push_media_file_data_back(&new_queue, new_entry);
+				// }
 
 				move_media_array(&playlist_data->queue, &new_queue);
 			}

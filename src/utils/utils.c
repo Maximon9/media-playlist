@@ -123,8 +123,8 @@ void move_media_at(MediaFileDataArray *media_array, size_t from_index, size_t to
 
 void move_media_array(MediaFileDataArray *destination, MediaFileDataArray *source)
 {
-	if (!destination || !source)
-		return;
+	assert(destination != NULL);
+	assert(source != NULL);
 
 	// Free the existing data in the destination array
 	free_media_array(destination);
