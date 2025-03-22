@@ -124,7 +124,7 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
 		last_index += 1;
 	}
 
-	char *result = stringify_media_queue_array(&playlist_data->queue, &playlist_data->queue_list_size, "    ",
+	char *result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size, "    ",
 						   MEDIA_STRINGIFY_TYPE_NAME);
 	char *concat_result = concat_mem_string("Queue: ", result);
 

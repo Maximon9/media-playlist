@@ -392,7 +392,7 @@ char *stringify_media_queue_array(const MediaFileDataArray *media_array, int que
 {
 	size_t queue_size_list = (size_t)(queue_limit);
 
-	if (media_array == NULL || queue_limit == NULL || media_array->num <= 0) {
+	if (media_array == NULL || media_array->num <= 0) {
 		return strdup("[]"); // Return empty brackets if no elements
 	}
 

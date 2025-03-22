@@ -64,7 +64,7 @@ void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_
 char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent,
 			    e_MediaStringifyTYPE media_stringify_type);
 
-char *stringify_media_queue_array(const MediaFileDataArray *media_array, int *queue_limit, const char *indent,
+char *stringify_media_queue_array(const MediaFileDataArray *media_array, int queue_limit, const char *indent,
 				  e_MediaStringifyTYPE media_stringify_type);
 
 // Logs the media array in the obs log files
