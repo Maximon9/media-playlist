@@ -126,6 +126,20 @@ void playlist_queue_restart(struct PlaylistSource *playlist_data)
 	obs_source_media_restart(playlist_data->source);
 }
 
+void clear_any_media_playing(struct PlaylistSource *playlist_data)
+{
+	if (!playlist_data->media_source || !playlist_data->media_source_settings)
+		return;
+
+	// Set file path in ffmpeg_source
+	obs_data_set_string(playlist_data->media_source_settings, S_FFMPEG_LOCAL_FILE, "");
+
+	// obs_log(LOG_INFO, " PRINTING: \n%s", obs_data_get_json_pretty(playlist_data->media_source_settings));
+
+	obs_source_update(playlist_data->media_source, playlist_data->media_source_settings);
+	obs_source_media_stop(playlist_data->source);
+}
+
 void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted)
 {
 	UNUSED_PARAMETER(muted);
@@ -248,12 +262,9 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 	obs_data_media_array_retain(&new_media_array, obs_data_get_array(settings, "playlist"));
 
-	// obs_log(LOG_INFO, "Test: %d, %d", new_media_array.size, playlist_data->all_media.size);
-
 	size_t old_media_size = playlist_data->all_media.size;
 
 	size_t new_media_size = new_media_array.size;
-	obs_log(LOG_INFO, "Test 1: %d, %d", old_media_size, new_media_size);
 
 	bool media_arrays_are_equal = compare_media_file_data_arrays(&new_media_array, &playlist_data->all_media);
 
@@ -315,10 +326,9 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 			refresh_queue_list(playlist_data);
 			obs_log_media_array(LOG_INFO, "Queue Array:\n", &playlist_data->queue, 0, "    ",
 					    MEDIA_STRINGIFY_TYPE_NAME);
-			obs_log(LOG_INFO, "Test 2: %d, %d", old_media_size, new_media_size);
-			if (old_media_size == 0 && new_media_size != 0) {
-				playlist_queue_restart(playlist_data);
-			}
+		}
+		if (old_media_size == 0 && new_media_size != 0) {
+			playlist_queue_restart(playlist_data);
 		}
 	}
 	playlist_data->all_media_initialized = true;

@@ -62,6 +62,8 @@ void playlist_queue(struct PlaylistSource *playlist_data);
 
 void playlist_queue_restart(struct PlaylistSource *playlist_data);
 
+void clear_any_media_playing(struct PlaylistSource *playlist_data);
+
 void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted);
 
 bool uses_song_history_limit(struct PlaylistSource *playlist_data);
