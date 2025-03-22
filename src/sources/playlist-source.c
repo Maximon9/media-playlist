@@ -777,7 +777,7 @@ void media_next(void *data)
 				pop_media_back(&playlist_data->previous_queue);
 			}
 		} else if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP) {
-			// da_move_item(playlist_data.queue, playlist_data.queue.size - 1, 0);
+			move_media_at(&playlist_data->queue, playlist_data->queue.size - 1, 0);
 		}
 
 		pop_media_front(&playlist_data->queue);
