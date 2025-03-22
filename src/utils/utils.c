@@ -79,6 +79,8 @@ void pop_media_at(MediaFileDataArray *media_array, size_t index)
 
 	free(media_array->data[index].path);
 	free(media_array->data[index].filename);
+	free(media_array->data[index].name);
+	free(media_array->data[index].ext);
 
 	for (size_t i = index; i < media_array->size - 1; i++) {
 		media_array->data[i] = media_array->data[i + 1];

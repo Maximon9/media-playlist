@@ -776,11 +776,17 @@ void media_next(void *data)
 			if (playlist_data->previous_queue.size > playlist_data->song_history_limit) {
 				pop_media_back(&playlist_data->previous_queue);
 			}
-			pop_media_front(&playlist_data->queue);
 		} else if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP) {
-			move_media_at(&playlist_data->queue, playlist_data->queue.size - 1, 0);
+			const MediaFileData *media_file_data = get_media(&playlist_data->queue, 0);
+
+			const MediaFileData new_entry = create_media_file_data_with_all_info(
+				media_file_data->path, media_file_data->filename, media_file_data->name,
+				media_file_data->ext, media_file_data->index);
+
+			push_media_file_data_back(&playlist_data->queue, new_entry);
 		}
 
+		pop_media_front(&playlist_data->queue);
 		playlist_queue_restart(playlist_data);
 	}
 
