@@ -4,9 +4,188 @@
 
 #pragma region Media Array Utils
 
+void init_media_array(MediaFileDataArray *media_array, size_t initial_capacity)
+{
+	media_array->size = 0;
+	media_array->capacity = initial_capacity;
+	media_array->data = (MediaFileData *)malloc(media_array->capacity * sizeof(MediaFileData));
+}
+
 void push_media_back(MediaFileDataArray *media_array, const char *path)
 {
-	push_media_at(media_array, path, media_array->num);
+	push_media_at(media_array, path, media_array->size);
+}
+
+void push_media_front(MediaFileDataArray *media_array, const char *path)
+{
+	push_media_at(media_array, path, 0);
+}
+
+void push_media_at(MediaFileDataArray *media_array, const char *path, size_t index)
+{
+	push_media_file_data_at(media_array, create_media_file_data_from_path(path, index), index);
+}
+
+void push_media_file_data_back(MediaFileDataArray *media_array, MediaFileData media_file_data)
+{
+	push_media_file_data_at(media_array, media_file_data, media_array->size);
+}
+
+void push_media_file_data_front(MediaFileDataArray *media_array, MediaFileData media_file_data)
+{
+	push_media_file_data_at(media_array, media_file_data, 0);
+}
+
+void push_media_file_data_at(MediaFileDataArray *media_array, MediaFileData media_file_data, size_t index)
+{
+	// Ensure index is within bounds
+	if (index > media_array->size) {
+		index = media_array->size; // Append to the end if index is out of range
+	}
+
+	// Resize if needed
+	if (media_array->size >= media_array->capacity) {
+		size_t new_capacity = (media_array->capacity == 0) ? 1 : media_array->capacity * 2;
+		MediaFileData *new_data = realloc(media_array->data, new_capacity * sizeof(MediaFileData));
+		if (!new_data)
+			return; // Memory allocation failed
+		media_array->data = new_data;
+		media_array->capacity = new_capacity;
+	}
+
+	// Shift elements to the right
+	memmove(&media_array->data[index + 1], &media_array->data[index],
+		(media_array->size - index) * sizeof(MediaFileData));
+
+	// Insert into array
+	media_array->data[index] = media_file_data;
+	media_array->size++;
+}
+
+void pop_media_back(MediaFileDataArray *media_array)
+{
+	pop_media_at(media_array, media_array->size);
+}
+
+void pop_media_front(MediaFileDataArray *media_array)
+{
+	pop_media_at(media_array, 0);
+}
+
+void pop_media_at(MediaFileDataArray *media_array, size_t index)
+{
+	if (index >= media_array->size)
+		return;
+
+	free(media_array->data[index].path);
+	free(media_array->data[index].filename);
+
+	for (size_t i = index; i < media_array->size - 1; i++) {
+		media_array->data[i] = media_array->data[i + 1];
+	}
+
+	media_array->size--;
+
+	if (media_array->size > 0 && media_array->size <= media_array->capacity / 4) {
+		media_array->capacity /= 2;
+		media_array->data =
+			(MediaFileData *)realloc(media_array->data, media_array->capacity * sizeof(MediaFileData));
+	}
+}
+
+void move_media_at(MediaFileDataArray *media_array, size_t from, size_t to)
+{
+	if (from >= media_array->size || to >= media_array->size || from == to)
+		return;
+
+	MediaFileData temp = media_array->data[from]; // Save the item being moved
+
+	if (from < to) {
+		for (size_t i = from; i < to; i++) {
+			media_array->data[i] = media_array->data[i + 1];
+		}
+	} else {
+		for (size_t i = from; i > to; i--) {
+			media_array->data[i] = media_array->data[i - 1];
+		}
+	}
+
+	// Free the existing memory in the target slot before replacing
+	free(media_array->data[to].path);
+	free(media_array->data[to].filename);
+	free(media_array->data[to].name);
+	free(media_array->data[to].ext);
+
+	media_array->data[to] = temp; // Assign the saved item
+}
+
+void move_media_array(MediaFileDataArray *destination, MediaFileDataArray *source)
+{
+	if (!destination || !source)
+		return;
+
+	// Free the existing data in the destination array
+	free_media_array(destination);
+
+	// Move ownership from source to destination
+	*destination = *source;
+
+	// Reset the source array to avoid accidental double-free
+	source->data = NULL;
+	source->size = 0;
+	source->capacity = 0;
+}
+
+// Function to get a string by index
+const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index)
+{
+	if (index >= media_array->size)
+		return NULL; // Out of bounds
+	return &media_array->data[index];
+}
+
+void clear_media_array(MediaFileDataArray *media_array)
+{
+	if (!media_array || !media_array->data)
+		return;
+
+	// Free all elements
+	for (size_t i = 0; i < media_array->size; i++) {
+		free(media_array->data[i].path);
+		free(media_array->data[i].filename);
+		free(media_array->data[i].name);
+		free(media_array->data[i].ext);
+	}
+
+	// Reset size but keep allocated memory
+	media_array->size = 0;
+}
+
+// Function to free the dynamic string array
+void free_media_array(MediaFileDataArray *media_array)
+{
+	if (media_array != NULL) {
+		if (media_array->size > 0) {
+			for (size_t i = 0; i < media_array->size; i++) {
+				const MediaFileData *data = get_media(media_array, i);
+				if (!data)
+					return;
+				free(data->path);
+				free(data->filename);
+				free(data->name);
+				free(data->ext);
+			}
+		}
+		if (media_array->data != NULL) {
+			free(media_array->data);
+		}
+	}
+}
+
+/*
+void push_media_back(MediaFileDataArray *media_array, const char *path)
+{
+	push_media_at(media_array, path, media_array->size);
 }
 
 void push_media_front(MediaFileDataArray *media_array, const char *path)
@@ -22,7 +201,7 @@ void push_media_at(MediaFileDataArray *media_array, const char *path, size_t ind
 
 void pop_media_back(MediaFileDataArray *media_array)
 {
-	pop_media_at(media_array, media_array->num);
+	pop_media_at(media_array, media_array->size);
 }
 
 void pop_media_front(MediaFileDataArray *media_array)
@@ -44,7 +223,7 @@ void pop_media_at(MediaFileDataArray *media_array, size_t index)
 
 const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index)
 {
-	if (index >= media_array->num)
+	if (index >= media_array->size)
 		return NULL; // Out of bounds
 	return &media_array->array[index];
 }
@@ -52,8 +231,8 @@ const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t ind
 void clear_media_array(MediaFileDataArray *media_array)
 {
 	if (media_array != NULL) {
-		if (media_array->num > 0) {
-			for (size_t i = 0; i < media_array->num; i++) {
+		if (media_array->size > 0) {
+			for (size_t i = 0; i < media_array->size; i++) {
 				const MediaFileData *data = get_media(media_array, i);
 				if (!data)
 					return;
@@ -70,8 +249,8 @@ void clear_media_array(MediaFileDataArray *media_array)
 void free_media_array(MediaFileDataArray *media_array)
 {
 	if (media_array != NULL) {
-		if (media_array->num > 0) {
-			for (size_t i = 0; i < media_array->num; i++) {
+		if (media_array->size > 0) {
+			for (size_t i = 0; i < media_array->size; i++) {
 				const MediaFileData *data = get_media(media_array, i);
 				if (!data)
 					return;
@@ -84,8 +263,9 @@ void free_media_array(MediaFileDataArray *media_array)
 		da_free(*media_array);
 	}
 }
+*/
 
-const MediaFileData create_media_file_data_from_path(const char *path, size_t index)
+MediaFileData create_media_file_data_from_path(const char *path, size_t index)
 {
 	// Create and insert new MediaFileData
 	const char *last_slash = strrchr(path, '/');
@@ -111,16 +291,15 @@ const MediaFileData create_media_file_data_from_path(const char *path, size_t in
 		name = strdup(file_name); // If no extension, the full name is used
 	}
 
-	const MediaFileData new_entry = {.path = strdup(path),
-					 .filename = file_name,
-					 .name = name,
-					 .ext = ext,
-					 .index = index};
+	MediaFileData new_entry = {.path = strdup(path),
+				   .filename = file_name,
+				   .name = name,
+				   .ext = ext,
+				   .index = index};
 	return new_entry;
 }
 
-const MediaFileData create_media_file_data_from_path_and_file_name(const char *path, const char *file_name,
-								   size_t index)
+MediaFileData create_media_file_data_from_path_and_file_name(const char *path, const char *file_name, size_t index)
 {
 	// Create and insert new MediaFileData
 	const char *dot_pos = strrchr(file_name, '.');
@@ -141,23 +320,23 @@ const MediaFileData create_media_file_data_from_path_and_file_name(const char *p
 		name = strdup(file_name); // If no extension, the full name is used
 	}
 
-	const MediaFileData new_entry = {.path = strdup(path),
-					 .filename = strdup(file_name),
-					 .name = name,
-					 .ext = ext,
-					 .index = index};
+	MediaFileData new_entry = {.path = strdup(path),
+				   .filename = strdup(file_name),
+				   .name = name,
+				   .ext = ext,
+				   .index = index};
 	return new_entry;
 }
 
-const MediaFileData create_media_file_data_with_all_info(const char *path, const char *file_name, const char *name,
-							 const char *ext, size_t index)
+MediaFileData create_media_file_data_with_all_info(const char *path, const char *file_name, const char *name,
+						   const char *ext, size_t index)
 {
 	// Create and insert new MediaFileData
-	const MediaFileData new_entry = {.path = strdup(path),
-					 .filename = strdup(file_name),
-					 .name = strdup(name),
-					 .ext = strdup(ext),
-					 .index = index};
+	MediaFileData new_entry = {.path = strdup(path),
+				   .filename = strdup(file_name),
+				   .name = strdup(name),
+				   .ext = strdup(ext),
+				   .index = index};
 	return new_entry;
 }
 
@@ -273,8 +452,8 @@ void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_
 				// obs_log(LOG_INFO, "\nFound file: \n%s\n%s\n%s\n", element, entry->d_name, full_path);
 
 				const MediaFileData new_entry = create_media_file_data_from_path_and_file_name(
-					full_path, entry->d_name, media_file_data_array->num);
-				da_insert(*media_file_data_array, media_file_data_array->num, &new_entry);
+					full_path, entry->d_name, media_file_data_array->size);
+				push_media_file_data_back(media_file_data_array, new_entry);
 
 				// Free allocated memory
 				free(full_path);
@@ -293,12 +472,12 @@ void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_
 char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const char *indent,
 			    e_MediaStringifyTYPE media_stringify_type)
 {
-	if (media_array == NULL || media_array->num <= 0) {
+	if (media_array == NULL || media_array->size <= 0) {
 		return strdup("[]"); // Return empty brackets if no elements
 	}
 	// Calculate the initial length of the compact format
 	size_t total_length = 3; // For "[" and "]\0"
-	for (size_t i = 0; i < media_array->num; i++) {
+	for (size_t i = 0; i < media_array->size; i++) {
 		const MediaFileData *media_file_data = get_media(media_array, i);
 
 		switch (media_stringify_type) {
@@ -323,7 +502,7 @@ char *stringify_media_array(const MediaFileDataArray *media_array, size_t thresh
 
 	// Apply compact format first
 	strcpy(result, "[");
-	for (size_t i = 0; i < media_array->num; i++) {
+	for (size_t i = 0; i < media_array->size; i++) {
 		strcat(result, "\"");
 
 		const MediaFileData *media_file_data = get_media(media_array, i);
@@ -342,7 +521,7 @@ char *stringify_media_array(const MediaFileDataArray *media_array, size_t thresh
 			break;
 		}
 		strcat(result, "\"");
-		if (i < media_array->num - 1)
+		if (i < media_array->size - 1)
 			strcat(result, ", ");
 	}
 	strcat(result, "]");
@@ -350,7 +529,7 @@ char *stringify_media_array(const MediaFileDataArray *media_array, size_t thresh
 	// If the compact string exceeds the threshold, prettify the result
 	if (strlen(result) > threshold) {
 		size_t prettified_length = 3; // For "[\n" and "]\n"
-		for (size_t i = 0; i < media_array->num; i++) {
+		for (size_t i = 0; i < media_array->size; i++) {
 			prettified_length += strlen(indent) + strlen(get_media(media_array, i)->path) +
 					     4; // Indent, quotes, and comma
 		}
@@ -364,7 +543,7 @@ char *stringify_media_array(const MediaFileDataArray *media_array, size_t thresh
 
 		// Construct the prettified string
 		strcpy(prettified_result, "[\n");
-		for (size_t i = 0; i < media_array->num; i++) {
+		for (size_t i = 0; i < media_array->size; i++) {
 			strcat(prettified_result, indent); // Add indentation before each element
 			strcat(prettified_result, "\"");
 
@@ -385,7 +564,7 @@ char *stringify_media_array(const MediaFileDataArray *media_array, size_t thresh
 			}
 			strcat(prettified_result, "\"");
 
-			if (i < media_array->num - 1) {
+			if (i < media_array->size - 1) {
 				strcat(prettified_result, ",\n");
 			}
 		}
@@ -404,11 +583,11 @@ char *stringify_media_queue_array(const MediaFileDataArray *media_array, int que
 {
 	size_t queue_size_list = (size_t)(queue_limit);
 
-	if (media_array == NULL || media_array->num <= 0) {
+	if (media_array == NULL || media_array->size <= 0) {
 		return strdup("[]"); // Return empty brackets if no elements
 	}
 
-	size_t min_size = min(media_array->num, queue_size_list);
+	size_t min_size = min(media_array->size, queue_size_list);
 	size_t prettified_length = 3; // For "[\n" and "]\n"
 	for (size_t i = 0; i < min_size; i++) {
 		prettified_length +=
@@ -491,8 +670,8 @@ bool compare_media_file_data(const MediaFileData *data_1, const MediaFileData *d
 
 bool compare_media_file_data_arrays(const MediaFileDataArray *array_1, const MediaFileDataArray *array_2)
 {
-	if (array_1->num == array_2->num) {
-		for (size_t i = 0; i < array_1->num; i++) {
+	if (array_1->size == array_2->size) {
+		for (size_t i = 0; i < array_1->size; i++) {
 			const MediaFileData *data_1 = get_media(array_1, i);
 			const MediaFileData *data_2 = get_media(array_2, i);
 			if (compare_media_file_data(data_1, data_2) == false) {

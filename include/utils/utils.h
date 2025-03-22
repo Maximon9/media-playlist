@@ -25,10 +25,49 @@ typedef struct {
 	size_t index;
 } MediaFileData;
 
-typedef DARRAY(MediaFileData) MediaFileDataArray;
+typedef struct {
+	MediaFileData *data;
+	size_t size;
+	size_t capacity;
+} MediaFileDataArray;
+
+// typedef DARRAY(MediaFileData) MediaFileDataArray;
 
 #pragma region Media Array Utils
 
+void init_media_array(MediaFileDataArray *media_array, size_t initial_capacity);
+
+void push_media_back(MediaFileDataArray *media_array, const char *path);
+
+void push_media_front(MediaFileDataArray *media_array, const char *path);
+
+void push_media_at(MediaFileDataArray *media_array, const char *path, size_t index);
+
+void push_media_file_data_back(MediaFileDataArray *media_array, MediaFileData media_file_data);
+
+void push_media_file_data_front(MediaFileDataArray *media_array, MediaFileData media_file_data);
+
+void push_media_file_data_at(MediaFileDataArray *media_array, MediaFileData media_file_data, size_t index);
+
+void pop_media_back(MediaFileDataArray *media_array);
+
+void pop_media_front(MediaFileDataArray *media_array);
+
+void pop_media_at(MediaFileDataArray *media_array, size_t index);
+
+void move_media_at(MediaFileDataArray *media_array, size_t from, size_t to);
+
+// Function to get a string by index
+const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index);
+
+void move_media_array(MediaFileDataArray *destination, MediaFileDataArray *source);
+
+void clear_media_array(MediaFileDataArray *media_array);
+
+// Function to free the dynamic string array
+void free_media_array(MediaFileDataArray *media_array);
+
+/*
 void push_media_back(MediaFileDataArray *media_array, const char *path);
 
 void push_media_front(MediaFileDataArray *media_array, const char *path);
@@ -46,13 +85,13 @@ const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t ind
 void clear_media_array(MediaFileDataArray *media_array);
 
 void free_media_array(MediaFileDataArray *media_array);
+*/
 
-const MediaFileData create_media_file_data_from_path(const char *path, size_t index);
+MediaFileData create_media_file_data_from_path(const char *path, size_t index);
 
-const MediaFileData create_media_file_data_from_path_and_file_name(const char *path, const char *file_name,
-								   size_t index);
-const MediaFileData create_media_file_data_with_all_info(const char *path, const char *file_name, const char *name,
-							 const char *ext, size_t index);
+MediaFileData create_media_file_data_from_path_and_file_name(const char *path, const char *file_name, size_t index);
+MediaFileData create_media_file_data_with_all_info(const char *path, const char *file_name, const char *name,
+						   const char *ext, size_t index);
 
 char *obs_array_to_string(obs_data_array_t *array);
 
