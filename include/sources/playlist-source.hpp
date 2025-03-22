@@ -35,8 +35,6 @@ typedef struct {
 #pragma endregion
 #pragma region Private
 	bool all_media_initialized;
-	MediaFileDataArray queue;
-	MediaFileDataArray previous_queue;
 	// bool run;
 	// bool paused;
 	pthread_mutex_t mutex;
