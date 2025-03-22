@@ -36,6 +36,7 @@ struct PlaylistSource {
 	bool debug;
 #pragma endregion
 #pragma region Private
+	bool all_media_initialized;
 	MediaFileDataArray queue;
 	MediaFileDataArray previous_queue;
 	bool run;
@@ -52,6 +53,21 @@ struct PlaylistSource {
 #pragma endregion
 
 #pragma region Media Functions
+
+void refresh_queue_list(struct PlaylistSource *playlist_data)
+{
+	clear_media_array(&playlist_data->queue);
+
+	for (size_t i = 0; i < playlist_data->all_media.size; i++) {
+		const MediaFileData *media_file_data = get_media(&playlist_data->all_media, i);
+
+		const MediaFileData new_entry = create_media_file_data_with_all_info(
+			media_file_data->path, media_file_data->filename, media_file_data->name, media_file_data->ext,
+			media_file_data->index);
+
+		push_media_file_data_back(&playlist_data->queue, new_entry);
+	}
+}
 
 void playlist_media_source_ended(void *data, calldata_t *callback);
 
@@ -164,4 +180,4 @@ static struct obs_source_info playlist_source_template = {
 
 #pragma endregion
 
-#endif; // PLAYLIST_SOURCE_H
+#endif // PLAYLIST_SOURCE_H
