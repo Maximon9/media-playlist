@@ -325,7 +325,7 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 
 				for (size_t i = 0; i < existing_indices.num; i++) {
 					queue_index = existing_indices.array[i];
-					obs_log(LOG_INFO, "Existing Index: %d", queue_index);
+					// obs_log(LOG_INFO, "Existing Index: %d", queue_index);
 					media_file_data = &playlist_data->all_media[i];
 
 					const MediaFileData new_entry = create_media_file_data_with_all_info(
