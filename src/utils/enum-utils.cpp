@@ -1,4 +1,4 @@
-#include "../include/utils/enum-utils.h"
+#include "../include/utils/enum-utils.hpp"
 
 #define X(name) #name,
 

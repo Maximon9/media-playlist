@@ -1,6 +1,6 @@
 #pragma region Main
 
-#include "../include/utils/utils.h"
+#include "../include/utils/utils.hpp"
 
 #pragma region Media Array Utils
 
@@ -46,7 +46,8 @@ void push_media_file_data_at(MediaFileDataArray *media_array, MediaFileData medi
 	// Resize if needed
 	if (media_array->size >= media_array->capacity) {
 		size_t new_capacity = (media_array->capacity == 0) ? 1 : media_array->capacity * 2;
-		MediaFileData *new_data = realloc(media_array->data, new_capacity * sizeof(MediaFileData));
+		MediaFileData *new_data =
+			(MediaFileData *)realloc(media_array->data, new_capacity * sizeof(MediaFileData));
 		if (!new_data)
 			return; // Memory allocation failed
 		media_array->data = new_data;
@@ -200,7 +201,7 @@ MediaFileData create_media_file_data_from_path(const char *path, size_t index)
 	if (dot_pos != NULL) {
 		// Calculate the length of the name (without the extension)
 		size_t name_len = dot_pos - temp_file_name; // Length of name without the extension
-		name = malloc(name_len + 1);                // Allocate memory for the name part
+		name = (char *)malloc(name_len + 1);        // Allocate memory for the name part
 
 		if (name != NULL) {
 			memcpy(name, temp_file_name, name_len); // Copy the name part
@@ -210,11 +211,12 @@ MediaFileData create_media_file_data_from_path(const char *path, size_t index)
 		name = strdup(file_name); // If no extension, the full name is used
 	}
 
-	MediaFileData new_entry = {.path = strdup(path),
-				   .filename = file_name,
-				   .name = name,
-				   .ext = ext,
-				   .index = index};
+	// MediaFileData new_entry = {.path = strdup(path),
+	// 			   .filename = file_name,
+	// 			   .name = name,
+	// 			   .ext = ext,
+	// 			   .index = index};
+	MediaFileData new_entry = {strdup(path), file_name, name, ext, index};
 	return new_entry;
 }
 
@@ -229,7 +231,7 @@ MediaFileData create_media_file_data_from_path_and_file_name(const char *path, c
 	if (dot_pos != NULL) {
 		// Calculate the length of the name (without the extension)
 		size_t name_len = dot_pos - file_name; // Length of name without the extension
-		name = malloc(name_len + 1);           // Allocate memory for the name part
+		name = (char *)malloc(name_len + 1);   // Allocate memory for the name part
 
 		if (name != NULL) {
 			memcpy(name, file_name, name_len); // Copy the name part
@@ -239,11 +241,7 @@ MediaFileData create_media_file_data_from_path_and_file_name(const char *path, c
 		name = strdup(file_name); // If no extension, the full name is used
 	}
 
-	MediaFileData new_entry = {.path = strdup(path),
-				   .filename = strdup(file_name),
-				   .name = name,
-				   .ext = ext,
-				   .index = index};
+	MediaFileData new_entry = {strdup(path), strdup(file_name), name, ext, index};
 	return new_entry;
 }
 
@@ -251,11 +249,7 @@ MediaFileData create_media_file_data_with_all_info(const char *path, const char 
 						   const char *ext, size_t index)
 {
 	// Create and insert new MediaFileData
-	MediaFileData new_entry = {.path = strdup(path),
-				   .filename = strdup(file_name),
-				   .name = strdup(name),
-				   .ext = strdup(ext),
-				   .index = index};
+	MediaFileData new_entry = {strdup(path), strdup(file_name), strdup(name), strdup(ext), index};
 	return new_entry;
 }
 
@@ -264,7 +258,7 @@ char *obs_array_to_string(obs_data_array_t *array)
 	size_t array_size = obs_data_array_count(array);
 
 	if (array == NULL || array_size == 0) {
-		return "[]";
+		return (char *)"[]";
 	}
 
 	// Estimate maximum size for the string (2 chars per element + commas + brackets)
@@ -278,7 +272,8 @@ char *obs_array_to_string(obs_data_array_t *array)
 	for (size_t i = 0; i < array_size; ++i) {
 		// Convert element to string (single character)
 		obs_data_t *data = obs_data_array_item(array, i);
-		const char *element[2] = {obs_data_get_string(data, "value"), '\0'}; // Create a single char string
+		char *element[2] = {(char *)obs_data_get_string(data, "value"),
+				    (char *)'\0'}; // Create a single char string
 
 		strcat(result, *element);
 
@@ -292,7 +287,6 @@ char *obs_array_to_string(obs_data_array_t *array)
 	strcat(result, "]");
 
 	return result;
-	return "[]";
 }
 
 bool valid_extension(const char *ext)
@@ -361,7 +355,7 @@ void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_
 				// Allocate memory dynamically for full path
 				size_t path_len =
 					strlen(element) + strlen(entry->d_name) + 2; // +2 for '/' and null terminator
-				char *full_path = malloc(path_len);
+				char *full_path = (char *)malloc(path_len);
 				if (!full_path) {
 					obs_log(LOG_INFO, "Memory allocation failed for: %s\n", entry->d_name);
 					continue;
@@ -506,7 +500,7 @@ char *stringify_media_queue_array(const MediaFileDataArray *media_array, int que
 		return strdup("[]"); // Return empty brackets if no elements
 	}
 
-	size_t min_size = min(media_array->size, queue_size_list);
+	size_t min_size = (size_t)min(media_array->size, queue_size_list);
 
 	if (min_size <= 0) {
 		return strdup("[]"); // Return empty brackets if no elements
@@ -567,7 +561,7 @@ void obs_log_media_array(int log_level, char *format, const MediaFileDataArray *
 	char *result = stringify_media_array(media_array, threshold, indent, media_stringify_type);
 
 	size_t total_length = strlen(format) + strlen(result) + 1;
-	char *concat_result = malloc(total_length);
+	char *concat_result = (char *)malloc(total_length);
 
 	if (!concat_result) {
 		perror("Failed to allocate memory");
@@ -614,7 +608,7 @@ bool compare_media_file_data_arrays(const MediaFileDataArray *array_1, const Med
 char *concat_mem_string(char *_Destination, const char *_Source)
 {
 	size_t total_length = strlen(_Destination) + strlen(_Source) + 1;
-	char *concat_result = malloc(total_length);
+	char *concat_result = (char *)malloc(total_length);
 
 	if (!concat_result) {
 		perror("Failed to allocate memory");
@@ -632,7 +626,7 @@ char *screaming_snake_case_to_title_case(const char *name)
 		return NULL;
 
 	size_t len = strlen(name);
-	char *output = malloc(len + 1); // Allocate memory for new string
+	char *output = (char *)malloc(len + 1); // Allocate memory for new string
 	if (!output)
 		return NULL;
 
@@ -659,8 +653,8 @@ void remove_front_words(char *str, int count)
 
 	char *token;
 	int w_count = 0;
-	size_t result_size = 256;           // Initial size of the result string
-	char *result = malloc(result_size); // Allocate memory for the result string
+	size_t result_size = 256;                   // Initial size of the result string
+	char *result = (char *)malloc(result_size); // Allocate memory for the result string
 	if (result == NULL) {
 		printf("Memory allocation failed\n");
 		return;
@@ -683,7 +677,7 @@ void remove_front_words(char *str, int count)
 			// Ensure there's enough space to append a space and token
 			if (strlen(result) + 1 + token_len >= result_size) {
 				result_size *= 2; // Double the size of the buffer if needed
-				result = realloc(result, result_size);
+				result = (char *)realloc(result, result_size);
 				if (result == NULL) {
 					printf("Memory allocation failed\n");
 					return;

@@ -42,6 +42,7 @@ endif()
 
 file(GLOB_RECURSE MY_PLUGIN_SOURCES
     "src/*.c"
+    "src/*.cpp"
 )
 
 target_sources(${CMAKE_PROJECT_NAME}
@@ -50,7 +51,10 @@ target_sources(${CMAKE_PROJECT_NAME}
 
 #region Add Includes
 # Find all header files in the include directory and subdirectories.
-file(GLOB_RECURSE HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
+file(GLOB_RECURSE HEADER_FILES
+    "include/*.h"
+    "include/*.hpp"
+)
 
 # Create a variable to hold the directories.
 set(HEADER_DIRS "")

@@ -3,18 +3,16 @@
 
 #include <obs-module.h>
 #include <obs-frontend-api.h>
+// #include <qt
 #include <util/threading.h>
-// #include <util/platform.h>
-// #include <util/darray.h>
-// #include <util/dstr.h>
 #include <util/deque.h>
 #include <plugin-support.h>
-#include "../include/utils/utils.h"
-#include "../include/utils/enum-utils.h"
+#include "../include/utils/utils.hpp"
+#include "../include/utils/enum-utils.hpp"
 
 #pragma region Custom Types
 
-struct PlaylistSource {
+typedef struct {
 #pragma region Public
 	bool shuffle_queue;
 	obs_source_t *source;
@@ -22,12 +20,12 @@ struct PlaylistSource {
 	obs_data_t *media_source_settings;
 	int start_index;
 	int end_index;
-	enum StartBehavior playlist_start_behavior;
-	enum EndBehavior playlist_end_behavior;
+	e_StartBehavior playlist_start_behavior;
+	e_EndBehavior playlist_end_behavior;
 	int loop_index;
 	bool infinite;
 	int loop_count;
-	enum LoopEndBehavior loop_end_behavior;
+	e_LoopEndBehavior loop_end_behavior;
 	bool rest_playlist_after_last_loop;
 	MediaFileDataArray all_media;
 	// size_t current_media_index;
@@ -48,7 +46,7 @@ struct PlaylistSource {
 	size_t num_channels;
 	pthread_mutex_t audio_mutex;
 #pragma endregion
-};
+} PlaylistSource;
 
 #pragma endregion
 
@@ -57,19 +55,19 @@ void playlist_global_signal_callback(void *data, const char *signal, calldata_t 
 
 const char *get_current_media_input(obs_data_t *settings);
 
-void refresh_queue_list(struct PlaylistSource *playlist_data);
+void refresh_queue_list(PlaylistSource *playlist_data);
 
 void playlist_media_source_ended(void *data, calldata_t *callback);
 
-void playlist_queue(struct PlaylistSource *playlist_data);
+void playlist_queue(PlaylistSource *playlist_data);
 
-void playlist_queue_restart(struct PlaylistSource *playlist_data);
+void playlist_queue_restart(PlaylistSource *playlist_data);
 
-void clear_any_media_playing(struct PlaylistSource *playlist_data);
+void clear_any_media_playing(PlaylistSource *playlist_data);
 
 void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted);
 
-bool uses_song_history_limit(struct PlaylistSource *playlist_data);
+bool uses_song_history_limit(PlaylistSource *playlist_data);
 
 #pragma endregion
 
@@ -77,7 +75,7 @@ bool uses_song_history_limit(struct PlaylistSource *playlist_data);
 
 obs_properties_t *make_playlist_properties();
 
-void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings);
+void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings);
 
 #pragma endregion
 
@@ -136,40 +134,10 @@ enum obs_media_state media_get_state(void *data);
 
 #pragma endregion
 
-#pragma region Playlist Template
+// #pragma region Playlist Template
 
-static struct obs_source_info playlist_source_template = {
-	.id = "media_playlist_code_maximon9",
-	.type = OBS_SOURCE_TYPE_INPUT,
-	.get_name = playlist_source_name,
-	.create = playlist_source_create,
-	.destroy = playlist_source_destroy,
-	.get_width = playlist_source_width,
-	.get_height = playlist_source_height,
-	.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_CUSTOM_DRAW | OBS_SOURCE_AUDIO | OBS_SOURCE_CONTROLLABLE_MEDIA,
-	.get_defaults = playlist_get_defaults,
-	.get_properties = playlist_get_properties,
-	.update = playlist_update,
-	.activate = playlist_activate,
-	.deactivate = playlist_deactivate,
-	.video_tick = playlist_video_tick,
-	.video_render = playlist_video_render,
-	.audio_render = playlist_audio_render,
-	.enum_active_sources = playlist_enum_active_sources,
-	.save = playlist_save,
-	.load = playlist_load,
-	.icon_type = OBS_ICON_TYPE_MEDIA,
-	.media_play_pause = media_play_pause,
-	.media_restart = media_restart,
-	.media_stop = media_stop,
-	.media_next = media_next,
-	.media_previous = media_previous,
-	.media_get_duration = media_get_duration,
-	.media_get_time = media_get_time,
-	.media_set_time = media_set_time,
-	.media_get_state = media_get_state,
-};
+// static struct obs_source_info playlist_source_template;
 
-#pragma endregion
+// #pragma endregion
 
 #endif // PLAYLIST_SOURCE_H

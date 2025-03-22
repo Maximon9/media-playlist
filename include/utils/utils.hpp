@@ -10,7 +10,10 @@
 #include <ctype.h>
 #include <string.h>
 #include <util/platform.h>
-#include "../include/utils/enum-utils.h"
+#include "../include/utils/enum-utils.hpp"
+// #include <iostream>
+#include <algorithm>
+using namespace std;
 
 static const char *media_filter =
 	" (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm *.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
