@@ -93,30 +93,30 @@ void pop_media_at(MediaFileDataArray *media_array, size_t index)
 	}
 }
 
-void move_media_at(MediaFileDataArray *media_array, size_t from, size_t to)
+void move_media_at(MediaFileDataArray *media_array, size_t from_index, size_t to_index)
 {
-	if (from >= media_array->size || to >= media_array->size || from == to)
-		return;
-
-	MediaFileData temp = media_array->data[from]; // Save the item being moved
-
-	if (from < to) {
-		for (size_t i = from; i < to; i++) {
-			media_array->data[i] = media_array->data[i + 1];
-		}
-	} else {
-		for (size_t i = from; i > to; i--) {
-			media_array->data[i] = media_array->data[i - 1];
-		}
+	if (!media_array || from_index >= media_array->size || to_index >= media_array->size) {
+		return; // Out-of-bounds check
 	}
 
-	// Free the existing memory in the target slot before replacing
-	free(media_array->data[to].path);
-	free(media_array->data[to].filename);
-	free(media_array->data[to].name);
-	free(media_array->data[to].ext);
+	if (from_index == to_index) {
+		return; // No need to move if indexes are the same
+	}
 
-	media_array->data[to] = temp; // Assign the saved item
+	// Swap elements
+	MediaFileData temp = media_array->data[from_index];
+	if (from_index < to_index) {
+		// Shift left
+		memmove(&media_array->data[from_index], &media_array->data[from_index + 1],
+			(to_index - from_index) * sizeof(MediaFileData));
+	} else {
+		// Shift right
+		memmove(&media_array->data[to_index + 1], &media_array->data[to_index],
+			(from_index - to_index) * sizeof(MediaFileData));
+	}
+
+	// Place the moved item in its new position
+	media_array->data[to_index] = temp;
 }
 
 void move_media_array(MediaFileDataArray *destination, MediaFileDataArray *source)

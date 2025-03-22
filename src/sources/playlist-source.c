@@ -776,11 +776,11 @@ void media_next(void *data)
 			if (playlist_data->previous_queue.size > playlist_data->song_history_limit) {
 				pop_media_back(&playlist_data->previous_queue);
 			}
+			pop_media_front(&playlist_data->queue);
 		} else if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP) {
 			move_media_at(&playlist_data->queue, playlist_data->queue.size - 1, 0);
 		}
 
-		pop_media_front(&playlist_data->queue);
 		playlist_queue_restart(playlist_data);
 	}
 
