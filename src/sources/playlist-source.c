@@ -8,6 +8,11 @@
 #define S_CURRENT_MEDIA_INDEX "current_media_index"
 
 #pragma region Media Functions
+void playlist_global_signal_callback(void *data, const char *signal, calldata_t *callback_data)
+{
+	obs_log(LOG_INFO, "Source Signals: %s", signal);
+}
+
 const char *get_current_media_input(obs_data_t *settings)
 {
 	const char *path = obs_data_get_string(settings, S_FFMPEG_LOCAL_FILE);
@@ -284,10 +289,20 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	// 	media_arrays_are_equal == false ? "true" : "false",
 	// 	playlist_data->all_media_initialized == true ? "true" : "false");
 
+	/*
+	1.mp4
+	2.mp4
+	2.mp4
+	*/
 	if (media_arrays_are_equal == false && playlist_data->all_media_initialized == true) {
 		update_properties = true;
 
-		if (old_media_size == 0 && new_media_size != 0) {
+		if (new_media_size == 0) {
+			// enum obs_media_state state = obs_source_media_get_state(playlist_data->source);
+			// obs_log
+			clear_media_array(&playlist_data->queue);
+			obs_source_media_stop(playlist_data->source);
+		} else if (old_media_size == 0 && new_media_size != 0) {
 			refresh_queue_list(playlist_data);
 			playlist_queue_restart(playlist_data);
 		} else {
@@ -302,27 +317,38 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 					size_t queue_index = get_media(&playlist_data->queue, i)->index;
 					const MediaFileData *media_file_data =
 						get_media(&playlist_data->all_media, queue_index);
-					if (media_file_data == NULL) {
+					if (media_file_data != NULL) {
 						da_push_back(existing_indices, &queue_index);
 					}
 				}
 			}
 
+			const MediaFileData *media_file_data = NULL;
+			size_t queue_index = 0;
 			if (existing_indices.num > 0) {
 				MediaFileDataArray new_queue;
 				init_media_array(&new_queue, 2);
 
-				// for (size_t i = 0; i < existing_indices.num; i++) {
-				// 	const size_t queue_index = existing_indices.array[i];
-				// 	obs_log(LOG_INFO, "Existing Index: %d", queue_index);
-				// const MediaFileData *media_file_data = get_media(&playlist_data->all_media, i);
+				for (size_t i = 0; i < existing_indices.num; i++) {
+					queue_index = existing_indices.array[i];
+					obs_log(LOG_INFO, "Existing Index: %d", queue_index);
+					media_file_data = get_media(&playlist_data->all_media, i);
 
-				// const MediaFileData new_entry = create_media_file_data_with_all_info(
-				// 	media_file_data->path, media_file_data->filename, media_file_data->name,
-				// 	media_file_data->ext, media_file_data->index);
+					const MediaFileData new_entry = create_media_file_data_with_all_info(
+						media_file_data->path, media_file_data->filename, media_file_data->name,
+						media_file_data->ext, media_file_data->index);
 
-				// push_media_file_data_back(&new_queue, new_entry);
-				// }
+					push_media_file_data_back(&new_queue, new_entry);
+				}
+
+				queue_index = existing_indices.array[existing_indices.num - 1] + 1;
+				media_file_data = get_media(&playlist_data->all_media, queue_index);
+				while (media_file_data != NULL) {
+					const MediaFileData new_entry = create_media_file_data_with_all_info(
+						media_file_data->path, media_file_data->filename, media_file_data->name,
+						media_file_data->ext, media_file_data->index);
+					push_media_file_data_back(&new_queue, new_entry);
+				}
 
 				move_media_array(&playlist_data->queue, &new_queue);
 			}
@@ -331,9 +357,6 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 			const char *media_input = get_current_media_input(playlist_data->media_source_settings);
 			const char *current_queue_path = get_media(&playlist_data->queue, 0)->path;
-
-			obs_log(LOG_INFO, "Comparing Strings: %s",
-				strcmp(media_input, current_queue_path) == 0 ? "true" : "false");
 
 			if (strcmp(media_input, current_queue_path) == 0) {
 				playlist_queue(playlist_data);
@@ -454,8 +477,6 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	struct PlaylistSource *playlist_data = bzalloc(sizeof(*playlist_data));
 
 	playlist_data->source = source;
-	// playlist_data->media_source = NULL;
-	// playlist_data->media_source_settings = NULL;
 
 	playlist_data->media_source_settings = obs_data_create();
 
@@ -467,14 +488,12 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	obs_source_add_active_child(playlist_data->source, playlist_data->media_source);
 	obs_source_add_audio_capture_callback(playlist_data->media_source, playlist_audio_callback, playlist_data);
 
+	signal_handler_t *sh_source = obs_source_get_signal_handler(playlist_data->source);
+	signal_handler_connect_global(sh_source, playlist_global_signal_callback, playlist_data);
+
 	signal_handler_t *sh_media_source = obs_source_get_signal_handler(playlist_data->media_source);
 	signal_handler_connect(sh_media_source, "media_ended", playlist_media_source_ended, playlist_data);
 
-	// MediaFileDataArray all_media;
-
-	// da_init(all_media);
-
-	// playlist_data->all_media = &all_media;
 	playlist_data->all_media_initialized = false;
 
 	init_media_array(&playlist_data->all_media, 2);
