@@ -4,33 +4,33 @@
 
 #pragma region Media Array Utils
 
-static void push_media_back(MediaFileDataArray *media_array, const char *path)
+void push_media_back(MediaFileDataArray *media_array, const char *path)
 {
 	push_media_at(media_array, path, media_array->num);
 }
 
-static void push_media_front(MediaFileDataArray *media_array, const char *path)
+void push_media_front(MediaFileDataArray *media_array, const char *path)
 {
 	push_media_at(media_array, path, 0);
 }
 
-static void push_media_at(MediaFileDataArray *media_array, const char *path, size_t index)
+void push_media_at(MediaFileDataArray *media_array, const char *path, size_t index)
 {
 	const MediaFileData new_entry = create_media_file_data_from_path(path, index);
 	da_insert(*media_array, index, &new_entry);
 }
 
-static void pop_media_back(MediaFileDataArray *media_array)
+void pop_media_back(MediaFileDataArray *media_array)
 {
 	pop_media_at(media_array, media_array->num);
 }
 
-static void pop_media_front(MediaFileDataArray *media_array)
+void pop_media_front(MediaFileDataArray *media_array)
 {
 	pop_media_at(media_array, 0);
 }
 
-static void pop_media_at(MediaFileDataArray *media_array, size_t index)
+void pop_media_at(MediaFileDataArray *media_array, size_t index)
 {
 	const MediaFileData *data = get_media(media_array, index);
 	if (!data)
@@ -85,7 +85,7 @@ void free_media_array(MediaFileDataArray *media_array)
 	}
 }
 
-static const MediaFileData create_media_file_data_from_path(const char *path, size_t index)
+const MediaFileData create_media_file_data_from_path(const char *path, size_t index)
 {
 	// Create and insert new MediaFileData
 	const char *last_slash = strrchr(path, '/');
@@ -119,8 +119,8 @@ static const MediaFileData create_media_file_data_from_path(const char *path, si
 	return new_entry;
 }
 
-static const MediaFileData create_media_file_data_from_path_and_file_name(const char *path, const char *file_name,
-									  size_t index)
+const MediaFileData create_media_file_data_from_path_and_file_name(const char *path, const char *file_name,
+								   size_t index)
 {
 	// Create and insert new MediaFileData
 	const char *dot_pos = strrchr(file_name, '.');
@@ -149,7 +149,19 @@ static const MediaFileData create_media_file_data_from_path_and_file_name(const 
 	return new_entry;
 }
 
-static char *obs_array_to_string(obs_data_array_t *array)
+const MediaFileData create_media_file_data_with_all_info(const char *path, const char *file_name, const char *name,
+							 const char *ext, size_t index)
+{
+	// Create and insert new MediaFileData
+	const MediaFileData new_entry = {.path = strdup(path),
+					 .filename = strdup(file_name),
+					 .name = strdup(name),
+					 .ext = strdup(ext),
+					 .index = index};
+	return new_entry;
+}
+
+char *obs_array_to_string(obs_data_array_t *array)
 {
 	size_t array_size = obs_data_array_count(array);
 
@@ -185,7 +197,7 @@ static char *obs_array_to_string(obs_data_array_t *array)
 	return "[]";
 }
 
-static bool valid_extension(const char *ext)
+bool valid_extension(const char *ext)
 {
 	struct dstr haystack = {0};
 	struct dstr needle = {0};
@@ -391,6 +403,7 @@ char *stringify_media_queue_array(const MediaFileDataArray *media_array, int que
 				  e_MediaStringifyTYPE media_stringify_type)
 {
 	size_t queue_size_list = (size_t)(queue_limit);
+	obs_log(LOG_INFO, "What is going on: %d", queue_size_list);
 
 	if (media_array == NULL || media_array->num <= 0) {
 		return strdup("[]"); // Return empty brackets if no elements

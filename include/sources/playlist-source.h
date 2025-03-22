@@ -55,21 +55,21 @@ struct PlaylistSource {
 
 #pragma region Button Callbacks
 
-static void shuffle_list(obs_properties_t *props, obs_property_t *property, void *data);
+void shuffle_list(obs_properties_t *props, obs_property_t *property, void *data);
 
 #pragma endregion
 
-static void playlist_queue(struct PlaylistSource *playlist_data);
+void playlist_queue(struct PlaylistSource *playlist_data);
 
-static void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted);
+void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted);
 
 #pragma endregion
 
 #pragma region Property Managment
 
-static obs_properties_t *make_playlist_properties();
+obs_properties_t *make_playlist_properties();
 
-static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings);
+void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings);
 
 #pragma endregion
 
@@ -130,7 +130,7 @@ enum obs_media_state media_get_state(void *data);
 
 #pragma region Playlist Template
 
-static struct obs_source_info playlist_source_template = {
+struct obs_source_info playlist_source_template = {
 	.id = "media_playlist_code_maximon9",
 	.type = OBS_SOURCE_TYPE_INPUT,
 	.get_name = playlist_source_name,

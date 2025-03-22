@@ -8,13 +8,13 @@
 #define S_CURRENT_MEDIA_INDEX "current_media_index"
 
 #pragma region Media Functions
-static void playlist_media_source_ended(void *data, calldata_t *callback)
+void playlist_media_source_ended(void *data, calldata_t *callback)
 {
 	UNUSED_PARAMETER(callback);
 	struct PlaylistSource *playlist_data = data;
 
 	if (playlist_data->queue.num > 0) {
-		da_pop_front(playlist_data->queue);
+		pop_media_front(&playlist_data->queue);
 
 		// switch (playlist_data->end_index)
 		// {
@@ -57,7 +57,7 @@ static void playlist_media_source_ended(void *data, calldata_t *callback)
 	obs_log(LOG_INFO, "We ended the media");
 }
 
-static void playlist_queue(struct PlaylistSource *playlist_data)
+void playlist_queue(struct PlaylistSource *playlist_data)
 {
 	if (!playlist_data || playlist_data->all_media.num <= 0 || !playlist_data->media_source ||
 	    !playlist_data->media_source_settings)
@@ -89,7 +89,7 @@ static void playlist_queue(struct PlaylistSource *playlist_data)
 	// obs_source_media_play_pause(playlist_data->source, false);
 }
 
-static void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted)
+void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted)
 {
 	UNUSED_PARAMETER(muted);
 	UNUSED_PARAMETER(source);
@@ -112,7 +112,7 @@ static void playlist_audio_callback(void *data, obs_source_t *source, const stru
 
 #pragma region Property Managment
 
-static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
+obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 {
 	obs_properties_t *props = obs_properties_create();
 
@@ -176,7 +176,7 @@ static obs_properties_t *make_playlist_properties(struct PlaylistSource *playlis
  * @param settings The settings of the playlist source.
  * @return void
  */
-static void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings)
+void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *settings)
 {
 	bool update_properties = false;
 
@@ -375,10 +375,9 @@ void playlist_source_destroy(void *data)
 	pthread_mutex_destroy(&playlist_data->mutex);
 	pthread_mutex_destroy(&playlist_data->audio_mutex);
 
-	da_free(playlist_data->queue);
-	da_free(playlist_data->previous_queue);
-	obs_log_media_array(LOG_INFO, "Testing Queue 1: ", &playlist_data->all_media, 90, "    ", true);
 	free_media_array(&playlist_data->all_media);
+	free_media_array(&playlist_data->queue);
+	free_media_array(&playlist_data->previous_queue);
 	// free_media_array(&playlist_data->queue);
 	// free_media_array(&playlist_data->previous_queue);
 
@@ -446,11 +445,16 @@ void playlist_activate(void *data)
 
 		// da_
 		// obs_log_media_array(LOG_INFO, "Testing Queue 1: ", &playlist_data->all_media, 90, "    ", true);
-		da_clear(playlist_data->queue);
+		clear_media_array(&playlist_data->queue);
 
 		for (size_t i = 0; i < playlist_data->all_media.num; i++) {
 			const MediaFileData *media_file_data = get_media(&playlist_data->all_media, i);
-			da_push_back(playlist_data->queue, media_file_data);
+
+			const MediaFileData new_entry = create_media_file_data_with_all_info(
+				media_file_data->path, media_file_data->filename, media_file_data->name,
+				media_file_data->ext, media_file_data->index);
+
+			da_push_back(playlist_data->queue, &new_entry);
 		}
 
 		// obs_log_media_array(LOG_INFO, "Testing Queue 2: ", &playlist_data->queue, 90, "    ", true);

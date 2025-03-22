@@ -12,10 +12,10 @@
 #include <util/platform.h>
 #include "../include/utils/enum-utils.h"
 
-static const char *media_filter =
+const char *media_filter =
 	" (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm *.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
-static const char *video_filter = " (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm);;";
-static const char *audio_filter = " (*.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
+const char *video_filter = " (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.mkv *.avi *.gif *.webm);;";
+const char *audio_filter = " (*.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
 
 typedef struct {
 	char *path;
@@ -29,17 +29,17 @@ typedef DARRAY(MediaFileData) MediaFileDataArray;
 
 #pragma region Media Array Utils
 
-static void push_media_back(MediaFileDataArray *media_array, const char *path);
+void push_media_back(MediaFileDataArray *media_array, const char *path);
 
-static void push_media_front(MediaFileDataArray *media_array, const char *path);
+void push_media_front(MediaFileDataArray *media_array, const char *path);
 
-static void push_media_at(MediaFileDataArray *media_array, const char *path, size_t index);
+void push_media_at(MediaFileDataArray *media_array, const char *path, size_t index);
 
-static void pop_media_back(MediaFileDataArray *media_array);
+void pop_media_back(MediaFileDataArray *media_array);
 
-static void pop_media_front(MediaFileDataArray *media_array);
+void pop_media_front(MediaFileDataArray *media_array);
 
-static void pop_media_at(MediaFileDataArray *media_array, size_t index);
+void pop_media_at(MediaFileDataArray *media_array, size_t index);
 
 const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index);
 
@@ -47,15 +47,17 @@ void clear_media_array(MediaFileDataArray *media_array);
 
 void free_media_array(MediaFileDataArray *media_array);
 
-static const MediaFileData create_media_file_data_from_path(const char *path, size_t index);
+const MediaFileData create_media_file_data_from_path(const char *path, size_t index);
 
-static const MediaFileData create_media_file_data_from_path_and_file_name(const char *path, const char *file_name,
-									  size_t index);
+const MediaFileData create_media_file_data_from_path_and_file_name(const char *path, const char *file_name,
+								   size_t index);
+const MediaFileData create_media_file_data_with_all_info(const char *path, const char *file_name, const char *name,
+							 const char *ext, size_t index);
 
-static char *obs_array_to_string(obs_data_array_t *array);
+char *obs_array_to_string(obs_data_array_t *array);
 
 // Returns true if extension is valid
-static bool valid_extension(const char *ext);
+bool valid_extension(const char *ext);
 
 // Turns an obs_data_array_t into a MediaFileDataArray
 void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_data_array_t *obs_playlist);
