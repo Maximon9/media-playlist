@@ -481,6 +481,29 @@ void obs_log_media_array(int log_level, char *format, const MediaFileDataArray *
 	free(concat_result);
 }
 
+bool compare_media_file_data(const MediaFileData *data_1, const MediaFileData *data_2)
+{
+	if (strcmp(data_1->path, data_2->path) == 0 && data_1->index == data_2->index) {
+		return true;
+	}
+	return false;
+}
+
+bool compare_media_file_data_arrays(MediaFileDataArray *array_1, MediaFileDataArray *array_2)
+{
+	if (array_1->num == array_2->num) {
+		for (size_t i = 0; i < array_1->num; i++) {
+			const MediaFileDataArray *data_1 = get_media(array_1, i);
+			const MediaFileDataArray *data_2 = get_media(array_2, i);
+			if (compare_media_file_data(data_1, data_2) == false) {
+				return false;
+			}
+		}
+		return true;
+	}
+	return false;
+}
+
 #pragma endregion
 
 #pragma region Utils

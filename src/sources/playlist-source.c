@@ -205,25 +205,50 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 	pthread_mutex_lock(&playlist_data->mutex);
 
-	// MediaFileDataArray new_media_array;
+	MediaFileDataArray new_media_array;
 
-	// da_init(new_media_array);
+	da_init(new_media_array);
 
-	// obs_data_media_array_retain(&new_media_array, obs_data_get_array(settings, "playlist"));
-	obs_data_media_array_retain(&playlist_data->all_media, obs_data_get_array(settings, "playlist"));
+	obs_data_media_array_retain(&new_media_array, obs_data_get_array(settings, "playlist"));
 
-	if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
-	    playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_END || playlist_data->shuffle_queue == true) {
-		const MediaFileData *queued_media_file_data = get_media(&playlist_data->queue, 0);
+	if (compare_media_file_data_arrays(&new_media_array, &playlist_data->all_media)) {
+		clear_media_array(&playlist_data->all_media);
+		da_move(playlist_data->all_media, new_media_array);
 
-		const MediaFileData queued_media_file_data_dup = create_media_file_data_with_all_info(
-			queued_media_file_data->path, queued_media_file_data->filename, queued_media_file_data->name,
-			queued_media_file_data->ext, queued_media_file_data->index);
+		if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
+		    playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_END ||
+		    playlist_data->shuffle_queue == true) {
+			const MediaFileData *queued_media_file_data = get_media(&playlist_data->queue, 0);
 
-		clear_media_array(&playlist_data->queue);
+			const MediaFileData queued_media_file_data_dup = create_media_file_data_with_all_info(
+				queued_media_file_data->path, queued_media_file_data->filename,
+				queued_media_file_data->name, queued_media_file_data->ext,
+				queued_media_file_data->index);
 
-		for (size_t i = queued_media_file_data_dup.index; i < playlist_data->all_media.num; i++) {
-			const MediaFileData *media_file_data = get_media(&playlist_data->all_media, i);
+			clear_media_array(&playlist_data->queue);
+
+			for (size_t i = queued_media_file_data_dup.index; i < playlist_data->all_media.num; i++) {
+				const MediaFileData *media_file_data = get_media(&playlist_data->all_media, i);
+
+				const MediaFileData new_entry = create_media_file_data_with_all_info(
+					media_file_data->path, media_file_data->filename, media_file_data->name,
+					media_file_data->ext, media_file_data->index);
+
+				da_push_back(playlist_data->queue, &new_entry);
+			}
+
+			for (size_t i = 0; i < queued_media_file_data_dup.index; i++) {
+				const MediaFileData *media_file_data = get_media(&playlist_data->all_media, i);
+
+				const MediaFileData new_entry = create_media_file_data_with_all_info(
+					media_file_data->path, media_file_data->filename, media_file_data->name,
+					media_file_data->ext, media_file_data->index);
+
+				da_push_back(playlist_data->queue, &new_entry);
+			}
+
+		} else {
+			const MediaFileData *media_file_data = get_media(&playlist_data->all_media, 0);
 
 			const MediaFileData new_entry = create_media_file_data_with_all_info(
 				media_file_data->path, media_file_data->filename, media_file_data->name,
@@ -231,28 +256,8 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 			da_push_back(playlist_data->queue, &new_entry);
 		}
-
-		for (size_t i = 0; i < queued_media_file_data_dup.index; i++) {
-			const MediaFileData *media_file_data = get_media(&playlist_data->all_media, i);
-
-			const MediaFileData new_entry = create_media_file_data_with_all_info(
-				media_file_data->path, media_file_data->filename, media_file_data->name,
-				media_file_data->ext, media_file_data->index);
-
-			da_push_back(playlist_data->queue, &new_entry);
-		}
-
-	} else {
-		const MediaFileData *media_file_data = get_media(&playlist_data->all_media, 0);
-
-		const MediaFileData new_entry = create_media_file_data_with_all_info(
-			media_file_data->path, media_file_data->filename, media_file_data->name, media_file_data->ext,
-			media_file_data->index);
-
-		da_push_back(playlist_data->queue, &new_entry);
+		playlist_queue(playlist_data);
 	}
-	playlist_queue(playlist_data);
-	// free_media_array(&playlist_data->all_mediza);
 
 	pthread_mutex_unlock(&playlist_data->mutex);
 

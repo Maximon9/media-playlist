@@ -73,6 +73,10 @@ char *stringify_media_queue_array(const MediaFileDataArray *media_array, int que
 void obs_log_media_array(int log_level, char *format, const MediaFileDataArray *media_array, size_t threshold,
 			 const char *indent, e_MediaStringifyTYPE media_stringify_type);
 
+bool compare_media_file_data(MediaFileData *data_1, MediaFileData *data_2);
+
+bool compare_media_file_data_arrays(MediaFileDataArray *array_1, MediaFileDataArray *array_2);
+
 #pragma endregion
 
 #pragma region Utils
