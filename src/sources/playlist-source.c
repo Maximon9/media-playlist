@@ -10,7 +10,7 @@
 #pragma region Media Functions
 void playlist_media_source_ended(void *data, calldata_t *callback)
 {
-	UNUSED_PARAMETER(callback);
+	/* UNUSED_PARAMETER(callback);
 	struct PlaylistSource *playlist_data = data;
 
 	if (playlist_data->queue.num > 0) {
@@ -54,7 +54,7 @@ void playlist_media_source_ended(void *data, calldata_t *callback)
 		}
 	}
 
-	obs_log(LOG_INFO, "We ended the media");
+	obs_log(LOG_INFO, "We ended the media"); */
 }
 
 void playlist_queue(struct PlaylistSource *playlist_data)
@@ -181,8 +181,6 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 {
 	bool update_properties = false;
 
-	playlist_data->song_history_limit = (int)obs_data_get_int(settings, "song_history_limit");
-
 	int queue_list_size = (int)obs_data_get_int(settings, "queue_list_size");
 	if (playlist_data->queue_list_size != queue_list_size) {
 		update_properties = true;
@@ -192,26 +190,6 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 	if (playlist_data->debug == true) {
 		obs_log(LOG_INFO, "Queue List Size: %d", playlist_data->queue_list_size);
-	}
-
-	playlist_data->debug = obs_data_get_bool(settings, "debug");
-	if (playlist_data->debug == true) {
-		obs_log(LOG_INFO, "Debug: %s", playlist_data->debug ? "true" : "false");
-	}
-
-	playlist_data->playlist_start_behavior = obs_data_get_int(settings, "playlist_start_behavior");
-	if (playlist_data->debug == true) {
-		obs_log(LOG_INFO, "Start Behavior: %s", StartBehavior[playlist_data->playlist_start_behavior]);
-	}
-
-	enum EndBehavior playlist_end_behavior = obs_data_get_int(settings, "playlist_end_behavior");
-	if (playlist_data->playlist_end_behavior != playlist_end_behavior) {
-		update_properties = true;
-	}
-
-	playlist_data->playlist_end_behavior = playlist_end_behavior;
-	if (playlist_data->debug == true) {
-		obs_log(LOG_INFO, "End Behavior: %s", EndBehavior[playlist_data->playlist_end_behavior]);
 	}
 
 	bool previous_size_initialized = false;
@@ -226,6 +204,29 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 	if (playlist_data->debug == true) {
 		obs_log_media_array(LOG_INFO, "All Media:\n", &playlist_data->all_media, 90, "    ", true);
+	}
+
+	bool shuffle_queue = obs_data_get_bool(settings, "shuffle_queue");
+
+	if (shuffle_queue != playlist_data->shuffle_queue) {
+		update_properties = true;
+	}
+
+	playlist_data->shuffle_queue = shuffle_queue;
+
+	playlist_data->playlist_start_behavior = obs_data_get_int(settings, "playlist_start_behavior");
+	if (playlist_data->debug == true) {
+		obs_log(LOG_INFO, "Start Behavior: %s", StartBehavior[playlist_data->playlist_start_behavior]);
+	}
+
+	enum EndBehavior playlist_end_behavior = obs_data_get_int(settings, "playlist_end_behavior");
+	if (playlist_data->playlist_end_behavior != playlist_end_behavior) {
+		update_properties = true;
+	}
+
+	playlist_data->playlist_end_behavior = playlist_end_behavior;
+	if (playlist_data->debug == true) {
+		obs_log(LOG_INFO, "End Behavior: %s", EndBehavior[playlist_data->playlist_end_behavior]);
 	}
 
 	int all_media_size = (int)playlist_data->all_media.num;
@@ -272,8 +273,8 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 	if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
 	    playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_END) {
-		if (playlist_data->debug == true) {
-			obs_log(LOG_INFO, "Infinite: %s", playlist_data->infinite == true ? "true" : "false");
+		obs_log(LOG_INFO, "Infinite: %s", playlist_data->infinite == true ? "true" : "false");
+		if (playlist_data->infinite == false && playlist_data->debug == true) {
 			obs_log(LOG_INFO, "Loop Count: %d", playlist_data->loop_count);
 		}
 	}
@@ -281,6 +282,13 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 	if (previous_size_initialized == true && playlist_data->all_media.num != 0 &&
 	    previous_size != playlist_data->all_media.num) {
 		update_properties = true;
+	}
+
+	playlist_data->song_history_limit = (int)obs_data_get_int(settings, "song_history_limit");
+
+	playlist_data->debug = obs_data_get_bool(settings, "debug");
+	if (playlist_data->debug == true) {
+		obs_log(LOG_INFO, "Debug: %s", playlist_data->debug ? "true" : "false");
 	}
 
 	if (update_properties == true) {
@@ -331,7 +339,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	da_init(playlist_data->previous_queue);
 
 	// playlist_data->current_media = NULL;
-	playlist_data->current_media_index = 0;
+	// playlist_data->current_media_index = 0;
 	playlist_data->loop_index = 0;
 	playlist_data->infinite = true;
 	playlist_data->loop_count = 0;
