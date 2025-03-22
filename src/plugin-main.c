@@ -88,6 +88,7 @@ void on_scene_initialized(enum obs_frontend_event event, void *private_data)
 // Called when the plugin is loaded
 bool obs_module_load(void)
 {
+	obs_log(LOG_INFO, "Playlist Plugin Loaded");
 	// da_init(test_array);
 
 	// push_media_back(
@@ -115,6 +116,6 @@ void obs_module_unload(void)
 	// 	obs_log(LOG_INFO, "Media source released successfully");
 	// }
 	// da_free(test_array);
-	obs_log(LOG_INFO, "Plugin unloaded");
+	obs_log(LOG_INFO, "Playlist Plugin Unloaded");
 }
 #pragma endregion

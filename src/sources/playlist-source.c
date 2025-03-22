@@ -211,10 +211,10 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 	obs_data_media_array_retain(&new_media_array, obs_data_get_array(settings, "playlist"));
 
-	if (compare_media_file_data_arrays(&new_media_array, &playlist_data->all_media)) {
-		clear_media_array(&playlist_data->all_media);
-		da_move(playlist_data->all_media, new_media_array);
+	obs_log(LOG_INFO, "Test: %d, %d", new_media_array.num, playlist_data->all_media.num);
 
+	if (compare_media_file_data_arrays(&new_media_array, &playlist_data->all_media) == false) {
+		update_properties = true;
 		if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
 		    playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_END ||
 		    playlist_data->shuffle_queue == true) {
@@ -246,7 +246,6 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 
 				da_push_back(playlist_data->queue, &new_entry);
 			}
-
 		} else {
 			const MediaFileData *media_file_data = get_media(&playlist_data->all_media, 0);
 
@@ -258,6 +257,8 @@ void update_playlist_data(struct PlaylistSource *playlist_data, obs_data_t *sett
 		}
 		playlist_queue(playlist_data);
 	}
+	clear_media_array(&playlist_data->all_media);
+	da_move(playlist_data->all_media, new_media_array);
 
 	pthread_mutex_unlock(&playlist_data->mutex);
 
