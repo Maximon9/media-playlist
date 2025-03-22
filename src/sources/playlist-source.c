@@ -124,6 +124,8 @@ obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 		last_index += 1;
 	}
 
+	obs_properties_add_int(props, "queue_list_size", "Queue List Size", 5, 20, 1);
+
 	char *result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size, "    ",
 						   MEDIA_STRINGIFY_TYPE_NAME);
 	char *concat_result = concat_mem_string("Queue: ", result);
@@ -165,7 +167,6 @@ obs_properties_t *make_playlist_properties(struct PlaylistSource *playlist_data)
 	}
 
 	obs_properties_add_int(props, "song_history_limit", "Song History Limit", 0, INT_MAX, 1);
-	obs_properties_add_int(props, "queue_list_size", "Queue List Size", 5, 20, 1);
 
 	obs_properties_add_bool(props, "debug", "Debug");
 	return props;
