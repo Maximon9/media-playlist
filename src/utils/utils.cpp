@@ -11,17 +11,17 @@
 	media_array->data = (MediaFileData *)malloc(media_array->capacity * sizeof(MediaFileData));
 }
 
-void push_media_back(MediaFileDataArray *media_array, const string *path)
+void push_media_back(MediaFileDataArray *media_array, const  std::string  *path)
 {
 	push_media_at(media_array, path, media_array->size());
 }
 
-void push_media_front(MediaFileDataArray *media_array, const string *path)
+void push_media_front(MediaFileDataArray *media_array, const  std::string  *path)
 {
 	push_media_at(media_array, path, 0);
 }
 
-void push_media_at(MediaFileDataArray *media_array, const string *path, size_t index)
+void push_media_at(MediaFileDataArray *media_array, const  std::string  *path, size_t index)
 {
 	push_media_file_data_at(media_array, create_media_file_data_from_path(path, index), index);
 }
@@ -139,7 +139,7 @@ void move_media_array(MediaFileDataArray *destination, MediaFileDataArray *sourc
 	source->capacity = 0;
 }
 
-// Function to get a string by index
+// Function to get a  std::string  by index
 const MediaFileData *get_media(const MediaFileDataArray *media_array, size_t index)
 {
 	if (index >= media_array->size())
@@ -164,7 +164,7 @@ void clear_media_array(MediaFileDataArray *media_array)
 	media_array->size() = 0;
 }
 
-// Function to free the dynamic string array
+// Function to free the dynamic  std::string  array
 void free_media_array(MediaFileDataArray *media_array)
 {
 	if (media_array != NULL) {
@@ -186,48 +186,48 @@ void free_media_array(MediaFileDataArray *media_array)
 }
 */
 
-MediaFileData create_media_file_data_from_path(const string path, size_t index)
+MediaFileData create_media_file_data_from_path(std::string path, size_t index)
 {
 	// Create and insert new MediaFileData
 	fs::path file_path = path;
 
 	// Extract the filename (with extension)
-	string filename = file_path.filename().string();
+	std::string filename = file_path.filename().string();
 
 	// Extract the file name without extension
-	string name = file_path.stem().string();
+	std::string name = file_path.stem().string();
 
 	// Extract the file extension (including the dot)
-	string ext = file_path.extension().string();
+	std::string ext = file_path.extension().string();
 
 	MediaFileData new_entry = {path, filename, name, ext, index};
 	return new_entry;
 }
 
-/* MediaFileData create_media_file_data_from_path_and_file_name(const string path, const string filename, size_t index)
+/* MediaFileData create_media_file_data_from_path_and_file_name(const  std::string  path, const  std::string  filename, size_t index)
 {
 	// Create and insert new MediaFileData
 	fs::path file_path = filename;
 
 	// Extract the file name without extension
-	string name = file_path.stem().string();
+	std::string  name = file_path.stem().string();
 
 	// Extract the file extension (including the dot)
-	string ext = file_path.extension().string();
+	std::string  ext = file_path.extension().string();
 
 	MediaFileData new_entry = {path, filename, name, ext, index};
 	return new_entry;
 } */
 
-MediaFileData create_media_file_data_with_all_info(const string path, const string filename, const string name,
-						   const string ext, size_t index)
+MediaFileData create_media_file_data_with_all_info(const std::string path, const std::string filename,
+						   const std::string name, const std::string ext, size_t index)
 {
 	// Create and insert new MediaFileData
 	MediaFileData new_entry = {path, filename, name, ext, index};
 	return new_entry;
 }
 
-string obs_array_to_string(obs_data_array_t *array)
+std::string obs_array_to_string(obs_data_array_t *array)
 {
 	size_t array_size = obs_data_array_count(array);
 
@@ -235,19 +235,19 @@ string obs_array_to_string(obs_data_array_t *array)
 		return "[]";
 	}
 
-	// Estimate maximum size for the string (2 strings per element + commas + brackets)
-	size_t estimated_size = array_size * 2 + array_size - 1 + 2; // Two strings per element + commas + brackets
-	string result = "";
+	// Estimate maximum size for the  std::string  (2  strings per element + commas + brackets)
+	size_t estimated_size = array_size * 2 + array_size - 1 + 2; // Two  strings per element + commas + brackets
+	std::string result = "";
 
-	// Start the string with the opening bracket
+	// Start the  std::string  with the opening bracket
 	result += "[";
 
 	// Loop through the array and append each element
 	for (size_t i = 0; i < array_size; ++i) {
-		// Convert element to string (single stringacter)
+		// Convert element to  std::string  (single  stringacter)
 		obs_data_t *data = obs_data_array_item(array, i);
 		char *element[2] = {(char *)obs_data_get_string(data, "value"),
-				    (char *)'\0'}; // Create a single string string
+				    (char *)'\0'}; // Create a single  std::string   string
 
 		result += *element;
 
@@ -257,13 +257,13 @@ string obs_array_to_string(obs_data_array_t *array)
 		}
 	}
 
-	// End the string with the closing bracket
+	// End the  std::string  with the closing bracket
 	result += "]";
 
 	return result;
 }
 
-bool valid_extension(const string *ext)
+bool valid_extension(const std::string *ext)
 {
 	struct dstr haystack = {0};
 	struct dstr needle = {0};
@@ -286,7 +286,7 @@ bool valid_extension(const string *ext)
 	return valid;
 }
 
-void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_data_array_t *obs_playlist)
+/* void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_data_array_t *obs_playlist)
 {
 	size_t array_size = obs_data_array_count(obs_playlist);
 	if (array_size == 0) {
@@ -304,7 +304,7 @@ void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_
 		const char *element = obs_data_get_string(data, "value");
 		if (element == NULL) {
 			obs_data_release(data); // Release memory for the current element before skipping
-			continue;               // Skip if no valid string was found
+			continue;               // Skip if no valid  std::string  was found
 		}
 		fs::path file_path = element;
 
@@ -317,7 +317,7 @@ void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_
 				fs::path entry_path = entry.path();
 
 				// Get the extension of the file or directory
-				string extension = entry_path.extension().string();
+				std::string  extension = entry_path.extension().string();
 				if (!valid_extension(&extension))
 					continue;
 				const MediaFileData new_entry = create_media_file_data_from_path(
@@ -325,30 +325,6 @@ void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_
 				media_file_data_array->push_back(new_entry);
 				// push_media_file_data_back(media_file_data_array, new_entry);
 			}
-			/* struct os_dirent *entry;
-			while (true) {
-
-				const char *ext;
-
-				entry = os_readdir(dir);
-				if (!entry)
-					break;
-
-				ext = os_get_path_extension(entry->d_name);
-
-				// Allocate memory dynamically for full path
-
-				// obs_log(LOG_INFO, "\nFound file: \n%s\n%s\n%s\n", element, entry->d_name, full_path);
-
-				const MediaFileData new_entry = create_media_file_data_from_path_and_file_name(
-					full_path, entry->d_name, media_file_data_array->size());
-				push_media_file_data_back(media_file_data_array, new_entry);
-
-				// Free allocated memory
-				free(full_path);
-			}
-
-			os_closedir(dir); */
 		} else {
 			media_file_data_array->push_back(
 				create_media_file_data_from_path(file_path.string(), media_file_data_array->size()));
@@ -357,52 +333,35 @@ void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_
 		obs_data_release(data);
 	}
 	obs_data_array_release(obs_playlist);
-}
+} */
 
-string stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const string indent,
-			     e_MediaStringifyTYPE media_stringify_type)
+const char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const std::string indent,
+				  e_MediaStringifyTYPE media_stringify_type)
 {
 	if (media_array == NULL || media_array->size() <= 0) {
-		return "[]"; // Return empty brackets if no elements
+		return (char *)"[]"; // Return empty brackets if no elements
 	}
-	// Calculate the initial length of the compact format
-	// size_t total_length = 3; // For "[" and "]\0"
-	// for (size_t i = 0; i < media_array->size(); i++) {
-	// 	const MediaFileData *media_file_data = &media_array.at(i);
 
-	// 	switch (media_stringify_type) {
-	// 	case MEDIA_STRINGIFY_TYPE_PATH:
-	// 		total_length += media_file_data->path.size() + 4; // Quotes, comma, space
-	// 		break;
-	// 	case MEDIA_STRINGIFY_TYPE_FILENAME:
-	// 		total_length += media_file_data->filename.size() + 4; // Quotes, comma, space
-	// 		break;
-	// 	case MEDIA_STRINGIFY_TYPE_NAME:
-	// 		total_length += media_file_data->name.size() + 4; // Quotes, comma, space
-	// 		break;
-	// 	default:
-	// 		break;
-	// 	}
-	// }
-
-	// Allocate memory for the final string (before prettification)
-	string result = "";
+	// Allocate memory for the final  std::string  (before prettification)
+	std::string result = "";
 
 	// Apply compact format first
 	result += "[";
 	for (size_t i = 0; i < media_array->size(); i++) {
 		result += "\"";
 
-		const MediaFileData *media_file_data = &media_array->at(i);
+		const MediaFileData *media_file_data = &((*media_array)[i]);
 
 		switch (media_stringify_type) {
 		case MEDIA_STRINGIFY_TYPE_PATH:
 			result += media_file_data->path;
 			break;
 		case MEDIA_STRINGIFY_TYPE_FILENAME:
+			// obs_log(LOG_INFO, "Media File Name: %s", media_file_data->filename.c_str());
 			result += media_file_data->filename;
 			break;
 		case MEDIA_STRINGIFY_TYPE_NAME:
+			// obs_log(LOG_INFO, "Media Name: %s", media_file_data->name.c_str());
 			result += media_file_data->name;
 			break;
 		default:
@@ -414,12 +373,12 @@ string stringify_media_array(const MediaFileDataArray *media_array, size_t thres
 	}
 	result += "]";
 
-	// If the compact string exceeds the threshold, prettify the result
+	// If the compact  std::string  exceeds the threshold, prettify the result
 	if (result.size() > threshold) {
-		// Allocate memory for the prettified string
-		string prettified_result = "";
+		// Allocate memory for the prettified  string
+		std::string prettified_result = "";
 
-		// Construct the prettified string
+		// Construct the prettified  string
 		prettified_result += "[\n";
 		for (size_t i = 0; i < media_array->size(); i++) {
 			prettified_result += indent; // Add indentation before each element
@@ -449,13 +408,13 @@ string stringify_media_array(const MediaFileDataArray *media_array, size_t thres
 
 		prettified_result += "\n]";
 
-		return prettified_result;
+		return prettified_result.c_str();
 	}
 
-	return result; // Return the compact string if it's within the threshold
+	return result.c_str(); // Return the compact  std::string  if it's within the threshold
 }
-string stringify_media_queue_array(const MediaFileDataArray *media_array, int queue_limit, const string indent,
-				   e_MediaStringifyTYPE media_stringify_type)
+const char *stringify_media_queue_array(const MediaFileDataArray *media_array, int queue_limit,
+					const std::string indent, e_MediaStringifyTYPE media_stringify_type)
 {
 	size_t queue_size_list = (size_t)(queue_limit);
 
@@ -475,10 +434,10 @@ string stringify_media_queue_array(const MediaFileDataArray *media_array, int qu
 	// 		strlen(indent) + strlen(get_media(media_array, i)->path) + 4; // Indent, quotes, and comma
 	// }
 
-	// Allocate memory for the prettified string
-	string prettified_result = "";
+	// Allocate memory for the prettified  string
+	std::string prettified_result = "";
 
-	// Construct the prettified string
+	// Construct the prettified  string
 	prettified_result += "[\n";
 
 	for (size_t i = 0; i < min_size; i++) {
@@ -512,13 +471,13 @@ string stringify_media_queue_array(const MediaFileDataArray *media_array, int qu
 
 	prettified_result += "\n]";
 
-	return prettified_result;
+	return prettified_result.c_str();
 }
 
-void obs_log_media_array(int log_level, string format, const MediaFileDataArray *media_array, size_t threshold,
-			 const string indent, e_MediaStringifyTYPE media_stringify_type)
+void obs_log_media_array(int log_level, std::string format, const MediaFileDataArray *media_array, size_t threshold,
+			 const std::string indent, e_MediaStringifyTYPE media_stringify_type)
 {
-	string result = stringify_media_array(media_array, threshold, indent, media_stringify_type);
+	std::string result = stringify_media_array(media_array, threshold, indent, media_stringify_type);
 
 	obs_log(log_level, (format + result).c_str());
 }
@@ -550,61 +509,38 @@ bool compare_media_file_data_arrays(const MediaFileDataArray *array_1, const Med
 
 #pragma region Utils
 
-string screaming_snake_case_to_title_case(const string *name)
+std::string screaming_snake_case_to_title_case(const std::string &input, size_t rem_word_count)
 {
-	if (!name)
-		return NULL;
+	std::stringstream ss(input);
+	std::string word, result;
+	int removed = 0;
+	bool capitalize = true;
 
-	size_t len = name->size();
-	string output = ""; // Allocate memory for new string
-
-	int capitalize_next = 1; // Ensure first letter is uppercase
-
-	for (size_t i = 0; i < len; i++) {
-		if ((*name)[i] == '_') {
-			output[i] = ' ';     // Replace underscore with space
-			capitalize_next = 1; // Next letter should be capitalized
+	for (char c : input) {
+		if (c == '_') {
+			if (removed < rem_word_count) {
+				removed++;
+				continue; // Skip underscore and the next word
+			}
+			result += ' '; // Replace underscore with space
+			capitalize = true;
 		} else {
-			output[i] = capitalize_next ? toupper((*name)[i]) : tolower((*name)[i]);
-			capitalize_next = 0;
+			if (removed < rem_word_count)
+				continue; // Skip characters of the removed words
+			result += capitalize ? std::toupper(c) : std::tolower(c);
+			capitalize = false;
 		}
 	}
 
-	output[len] = '\0'; // Null-terminate the string
-	return output;
-}
-
-void remove_front_words(string *str, int count)
-{
-	size_t pos = 0;
-
-	// Loop to find and remove the first `num_words` from the front
-	while (count > 0 && pos != std::string::npos) {
-		// Find the space after each word
-		pos = str->find(' ', pos);
-
-		// If we find a space, move past it, otherwise we are at the end of the string
-		if (pos != std::string::npos) {
-			pos++; // Move past the space
-		}
-		*str = str->substr(pos); // Remove everything before `pos`
-		count--;
-	}
-
-	// Now, if we have removed the desired number of words, keep the rest of the string
-	if (count == 0) {
-	} else {
-		*str = ""; // If we attempted to remove more words than available, set the string to empty
-	}
+	return result;
 }
 
 void add_enums_to_property_list(obs_property_t *property, const char *Enum[], int word_count_to_remove)
 {
 	long long i = 0;
-	string name = Enum[i];
+	std::string name = Enum[i];
 	while (name != "") {
-		string display_name = screaming_snake_case_to_title_case(&name);
-		remove_front_words(&display_name, word_count_to_remove);
+		std::string display_name = screaming_snake_case_to_title_case(name, word_count_to_remove);
 		obs_property_list_add_int(property, display_name.c_str(), i);
 		i++;
 		name = Enum[i];

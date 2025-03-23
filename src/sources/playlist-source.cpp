@@ -200,8 +200,8 @@ obs_properties_t *make_playlist_properties(PlaylistSource *playlist_data)
 
 	// obs_log_media_array(LOG_INFO, "Queue Array:\n", &playlist_data->queue, 0, "    ", MEDIA_STRINGIFY_TYPE_NAME);
 
-	string result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size, "    ",
-						    MEDIA_STRINGIFY_TYPE_NAME);
+	std::string result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size, "    ",
+							 MEDIA_STRINGIFY_TYPE_NAME);
 
 	obs_properties_add_text(props, "queue", ("Queue: " + result).c_str(), OBS_TEXT_INFO);
 
@@ -266,7 +266,83 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 
 	pthread_mutex_lock(&playlist_data->mutex);
 
-	MediaFileDataArray new_media_array{};
+	obs_data_array_t *obs_playlist = obs_data_get_array(settings, "playlist");
+
+	size_t array_size = obs_data_array_count(obs_playlist);
+
+	if (array_size <= 0) {
+		obs_data_array_release(obs_playlist);
+		return;
+	} else {
+		size_t entry_index = 0;
+		for (size_t i = 0; i < array_size; ++i) {
+			obs_data_t *data = obs_data_array_item(obs_playlist, i);
+
+			if (data == NULL) {
+				continue; // Skip if data is NULL (avoid potential crash or issues)
+			}
+
+			const char *element = obs_data_get_string(data, "value");
+			if (element == NULL) {
+				obs_data_release(data); // Release memory for the current element before skipping
+				continue;               // Skip if no valid string was found
+			}
+
+			// obs_log(LOG_INFO, "Found El Path: %s", element);
+			fs::path file_path = element;
+
+			bool new_entry_initialized = false;
+			MediaFileData new_entry;
+			if (fs::is_directory(file_path)) {
+				for (const fs::directory_entry &entry : fs::recursive_directory_iterator(file_path)) {
+					// Print the path of each entry (file or directory)
+					if (entry.is_directory())
+						continue;
+
+					fs::path entry_path = entry.path();
+
+					// Get the extension of the file or directory
+					std::string extension = entry_path.extension().string();
+
+					if (!valid_extension(&extension))
+						continue;
+
+					new_entry = create_media_file_data_from_path(entry.path().string(), i);
+					new_entry_initialized = true;
+				}
+			} else {
+				new_entry = create_media_file_data_from_path(element, i);
+				new_entry_initialized = true;
+			}
+			if (new_entry_initialized == false) {
+				obs_data_release(data);
+				continue;
+			}
+			// obs_log(LOG_INFO, "Media Path: %s", new_entry.path.c_str());
+			// obs_log(LOG_INFO, "Media Name: %s", new_entry.name.c_str());
+			// obs_log(LOG_INFO, "Media File Name: %s", new_entry.filename.c_str());
+			// obs_log(LOG_INFO, "Media Extension: %s", new_entry.ext.c_str());
+
+			if (entry_index > array_size && playlist_data->all_media.size() > array_size) {
+				MediaFileDataArray::const_iterator it = playlist_data->all_media.cbegin() + entry_index;
+				playlist_data->all_media.erase(it);
+			} else if (entry_index < playlist_data->all_media.size()) {
+				const MediaFileData *media_file_data = &playlist_data->all_media[i];
+				if (media_file_data->path != new_entry.path) {
+					playlist_data->all_media[i] = new_entry;
+				}
+			} else {
+				MediaFileDataArray::const_iterator it = playlist_data->all_media.cbegin() + entry_index;
+				playlist_data->all_media.insert(it, new_entry);
+			}
+
+			entry_index++;
+			obs_data_release(data);
+		}
+		obs_data_array_release(obs_playlist);
+	}
+
+	/* MediaFileDataArray new_media_array{};
 
 	obs_data_media_array_retain(&new_media_array, obs_data_get_array(settings, "playlist"));
 
@@ -276,20 +352,31 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 
 	bool media_arrays_are_equal = compare_media_file_data_arrays(&new_media_array, &playlist_data->all_media);
 
+	if (array_1->size() == array_2->size()) {
+		for (size_t i = 0; i < array_1->size(); i++) {
+			const MediaFileData *data_1 = &array_1->at(i);
+			const MediaFileData *data_2 = &array_2->at(i);
+			if (compare_media_file_data(data_1, data_2) == false) {
+				return false;
+			}
+		}
+		return true;
+	}
+	return false;
+
 	playlist_data->all_media.clear();
 	playlist_data->all_media.swap(new_media_array);
 	new_media_array.clear();
 	new_media_array.resize(0);
 
-	// obs_log(LOG_INFO, "Media Array Changed: %s Initialized Media: %s",
-	// 	media_arrays_are_equal == false ? "true" : "false",
-	// 	playlist_data->all_media_initialized == true ? "true" : "false");
+	obs_log(LOG_INFO, "Media Array Changed: %s Initialized Media: %s",
+	media_arrays_are_equal == false ? "true" : "false",
+	playlist_data->all_media_initialized == true ? "true" : "false");
 
-	/*
 	1.mp4
 	2.mp4
 	2.mp4
-	*/
+	
 	if (media_arrays_are_equal == false && playlist_data->all_media_initialized == true) {
 		update_properties = true;
 
@@ -364,7 +451,10 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 			}
 		}
 	}
-	playlist_data->all_media_initialized = true;
+	*/
+
+	if (playlist_data->all_media_initialized == false)
+		playlist_data->all_media_initialized = true;
 
 	pthread_mutex_unlock(&playlist_data->mutex);
 
@@ -445,10 +535,6 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 		if (playlist_data->infinite == false && playlist_data->debug == true) {
 			obs_log(LOG_INFO, "Loop Count: %d", playlist_data->loop_count);
 		}
-	}
-
-	if (playlist_data->all_media.size() != 0 && media_arrays_are_equal == false) {
-		update_properties = true;
 	}
 
 	playlist_data->song_history_limit = (int)obs_data_get_int(settings, "song_history_limit");

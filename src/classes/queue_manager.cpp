@@ -1,4 +1,4 @@
-#include "../../include/sources/queue_manager.hpp"
+#include "../../include/classes/queue_manager.hpp"
 
 QueueManager::QueueManager(MediaFileDataArray *queue, MediaFileDataArray *previous_queue)
 {

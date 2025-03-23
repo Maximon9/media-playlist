@@ -14,6 +14,7 @@
 
 typedef struct {
 #pragma region Public
+	MediaFileDataArray all_media;
 	bool shuffle_queue;
 	obs_source_t *source;
 	obs_source_t *media_source;
@@ -27,7 +28,6 @@ typedef struct {
 	int loop_count;
 	e_LoopEndBehavior loop_end_behavior;
 	bool rest_playlist_after_last_loop;
-	MediaFileDataArray all_media;
 	// size_t current_media_index;
 	int song_history_limit;
 	int queue_list_size;
