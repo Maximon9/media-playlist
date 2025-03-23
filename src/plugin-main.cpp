@@ -54,26 +54,6 @@ bool obs_module_load(void)
 	playlist_source_template.media_set_time = media_set_time;
 	playlist_source_template.media_get_state = media_get_state;
 
-	MediaFileDataArray temp_array_1{};
-
-	temp_array_1.push_back(create_media_file_data_from_path("Hi/there/does/this/stay.mp4", 0));
-
-	MediaFileData *item_from_temp_array_1 = &temp_array_1[0];
-
-	obs_log(LOG_INFO, "Temp Test Path: %s", item_from_temp_array_1->path);
-	obs_log(LOG_INFO, "Temp Test File Name: %s", item_from_temp_array_1->filename);
-	obs_log(LOG_INFO, "Temp Test Name: %s", item_from_temp_array_1->name);
-	obs_log(LOG_INFO, "Temp Test Extension: %s", item_from_temp_array_1->ext);
-
-	temp_array_1.erase(temp_array_1.cend());
-
-	obs_log(LOG_INFO, "Temp Test Path: %s", item_from_temp_array_1->path);
-	obs_log(LOG_INFO, "Temp Test File Name: %s", item_from_temp_array_1->filename);
-	obs_log(LOG_INFO, "Temp Test Name: %s", item_from_temp_array_1->name);
-	obs_log(LOG_INFO, "Temp Test Extension: %s", item_from_temp_array_1->ext);
-
-	// MediaFileDataArray temp_array_2{};
-
 	obs_log(LOG_INFO, "%s plugin loaded successfully (version %s)", PLUGIN_NAME, PLUGIN_VERSION);
 	// da_init(test_array);
 

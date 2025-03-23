@@ -330,10 +330,16 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 				const MediaFileData *media_file_data = &playlist_data->all_media[i];
 				if (media_file_data->path != new_entry.path) {
 					playlist_data->all_media[i] = new_entry;
+					if (playlist_data->all_media_initialized == true) {
+						playlist_data->queue[i] = new_entry;
+					}
 				}
 			} else {
 				MediaFileDataArray::const_iterator it = playlist_data->all_media.cbegin() + entry_index;
 				playlist_data->all_media.insert(it, new_entry);
+				if (playlist_data->all_media_initialized == true) {
+					playlist_data->queue.insert(it, new_entry);
+				}
 			}
 
 			entry_index++;
@@ -453,8 +459,9 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 	}
 	*/
 
-	if (playlist_data->all_media_initialized == false)
+	if (playlist_data->all_media_initialized == false) {
 		playlist_data->all_media_initialized = true;
+	}
 
 	pthread_mutex_unlock(&playlist_data->mutex);
 
