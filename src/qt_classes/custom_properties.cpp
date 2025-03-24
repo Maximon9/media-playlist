@@ -10,6 +10,7 @@ CustomProperties::CustomProperties(obs_data_t *settings, QWidget *parent) : QDia
 	this->settings = settings;
 	QVBoxLayout *layout = new QVBoxLayout(this);
 
+	// Slider + Editable Number Input
 	QLabel *sliderLabel = new QLabel("Slider Value:", this);
 	QSlider *slider = new QSlider(Qt::Horizontal, this);
 	QSpinBox *sliderSpinBox = new QSpinBox(this);

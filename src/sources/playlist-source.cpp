@@ -526,6 +526,8 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	playlist_data->song_history_limit = 100;
 	playlist_data->queue_list_size = 5;
 
+	playlist_data->properties_ui = new CustomProperties(settings, nullptr);
+
 	// pthread_mutex_init_value(&playlist_data->mutex);
 	if (pthread_mutex_init(&playlist_data->mutex, NULL) != 0)
 		goto error;
@@ -599,18 +601,19 @@ void playlist_get_defaults(obs_data_t *settings)
 
 obs_properties_t *playlist_get_properties(void *data)
 {
-	// PlaylistSource *playlist_data = (PlaylistSource *)data;
+	PlaylistSource *playlist_data = (PlaylistSource *)data;
+
+	if (playlist_data->properties_ui != nullptr) {
+		playlist_data->properties_ui->exec();
+	}
+
 	// return update_playlist_properties(playlist_data);
-	return NULL;
+	return nullptr;
 }
 
 void playlist_update(void *data, obs_data_t *settings)
 {
 	PlaylistSource *playlist_data = (PlaylistSource *)data;
-
-	if (playlist_data->properties_ui == NULL) {
-		playlist_data->properties_ui = new CustomProperties(settings, NULL);
-	}
 
 	// update_playlist_data(playlist_data, settings);
 
