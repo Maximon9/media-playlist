@@ -354,14 +354,16 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 					}
 				}
 			}
-			size_t *queue_last_index = 0;
+			size_t queue_last_index = 0;
 
 			if (playlist_data->queue.size() > 0) {
-				queue_last_index = &playlist_data->queue[playlist_data->queue.size() - 1].index;
+				queue_last_index = playlist_data->queue[playlist_data->queue.size() - 1].index + 1;
 			}
 
-			for (size_t i = *queue_last_index; i < playlist_data->all_media.size(); i++) {
-				playlist_data->queue.push_back(playlist_data->all_media[i]);
+			// to-do Only add songs that have actually been added to the all media list.
+			for (size_t *i = &queue_last_index; *i < playlist_data->all_media.size(); *i++) {
+				obs_log(LOG_INFO, "Queue Index: %d", *i);
+				playlist_data->queue.push_back(playlist_data->all_media[*i]);
 				if (changed_queue == false) {
 					changed_queue = true;
 				}
