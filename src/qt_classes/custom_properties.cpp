@@ -11,15 +11,7 @@ PlaylistQueueViewer::PlaylistQueueViewer(/* const QString &title,  */ QWidget *p
 
 	bool set_layout = false;
 
-	QVBoxLayout *layout = (QVBoxLayout *)this->layout();
-
-	obs_log(LOG_INFO, "Setting Layout");
-	if (this->layout() == nullptr) {
-		obs_log(LOG_INFO, "Setting Middle");
-		layout = new QVBoxLayout(mainWidget);
-		set_layout = true;
-	}
-	obs_log(LOG_INFO, "Setting Layout Done");
+	QVBoxLayout *layout = new QVBoxLayout(mainWidget);
 
 	QLabel *label = new QLabel("Hello from Custom Dock!", mainWidget);
 	layout->addWidget(label);
@@ -28,7 +20,7 @@ PlaylistQueueViewer::PlaylistQueueViewer(/* const QString &title,  */ QWidget *p
 	setFloating(true);
 	resize(300, 300);
 
-	if (set_layout == true) {
+	if (mainWidget->layout() == nullptr) {
 		mainWidget->setLayout(layout);
 	}
 	setWidget(mainWidget);
