@@ -186,6 +186,37 @@ void free_media_array(MediaFileDataArray *media_array)
 }
 */
 
+void push_media_back(MediaFileDataArray *media_array, const std::string path)
+{
+	MediaFileData entry = create_media_file_data_from_path(path, 0);
+	media_array->push_back(entry);
+}
+
+void push_media_front(MediaFileDataArray *media_array, const std::string path)
+{
+	MediaFileData entry = create_media_file_data_from_path(path, 0);
+	media_array->push_front(entry);
+}
+
+void push_media_at(MediaFileDataArray *media_array, const std::string path, size_t index)
+{
+	MediaFileDataArray::const_iterator it = media_array->cbegin() + index;
+	MediaFileData entry = create_media_file_data_from_path(path, 0);
+	media_array->insert(it, entry);
+}
+
+void push_media_media_file_at(MediaFileDataArray *media_array, MediaFileData *entry, size_t index)
+{
+	MediaFileDataArray::const_iterator it = media_array->cbegin() + index;
+	media_array->insert(it, *entry);
+}
+
+void pop_media_at(MediaFileDataArray *media_array, size_t index)
+{
+	MediaFileDataArray::const_iterator it = media_array->cbegin() + index;
+	media_array->erase(it);
+}
+
 MediaFileData create_media_file_data_from_path(std::string path, size_t index)
 {
 	// Create and insert new MediaFileData

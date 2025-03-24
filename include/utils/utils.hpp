@@ -82,6 +82,15 @@ void clear_media_array(MediaFileDataArray *media_array);
 // Function to free the dynamic std::string  array
 void free_media_array(MediaFileDataArray *media_array); */
 
+void push_media_back(MediaFileDataArray *media_array, const std::string path);
+void push_media_front(MediaFileDataArray *media_array, const std::string path);
+
+void push_media_at(MediaFileDataArray *media_array, const std::string path, size_t index);
+
+void push_media_media_file_at(MediaFileDataArray *media_array, MediaFileData *entry, size_t index);
+
+void pop_media_at(MediaFileDataArray *media_array, size_t index);
+
 MediaFileData create_media_file_data_from_path(std::string path, size_t index);
 
 // MediaFileData create_media_file_data_from_path_and_file_name(const std::string path, const std::string file_name,
