@@ -289,8 +289,6 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 			// obs_log(LOG_INFO, "Found El Path: %s", element);
 			fs::path file_path = element;
 
-			bool new_entry_initialized = false;
-			MediaFileData new_entry;
 			if (fs::is_directory(file_path)) {
 				for (const fs::directory_entry &entry : fs::recursive_directory_iterator(file_path)) {
 					// Print the path of each entry (file or directory)
@@ -305,17 +303,25 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 					if (!valid_extension(&extension))
 						continue;
 
-					new_entry =
+					MediaFileData new_entry =
 						create_media_file_data_from_path(entry.path().string(), entry_index);
-					new_entry_initialized = true;
+					if (entry_index < playlist_data->all_media.size()) {
+						const MediaFileData *media_file_data = &playlist_data->all_media[i];
+						if (media_file_data->path != new_entry.path) {
+							pop_media_at(&playlist_data->all_media, entry_index);
+
+							push_media_media_file_at(&playlist_data->all_media, &new_entry,
+										 entry_index);
+						}
+					} else {
+						push_media_media_file_at(&playlist_data->all_media, &new_entry,
+									 entry_index);
+					}
 					entry_index++;
 				}
 			} else {
-				new_entry = create_media_file_data_from_path(element, entry_index);
-				new_entry_initialized = true;
-				entry_index++;
-			}
-			if (new_entry_initialized == true) {
+				MediaFileData new_entry =
+					create_media_file_data_from_path(std::string(element), entry_index);
 				if (entry_index < playlist_data->all_media.size()) {
 					const MediaFileData *media_file_data = &playlist_data->all_media[i];
 					if (media_file_data->path != new_entry.path) {
@@ -327,8 +333,9 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 				} else {
 					push_media_media_file_at(&playlist_data->all_media, &new_entry, entry_index);
 				}
-				obs_data_release(data);
+				entry_index++;
 			}
+			obs_data_release(data);
 		}
 
 		// size_t min_queue_size_to_change =
@@ -914,6 +921,8 @@ void media_next(void *data)
 	PlaylistSource *playlist_data = (PlaylistSource *)data;
 
 	pthread_mutex_lock(&playlist_data->mutex);
+
+	obs_log(LOG_INFO, "Queue Size: %d", playlist_data->queue.size());
 
 	if (playlist_data->queue.size() > 0) {
 		if (uses_song_history_limit(playlist_data) == true) {

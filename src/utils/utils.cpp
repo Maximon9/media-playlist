@@ -208,11 +208,6 @@ void push_media_at(MediaFileDataArray *media_array, const std::string path, size
 void push_media_media_file_at(MediaFileDataArray *media_array, MediaFileData *entry, size_t index)
 {
 	MediaFileDataArray::const_iterator it = media_array->cbegin() + index;
-	obs_log(LOG_INFO, "Test Iteration: %s", it);
-	obs_log(LOG_INFO, "Test Path: %s", entry->path.c_str());
-	obs_log(LOG_INFO, "Test File Name: %s", entry->filename.c_str());
-	obs_log(LOG_INFO, "Test Name: %s", entry->name.c_str());
-	obs_log(LOG_INFO, "Test Extension: %s", entry->ext.c_str());
 	media_array->insert(it, *entry);
 }
 
