@@ -202,7 +202,15 @@ obs_properties_t *make_playlist_properties(PlaylistSource *playlist_data)
 
 	obs_properties_add_int(props, "queue_list_size", "Queue List Size", 5, 20, 1);
 
-	obs_property_t *queue = obs_properties_add_text(props, "queue", "Queue: ", OBS_TEXT_INFO);
+	pthread_mutex_lock(&playlist_data->mutex);
+
+	std::string result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size, "    ",
+							 MEDIA_STRINGIFY_TYPE_NAME);
+	obs_property_t *queue = obs_properties_add_text(props, "queue", ("Queue" + result).c_str(), OBS_TEXT_INFO);
+
+	obs_property_set_modified_callback(queue, playlist_queue_modified);
+
+	pthread_mutex_unlock(&playlist_data->mutex);
 
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
 					 media_filter, "");
@@ -537,7 +545,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	playlist_data->song_history_limit = 100;
 	playlist_data->queue_list_size = 5;
 
-	playlist_data->properties = make_playlist_properties(playlist_data);
+	// playlist_data->properties = make_playlist_properties(playlist_data);
 
 	// QWidget *properties_window = (QWidget *)obs_frontend_get_main_window();
 	// playlist_data->properties_ui = new CustomProperties(settings, properties_window);
@@ -634,6 +642,8 @@ obs_properties_t *playlist_get_properties(void *data)
 	// 		obs_log(LOG_INFO, "Child Window: %s", widget->windowTitle().toStdString().c_str());
 	// 	}
 	// }
+
+	playlist_data->properties = make_playlist_properties(playlist_data);
 
 	return playlist_data->properties;
 	// return nullptr;
