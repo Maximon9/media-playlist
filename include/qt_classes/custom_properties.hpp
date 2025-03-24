@@ -1,3 +1,4 @@
+#include "Qt"
 #include <QDockWidget>
 #include <QWidget>
 #include <QSlider>
@@ -8,6 +9,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <obs-module.h>
+#include <plugin-support.h>
 
 class PlaylistQueueViewer : public QDockWidget {
 	// Q_OBJECT
