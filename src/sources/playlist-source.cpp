@@ -604,6 +604,7 @@ obs_properties_t *playlist_get_properties(void *data)
 	// if (playlist_data->properties_ui == NULL) {
 	// 	playlist_data->properties_ui = new CustomProperties();
 	// }
+
 	return update_playlist_properties(playlist_data);
 }
 

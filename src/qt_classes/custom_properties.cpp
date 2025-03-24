@@ -1,7 +1,7 @@
 #ifndef CUSTOM_PROPERTIES_HPP
 #define CUSTOM_PROPERTIES_HPP
 
-#include "../include/classes/custom_properties.hpp"
+#include "../include/qt_classes/custom_properties.hpp"
 #include "Qt"
 
 // CustomProperties::CustomProperties() : QDialog() {}

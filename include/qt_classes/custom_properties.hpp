@@ -9,7 +9,7 @@
 #include <obs-module.h>
 
 class CustomProperties : public QDialog {
-	Q_OBJECT
+	// Q_OBJECT
 	// private:
 	// QSpinBox queue_list_size;
 	// MediaFileDataArray all_media;
