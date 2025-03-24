@@ -357,122 +357,11 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 		// }
 	}
 
-	if (changed_queue == true) {
+	if (playlist_data->all_media_initialized == false && changed_queue == true) {
 		playlist_queue(playlist_data);
 	}
 
 	obs_data_array_release(obs_playlist);
-
-	/* MediaFileDataArray new_media_array{};
-
-	obs_data_media_array_retain(&new_media_array, obs_data_get_array(settings, "playlist"));
-
-	size_t old_media_size = playlist_data->all_media.size();
-
-	size_t new_media_size = new_media_array.size();
-
-	bool media_arrays_are_equal = compare_media_file_data_arrays(&new_media_array, &playlist_data->all_media);
-
-	if (array_1->size() == array_2->size()) {
-		for (size_t i = 0; i < array_1->size(); i++) {
-			const MediaFileData *data_1 = &array_1->at(i);
-			const MediaFileData *data_2 = &array_2->at(i);
-			if (compare_media_file_data(data_1, data_2) == false) {
-				return false;
-			}
-		}
-		return true;
-	}
-	return false;
-
-	playlist_data->all_media.clear();
-	playlist_data->all_media.swap(new_media_array);
-	new_media_array.clear();
-	new_media_array.resize(0);
-
-	obs_log(LOG_INFO, "Media Array Changed: %s Initialized Media: %s",
-	media_arrays_are_equal == false ? "true" : "false",
-	playlist_data->all_media_initialized == true ? "true" : "false");
-
-	1.mp4
-	2.mp4
-	2.mp4
-	
-	if (media_arrays_are_equal == false && playlist_data->all_media_initialized == true) {
-		update_properties = true;
-
-		if (new_media_size == 0) {
-			// enum obs_media_state state = obs_source_media_get_state(playlist_data->source);
-			// obs_log
-			playlist_data->queue.clear();
-			obs_source_media_stop(playlist_data->source);
-		} else if (old_media_size == 0 && new_media_size != 0) {
-			refresh_queue_list(playlist_data);
-			playlist_queue_restart(playlist_data);
-		} else {
-			SizeTArray existing_indices;
-
-			da_init(existing_indices);
-
-			const size_t queue_size = playlist_data->queue.size();
-
-			if (queue_size != NULL) {
-				for (size_t i = 0; i < queue_size; i++) {
-					size_t queue_index = playlist_data->queue[i].index;
-					const MediaFileData *media_file_data = &playlist_data->all_media[queue_index];
-					if (media_file_data != NULL) {
-						da_push_back(existing_indices, &queue_index);
-					}
-				}
-			}
-
-			const MediaFileData *media_file_data = NULL;
-			size_t queue_index = 0;
-			if (existing_indices.num > 0) {
-				MediaFileDataArray new_queue{};
-
-				for (size_t i = 0; i < existing_indices.num; i++) {
-					queue_index = existing_indices.array[i];
-					// obs_log(LOG_INFO, "Existing Index: %d", queue_index);
-					media_file_data = &playlist_data->all_media[i];
-
-					const MediaFileData new_entry = create_media_file_data_with_all_info(
-						media_file_data->path, media_file_data->filename, media_file_data->name,
-						media_file_data->ext, media_file_data->index);
-
-					new_queue.push_back(new_entry);
-				}
-
-				queue_index = existing_indices.array[existing_indices.num - 1] + 1;
-				media_file_data = &playlist_data->all_media[queue_index];
-				while (media_file_data != NULL) {
-					const MediaFileData new_entry = create_media_file_data_with_all_info(
-						media_file_data->path, media_file_data->filename, media_file_data->name,
-						media_file_data->ext, media_file_data->index);
-					new_queue.push_back(new_entry);
-
-					queue_index++;
-					media_file_data = &playlist_data->all_media[queue_index];
-				}
-
-				playlist_data->queue.swap(new_queue);
-				new_queue.clear();
-				new_queue.resize(0);
-			}
-
-			da_free(existing_indices);
-
-			const char *media_input = get_current_media_input(playlist_data->media_source_settings);
-			const string *current_queue_path = &playlist_data->queue[0].path;
-
-			if (media_input == current_queue_path->c_str()) {
-				playlist_queue(playlist_data);
-			} else {
-				playlist_queue_restart(playlist_data);
-			}
-		}
-	}
-	*/
 
 	if (playlist_data->all_media_initialized == false) {
 		playlist_data->all_media_initialized = true;
@@ -918,6 +807,7 @@ void media_stop(void *data)
 
 void media_next(void *data)
 {
+	obs_log(LOG_INFO, "Queue Size: %d", "Why the heck aren't you running");
 	PlaylistSource *playlist_data = (PlaylistSource *)data;
 
 	pthread_mutex_lock(&playlist_data->mutex);

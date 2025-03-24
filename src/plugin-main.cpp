@@ -35,8 +35,8 @@ bool obs_module_load(void)
 	playlist_source_template.destroy = playlist_source_destroy;
 	playlist_source_template.get_width = playlist_source_width;
 	playlist_source_template.get_height = playlist_source_height;
-	playlist_source_template.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_CUSTOM_DRAW | OBS_SOURCE_AUDIO;
-	OBS_SOURCE_CONTROLLABLE_MEDIA;
+	playlist_source_template.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_CUSTOM_DRAW | OBS_SOURCE_AUDIO |
+						OBS_SOURCE_CONTROLLABLE_MEDIA;
 	playlist_source_template.get_defaults = playlist_get_defaults;
 	playlist_source_template.get_properties = playlist_get_properties;
 	playlist_source_template.update = playlist_update;
