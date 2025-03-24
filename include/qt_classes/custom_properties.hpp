@@ -28,7 +28,7 @@ private:
 	// bool debug;
 
 public:
-	explicit CustomProperties(QWidget *parent = nullptr);
+	explicit CustomProperties(const QString &title, QWidget *parent);
 
 	// Destructor: This is called when an object is destroyed.
 	~CustomProperties();

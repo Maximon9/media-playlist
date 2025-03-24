@@ -5,7 +5,7 @@
 #include "Qt"
 
 // CustomProperties::CustomProperties() : QDialog() {}
-CustomProperties::CustomProperties(QWidget *parent) : QDockWidget(parent)
+CustomProperties::CustomProperties(const QString &title, QWidget *parent) : QDockWidget(title, parent)
 {
 	this->settings = settings;
 	QVBoxLayout *layout = new QVBoxLayout(this);
