@@ -5,7 +5,7 @@
 #include "Qt"
 
 // CustomProperties::CustomProperties() : QDialog() {}
-CustomProperties::CustomProperties(obs_data_t *settings, QWidget *parent) : QDockWidget(parent)
+CustomProperties::CustomProperties(QWidget *parent) : QDockWidget(parent)
 {
 	this->settings = settings;
 	QVBoxLayout *layout = new QVBoxLayout(this);
@@ -26,6 +26,9 @@ CustomProperties::CustomProperties(obs_data_t *settings, QWidget *parent) : QDoc
 	QLabel *numberLabel = new QLabel("Number Input:", this);
 	QSpinBox *numberSpinBox = new QSpinBox(this);
 	numberSpinBox->setRange(-100, 100); // Adjust range as needed
+	setVisible(false);
+	setFloating(true);
+	resize(300, 300);
 
 	layout->addWidget(sliderLabel);
 	layout->addWidget(slider);

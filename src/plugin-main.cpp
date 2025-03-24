@@ -31,6 +31,10 @@ OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 // Called when the plugin is loaded
 bool obs_module_load(void)
 {
+	QWidget *properties_window = (QWidget *)obs_frontend_get_main_window();
+	properties_viewer = new CustomProperties(properties_window);
+
+	obs_frontend_add_custom_qdock("playlist_media_ueue", properties_viewer);
 	// obs_frontend_add_event_callback(test_callback_stuff, nullptr);
 
 	struct obs_source_info playlist_source_template{};

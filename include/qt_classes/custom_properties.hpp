@@ -28,7 +28,7 @@ private:
 	// bool debug;
 
 public:
-	explicit CustomProperties(obs_data_t *settings, QWidget *parent = nullptr);
+	explicit CustomProperties(QWidget *parent = nullptr);
 
 	// Destructor: This is called when an object is destroyed.
 	~CustomProperties();

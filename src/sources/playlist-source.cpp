@@ -29,11 +29,11 @@ void refresh_queue_list(PlaylistSource *playlist_data)
 	}
 }
 
-void playlist_source_callbacks(void *data, const char *callback_name, calldata_t *callback)
-{
-	UNUSED_PARAMETER(callback);
-	obs_log(LOG_INFO, "Source Callbacks: %s", callback_name);
-}
+// void playlist_source_callbacks(void *data, const char *callback_name, calldata_t *callback)
+// {
+// 	UNUSED_PARAMETER(callback);
+// 	obs_log(LOG_INFO, "Source Callbacks: %s", callback_name);
+// }
 
 void playlist_media_source_ended(void *data, calldata_t *callback)
 {
@@ -183,11 +183,6 @@ bool uses_song_history_limit(PlaylistSource *playlist_data)
 
 #pragma region Property Managment
 
-bool playlist_queue_modified(obs_properties_t *props, obs_property_t *property, obs_data_t *settings)
-{
-	return true;
-}
-
 obs_properties_t *make_playlist_properties(PlaylistSource *playlist_data)
 {
 	obs_properties_t *props = obs_properties_create();
@@ -207,8 +202,6 @@ obs_properties_t *make_playlist_properties(PlaylistSource *playlist_data)
 	std::string result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size, "    ",
 							 MEDIA_STRINGIFY_TYPE_NAME);
 	obs_property_t *queue = obs_properties_add_text(props, "queue", ("Queue" + result).c_str(), OBS_TEXT_INFO);
-
-	obs_property_set_modified_callback(queue, playlist_queue_modified);
 
 	pthread_mutex_unlock(&playlist_data->mutex);
 
@@ -389,13 +382,13 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 	}
 
 	if (playlist_data->all_media_initialized == true && changed_queue == true) {
-		std::string result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size,
-								 "    ", MEDIA_STRINGIFY_TYPE_NAME);
-		obs_data_set_string(settings, "queue", ("Queue" + result).c_str());
-		obs_source_update(playlist_data->source, settings);
+		// std::string result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size,
+		// 						 "    ", MEDIA_STRINGIFY_TYPE_NAME);
+		// obs_data_set_string(settings, "queue", ("Queue" + result).c_str());
+		// obs_source_update(playlist_data->source, settings);
 
-		obs_properties_apply_settings(playlist_data->properties, settings);
-		// obs_property_modified(obs_properties_get(playlist_data->properties, "queue"));
+		// obs_properties_apply_settings(playlist_data->properties, settings);
+		// obs_property_modified(obs_properties_get(playlist_data->properties, "queue"), settings);
 		playlist_queue(playlist_data);
 	}
 
@@ -493,9 +486,9 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 		obs_log(LOG_INFO, "Debug: %s", playlist_data->debug ? "true" : "false");
 	}
 
-	// if (update_properties == true) {
-	// 	obs_source_update_properties(playlist_data->source);
-	// }
+	if (update_properties == true) {
+		obs_source_update_properties(playlist_data->source);
+	}
 }
 
 #pragma endregion
@@ -523,8 +516,8 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	obs_source_add_active_child(playlist_data->source, playlist_data->media_source);
 	obs_source_add_audio_capture_callback(playlist_data->media_source, playlist_audio_callback, playlist_data);
 
-	signal_handler_t *sh_source = obs_source_get_signal_handler(playlist_data->source);
-	signal_handler_connect_global(sh_source, playlist_source_callbacks, playlist_data);
+	// signal_handler_t *sh_source = obs_source_get_signal_handler(playlist_data->source);
+	// signal_handler_connect_global(sh_source, playlist_source_callbacks, playlist_data);
 
 	signal_handler_t *sh_media_source = obs_source_get_signal_handler(playlist_data->media_source);
 	signal_handler_connect(sh_media_source, "media_ended", playlist_media_source_ended, playlist_data);
