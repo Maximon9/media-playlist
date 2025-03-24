@@ -12,7 +12,7 @@
 
 #pragma region Custom Types
 
-static CustomProperties *properties_viewer;
+static PlaylistQueueViewer *playlist_queue_viewer;
 
 typedef struct {
 #pragma region Public
@@ -31,7 +31,6 @@ typedef struct {
 	bool debug;
 #pragma endregion
 #pragma region Private
-	obs_properties_t *properties;
 	bool all_media_initialized;
 	obs_data_t *media_source_settings;
 	MediaFileDataArray queue;

@@ -636,9 +636,7 @@ obs_properties_t *playlist_get_properties(void *data)
 	// 	}
 	// }
 
-	playlist_data->properties = make_playlist_properties(playlist_data);
-
-	return playlist_data->properties;
+	return make_playlist_properties(playlist_data);
 	// return nullptr;
 }
 

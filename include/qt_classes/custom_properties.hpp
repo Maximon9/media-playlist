@@ -9,7 +9,7 @@
 #include <QPushButton>
 #include <obs-module.h>
 
-class CustomProperties : public QDockWidget {
+class PlaylistQueueViewer : public QDockWidget {
 	// Q_OBJECT
 private:
 	obs_data_t *settings;
@@ -28,8 +28,8 @@ private:
 	// bool debug;
 
 public:
-	explicit CustomProperties(const QString &title, QWidget *parent);
+	explicit PlaylistQueueViewer(/* const QString &title,  */ QWidget *parent);
 
 	// Destructor: This is called when an object is destroyed.
-	~CustomProperties();
+	~PlaylistQueueViewer();
 };
