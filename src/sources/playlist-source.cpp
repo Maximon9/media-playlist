@@ -616,7 +616,14 @@ obs_properties_t *playlist_get_properties(void *data)
 
 	QWidget *properties_window = (QWidget *)obs_frontend_get_main_window();
 
+	const QObjectList children = properties_window->children();
+
 	obs_log(LOG_INFO, "Main Window: %s", properties_window->windowTitle().toStdString().c_str());
+	obs_log(LOG_INFO, "Main Count: %d", children.size());
+	/* for (qsizetype i = 0; i < children.size(); i++) {
+		const QWidget *child = (QWidget *)&children[i];
+		obs_log(LOG_INFO, "Child Window: %s", child->windowTitle().toStdString().c_str());
+	} */
 
 	// return update_playlist_properties(playlist_data);
 	return nullptr;
