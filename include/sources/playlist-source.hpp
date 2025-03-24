@@ -9,32 +9,30 @@
 #include <plugin-support.h>
 #include "../include/utils/utils.hpp"
 #include "../include/utils/enum-utils.hpp"
+#include "../include/classes/custom_properties.hpp"
 
 #pragma region Custom Types
 
 typedef struct {
 #pragma region Public
+	int queue_list_size;
 	MediaFileDataArray all_media;
-	bool shuffle_queue;
 	obs_source_t *source;
 	obs_source_t *media_source;
-	obs_data_t *media_source_settings;
-	int start_index;
-	int end_index;
+	bool shuffle_queue;
 	e_StartBehavior playlist_start_behavior;
 	e_EndBehavior playlist_end_behavior;
 	int loop_index;
 	bool infinite;
 	int loop_count;
 	e_LoopEndBehavior loop_end_behavior;
-	bool rest_playlist_after_last_loop;
-	// size_t current_media_index;
 	int song_history_limit;
-	int queue_list_size;
 	bool debug;
 #pragma endregion
 #pragma region Private
+	CustomProperties *properties_ui;
 	bool all_media_initialized;
+	obs_data_t *media_source_settings;
 	MediaFileDataArray queue;
 	MediaFileDataArray previous_queue;
 	// bool run;
@@ -73,7 +71,7 @@ bool uses_song_history_limit(PlaylistSource *playlist_data);
 
 #pragma region Property Managment
 
-obs_properties_t *make_playlist_properties();
+obs_properties_t *update_playlist_properties();
 
 void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings);
 

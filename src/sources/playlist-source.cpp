@@ -177,68 +177,6 @@ bool uses_song_history_limit(PlaylistSource *playlist_data)
 
 #pragma region Property Managment
 
-obs_properties_t *make_playlist_properties(PlaylistSource *playlist_data)
-{
-	obs_properties_t *props = obs_properties_create();
-
-	int all_media_size = (int)playlist_data->all_media.size();
-
-	int last_index = all_media_size - 1;
-
-	if (last_index < 0) {
-		last_index += 1;
-	}
-
-	obs_properties_add_int(props, "queue_list_size", "Queue List Size", 5, 20, 1);
-
-	pthread_mutex_lock(&playlist_data->mutex);
-
-	// obs_log_media_array(LOG_INFO, "Queue Array:\n", &playlist_data->queue, 0, "    ", MEDIA_STRINGIFY_TYPE_NAME);
-
-	std::string result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size, "    ",
-							 MEDIA_STRINGIFY_TYPE_NAME);
-
-	obs_properties_add_text(props, "queue", ("Queue: " + result).c_str(), OBS_TEXT_INFO);
-
-	pthread_mutex_unlock(&playlist_data->mutex);
-
-	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
-					 media_filter, "");
-
-	obs_properties_add_bool(props, "shuffle_queue", "Shuffle Queue");
-
-	obs_property_t *psb_property = obs_properties_add_list(
-		props, "playlist_start_behavior", "Playlist Start Behavior", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
-
-	add_enums_to_property_list(psb_property, StartBehavior, 2);
-
-	obs_property_t *peb_property = obs_properties_add_list(props, "playlist_end_behavior", "Playlist End Behavior",
-							       OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
-
-	add_enums_to_property_list(peb_property, EndBehavior, 2);
-
-	if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_INDEX) {
-		obs_properties_add_int_slider(props, "loop_index", "Loop Index", 0, last_index, 1);
-	}
-	if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
-	    playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_END) {
-		obs_properties_add_bool(props, "infinite", "Infinite");
-		if (playlist_data->infinite == false) {
-			obs_properties_add_int(props, "loop_count", "Loop Count", 0, INT_MAX, 1);
-
-			obs_property_t *leb_property = obs_properties_add_list(props, "loop_end_behavior",
-									       "Loop End Behavior", OBS_COMBO_TYPE_LIST,
-									       OBS_COMBO_FORMAT_INT);
-			add_enums_to_property_list(leb_property, LoopEndBehavior, 3);
-		}
-	}
-
-	obs_properties_add_int(props, "song_history_limit", "Song History Limit", 0, INT_MAX, 1);
-
-	obs_properties_add_bool(props, "debug", "Debug");
-	return props;
-}
-
 /**
  * @brief Updates the playlist data.
  * @param settings The settings of the playlist source.
@@ -314,6 +252,7 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 					} else {
 						push_media_media_file_at(&playlist_data->all_media, &new_entry,
 									 entry_index);
+						added_medias.push_back(new_entry);
 					}
 					entry_index++;
 				}
@@ -324,7 +263,7 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 					const MediaFileData *media_file_data = &playlist_data->all_media[i];
 					if (media_file_data->path != new_entry.path) {
 						playlist_data->all_media[entry_index] = new_entry;
-						added_medias.push_back(new_entry);
+						// added_medias.push_back(new_entry);
 					}
 				} else {
 					push_media_media_file_at(&playlist_data->all_media, &new_entry, entry_index);
@@ -378,7 +317,13 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 	}
 
 	if (playlist_data->all_media_initialized == true && changed_queue == true) {
-		update_properties = true;
+		// update_properties = true;
+
+		std::string result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size,
+								 "    ", MEDIA_STRINGIFY_TYPE_NAME);
+
+		obs_data_set_string(settings, "queue", ("Queue: " + result).c_str());
+
 		playlist_queue(playlist_data);
 	}
 
@@ -476,9 +421,9 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 		obs_log(LOG_INFO, "Debug: %s", playlist_data->debug ? "true" : "false");
 	}
 
-	if (update_properties == true) {
-		obs_source_update_properties(playlist_data->source);
-	}
+	// if (update_properties == true) {
+	// 	obs_source_update_properties(playlist_data->source);
+	// }
 }
 
 #pragma endregion
@@ -599,7 +544,11 @@ void playlist_get_defaults(obs_data_t *settings)
 obs_properties_t *playlist_get_properties(void *data)
 {
 	PlaylistSource *playlist_data = (PlaylistSource *)data;
-	return make_playlist_properties(playlist_data);
+
+	if (playlist_data->properties_ui == NULL) {
+		playlist_data->properties_ui = new CustomProperties();
+	}
+	// return update_playlist_properties(playlist_data);
 }
 
 void playlist_update(void *data, obs_data_t *settings)
@@ -608,7 +557,7 @@ void playlist_update(void *data, obs_data_t *settings)
 	update_playlist_data(playlist_data, settings);
 
 	// Ensure properties are refreshed or updated if necessary
-	// obs_properties_t *props = make_playlist_properties(playlist_data);
+	// obs_properties_t *props = update_playlist_properties(playlist_data);
 	// obs_source_update(playlist_data->source, props);
 }
 
@@ -636,47 +585,40 @@ void playlist_activate(void *data)
 		// obs_source_media_play_pause(playlist_data->source, false);
 		// obs_source_media_stop(playlist_data->source);
 		playlist_queue_restart(playlist_data);
-		obs_source_update_properties(playlist_data->source);
 		break;
-	case START_BEHAVIOR_RESTART_AT_CURRENT_INEX:
-		/* code */
-		break;
-	case START_BEHAVIOR_KEEP_SAME_BEHAVIOR:
-		/* code */
+	case START_BEHAVIOR_RESTART_AT_CURRENT_INDEX:
+		playlist_queue_restart(playlist_data);
 		break;
 	case START_BEHAVIOR_UNPAUSE:
+		playlist_queue(playlist_data);
+		obs_source_media_play_pause(playlist_data->source, false);
 		/* code */
 		break;
 	case START_BEHAVIOR_PAUSE:
-		/* code */
+		obs_source_media_play_pause(playlist_data->source, true);
 		break;
 	default:
 		break;
 	}
+	// obs_source_update_properties(playlist_data->source);
 }
 
 void playlist_deactivate(void *data)
 {
 	obs_log(LOG_INFO, "playlist_deactivate");
 	PlaylistSource *playlist_data = (PlaylistSource *)data;
-	// PlaylistSource *playlist_data = (PlaylistSource *)data;
 	switch (playlist_data->playlist_start_behavior) {
 	case START_BEHAVIOR_RESTART_ENTIRE_PLAYLIST:
-		// obs_set_output_source(0, playlist_data->media_source);
-		obs_source_media_ended(playlist_data->media_source);
 		obs_source_media_stop(playlist_data->source);
 		break;
-	case START_BEHAVIOR_RESTART_AT_CURRENT_INEX:
-		/* code */
-		break;
-	case START_BEHAVIOR_KEEP_SAME_BEHAVIOR:
-		/* code */
+	case START_BEHAVIOR_RESTART_AT_CURRENT_INDEX:
+		obs_source_media_stop(playlist_data->source);
 		break;
 	case START_BEHAVIOR_UNPAUSE:
-		/* code */
+		obs_source_media_play_pause(playlist_data->source, true);
 		break;
 	case START_BEHAVIOR_PAUSE:
-		/* code */
+		obs_source_media_play_pause(playlist_data->source, true);
 		break;
 	default:
 		break;
@@ -860,7 +802,7 @@ void media_next(void *data)
 		playlist_queue_restart(playlist_data);
 	}
 
-	obs_source_update_properties(playlist_data->source);
+	// obs_source_update_properties(playlist_data->source);
 
 	pthread_mutex_unlock(&playlist_data->mutex);
 }
@@ -892,7 +834,7 @@ void media_previous(void *data)
 	}
 
 	pthread_mutex_unlock(&playlist_data->mutex);
-	obs_source_update_properties(playlist_data->source);
+	// obs_source_update_properties(playlist_data->source);
 }
 
 int64_t media_get_duration(void *data)
