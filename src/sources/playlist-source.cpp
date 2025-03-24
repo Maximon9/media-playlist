@@ -207,8 +207,8 @@ obs_properties_t *update_playlist_properties(PlaylistSource *playlist_data)
 
 	obs_properties_add_bool(props, "shuffle_queue", "Shuffle Queue");
 
-	obs_property_t *psb_property = obs_properties_add_list(
-		props, "start_behavior", "Playlist Start Behavior", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
+	obs_property_t *psb_property = obs_properties_add_list(props, "start_behavior", "Playlist Start Behavior",
+							       OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 
 	add_enums_to_property_list(psb_property, StartBehavior, 2);
 
@@ -601,9 +601,9 @@ obs_properties_t *playlist_get_properties(void *data)
 {
 	PlaylistSource *playlist_data = (PlaylistSource *)data;
 
-	if (playlist_data->properties_ui == NULL) {
-		playlist_data->properties_ui = new CustomProperties();
-	}
+	// if (playlist_data->properties_ui == NULL) {
+	// 	playlist_data->properties_ui = new CustomProperties();
+	// }
 	return update_playlist_properties(playlist_data);
 }
 
