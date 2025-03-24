@@ -197,13 +197,13 @@ obs_properties_t *make_playlist_properties(PlaylistSource *playlist_data)
 
 	obs_properties_add_int(props, "queue_list_size", "Queue List Size", 5, 20, 1);
 
-	pthread_mutex_lock(&playlist_data->mutex);
+	// pthread_mutex_lock(&playlist_data->mutex);
 
-	std::string result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size, "    ",
-							 MEDIA_STRINGIFY_TYPE_NAME);
-	obs_property_t *queue = obs_properties_add_text(props, "queue", ("Queue" + result).c_str(), OBS_TEXT_INFO);
+	// std::string result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size, "    ",
+	// 						 MEDIA_STRINGIFY_TYPE_NAME);
+	// obs_property_t *queue = obs_properties_add_text(props, "queue", ("Queue" + result).c_str(), OBS_TEXT_INFO);
 
-	pthread_mutex_unlock(&playlist_data->mutex);
+	// pthread_mutex_unlock(&playlist_data->mutex);
 
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
 					 media_filter, "");
@@ -273,7 +273,6 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 	if (array_size <= 0) {
 		playlist_data->all_media.clear();
 		obs_data_array_release(obs_playlist);
-		return;
 	} else {
 		size_t entry_index = 0;
 		MediaFileDataArray added_medias{};
@@ -382,13 +381,6 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 	}
 
 	if (playlist_data->all_media_initialized == true && changed_queue == true) {
-		// std::string result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size,
-		// 						 "    ", MEDIA_STRINGIFY_TYPE_NAME);
-		// obs_data_set_string(settings, "queue", ("Queue" + result).c_str());
-		// obs_source_update(playlist_data->source, settings);
-
-		// obs_properties_apply_settings(playlist_data->properties, settings);
-		// obs_property_modified(obs_properties_get(playlist_data->properties, "queue"), settings);
 		playlist_queue(playlist_data);
 	}
 
@@ -644,7 +636,7 @@ void playlist_update(void *data, obs_data_t *settings)
 {
 	PlaylistSource *playlist_data = (PlaylistSource *)data;
 
-	// update_playlist_data(playlist_data, settings);
+	update_playlist_data(playlist_data, settings);
 
 	// Ensure properties are refreshed or updated if necessary
 	// obs_properties_t *props = update_playlist_properties(playlist_data);

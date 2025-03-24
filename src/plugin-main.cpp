@@ -32,11 +32,11 @@ OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 bool obs_module_load(void)
 {
 	// QWidget *properties_window = (QWidget *)obs_frontend_get_main_window();
-	playlist_queue_viewer = new PlaylistQueueViewer(nullptr);
+	// playlist_queue_viewer = new PlaylistQueueViewer(nullptr);
 
-	obs_log(LOG_INFO, "PropertiesViewer Title: %s", playlist_queue_viewer->windowTitle().toStdString().c_str());
+	// obs_log(LOG_INFO, "PropertiesViewer Title: %s", playlist_queue_viewer->windowTitle().toStdString().c_str());
 
-	obs_frontend_add_custom_qdock("playlist_media_queue_maximon9", playlist_queue_viewer);
+	// obs_frontend_add_custom_qdock("playlist_media_queue_maximon9", playlist_queue_viewer);
 	// obs_frontend_add_event_callback(test_callback_stuff, nullptr);
 
 	struct obs_source_info playlist_source_template{};
