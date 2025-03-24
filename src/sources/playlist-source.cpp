@@ -273,6 +273,7 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 		return;
 	} else {
 		size_t entry_index = 0;
+		MediaFileDataArray added_medias{};
 		for (size_t i = 0; i < array_size; ++i) {
 			obs_data_t *data = obs_data_array_item(obs_playlist, i);
 
@@ -323,9 +324,11 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 					const MediaFileData *media_file_data = &playlist_data->all_media[i];
 					if (media_file_data->path != new_entry.path) {
 						playlist_data->all_media[entry_index] = new_entry;
+						added_medias.push_back(new_entry);
 					}
 				} else {
 					push_media_media_file_at(&playlist_data->all_media, &new_entry, entry_index);
+					added_medias.push_back(new_entry);
 				}
 				entry_index++;
 			}
@@ -357,15 +360,18 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 			size_t queue_last_index = 0;
 
 			if (playlist_data->queue.size() > 0) {
-				queue_last_index = playlist_data->queue[playlist_data->queue.size() - 1].index + 1;
+				queue_last_index = playlist_data->queue[playlist_data->queue.size() - 1].index;
 			}
 
 			// to-do Only add songs that have actually been added to the all media list.
-			for (size_t *i = &queue_last_index; *i < playlist_data->all_media.size(); *i++) {
-				obs_log(LOG_INFO, "Queue Index: %d", *i);
-				playlist_data->queue.push_back(playlist_data->all_media[*i]);
-				if (changed_queue == false) {
-					changed_queue = true;
+			for (size_t i = 0; i < added_medias.size(); i++) {
+				// obs_log(LOG_INFO, "Queue Index: %d", i);
+				MediaFileData added_item = added_medias[i];
+				if (added_item.index > queue_last_index) {
+					playlist_data->queue.push_back(added_item);
+					if (changed_queue == false) {
+						changed_queue = true;
+					}
 				}
 			}
 		}
