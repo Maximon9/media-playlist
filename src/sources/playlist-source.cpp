@@ -183,6 +183,11 @@ bool uses_song_history_limit(PlaylistSource *playlist_data)
 
 #pragma region Property Managment
 
+bool playlist_queue_modified(obs_properties_t *props, obs_property_t *property, obs_data_t *settings)
+{
+	return true;
+}
+
 obs_properties_t *update_playlist_properties(PlaylistSource *playlist_data)
 {
 	obs_properties_t *props = obs_properties_create();
@@ -204,7 +209,8 @@ obs_properties_t *update_playlist_properties(PlaylistSource *playlist_data)
 	std::string result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size, "    ",
 							 MEDIA_STRINGIFY_TYPE_NAME);
 
-	obs_properties_add_text(props, "queue", ("Queue: " + result).c_str(), OBS_TEXT_INFO);
+	obs_property_t *queue = obs_properties_add_text(props, "queue", ("Queue: " + result).c_str(), OBS_TEXT_INFO);
+	obs_property_set_modified_callback(queue, playlist_queue_modified);
 
 	pthread_mutex_unlock(&playlist_data->mutex);
 
@@ -631,8 +637,8 @@ obs_properties_t *playlist_get_properties(void *data)
 	// 	}
 	// }
 
-	// return update_playlist_properties(playlist_data);
-	return nullptr;
+	return update_playlist_properties(playlist_data);
+	// return nullptr;
 }
 
 void playlist_update(void *data, obs_data_t *settings)

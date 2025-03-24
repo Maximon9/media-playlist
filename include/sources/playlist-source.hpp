@@ -70,6 +70,8 @@ bool uses_song_history_limit(PlaylistSource *playlist_data);
 
 #pragma region Property Managment
 
+bool playlist_queue_modified(obs_properties_t *props, obs_property_t *property, obs_data_t *settings);
+
 obs_properties_t *update_playlist_properties();
 
 void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings);
