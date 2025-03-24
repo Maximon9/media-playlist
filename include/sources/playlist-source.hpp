@@ -9,7 +9,7 @@
 #include <plugin-support.h>
 #include "../include/utils/utils.hpp"
 #include "../include/utils/enum-utils.hpp"
-// #include "../include/classes/custom_properties.hpp"
+#include "../include/qt_classes/custom_properties.hpp"
 
 #pragma region Custom Types
 
@@ -30,7 +30,7 @@ typedef struct {
 	bool debug;
 #pragma endregion
 #pragma region Private
-	// CustomProperties *properties_ui;
+	CustomProperties *properties_ui;
 	bool all_media_initialized;
 	obs_data_t *media_source_settings;
 	MediaFileDataArray queue;

@@ -5,8 +5,9 @@
 #include "Qt"
 
 // CustomProperties::CustomProperties() : QDialog() {}
-CustomProperties::CustomProperties(obs_source_t *source, QWidget *parent) : QDialog(parent)
+CustomProperties::CustomProperties(obs_data_t *settings, QWidget *parent) : QDialog(parent)
 {
+	this->settings = settings;
 	QVBoxLayout *layout = new QVBoxLayout(this);
 
 	QLabel *sliderLabel = new QLabel("Slider Value:", this);
@@ -32,6 +33,6 @@ CustomProperties::CustomProperties(obs_source_t *source, QWidget *parent) : QDia
 	layout->addWidget(numberSpinBox);
 	setLayout(layout);
 }
-// CustomProperties::~CustomProperties() {}
+CustomProperties::~CustomProperties() {}
 
 #endif // CUSTOM_PROPERTIES_DIALOG_HPP

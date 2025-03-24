@@ -177,7 +177,7 @@ bool uses_song_history_limit(PlaylistSource *playlist_data)
 
 #pragma region Property Managment
 
-obs_properties_t *update_playlist_properties(PlaylistSource *playlist_data)
+/* obs_properties_t *update_playlist_properties(PlaylistSource *playlist_data)
 {
 	obs_properties_t *props = obs_properties_create();
 
@@ -237,7 +237,7 @@ obs_properties_t *update_playlist_properties(PlaylistSource *playlist_data)
 
 	obs_properties_add_bool(props, "debug", "Debug");
 	return props;
-}
+} */
 
 /**
  * @brief Updates the playlist data.
@@ -477,9 +477,9 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 		obs_log(LOG_INFO, "Debug: %s", playlist_data->debug ? "true" : "false");
 	}
 
-	if (update_properties == true) {
-		obs_source_update_properties(playlist_data->source);
-	}
+	// if (update_properties == true) {
+	// 	obs_source_update_properties(playlist_data->source);
+	// }
 }
 
 #pragma endregion
@@ -599,19 +599,20 @@ void playlist_get_defaults(obs_data_t *settings)
 
 obs_properties_t *playlist_get_properties(void *data)
 {
-	PlaylistSource *playlist_data = (PlaylistSource *)data;
-
-	// if (playlist_data->properties_ui == NULL) {
-	// 	playlist_data->properties_ui = new CustomProperties();
-	// }
-
-	return update_playlist_properties(playlist_data);
+	// PlaylistSource *playlist_data = (PlaylistSource *)data;
+	// return update_playlist_properties(playlist_data);
+	return NULL;
 }
 
 void playlist_update(void *data, obs_data_t *settings)
 {
 	PlaylistSource *playlist_data = (PlaylistSource *)data;
-	update_playlist_data(playlist_data, settings);
+
+	if (playlist_data->properties_ui == NULL) {
+		playlist_data->properties_ui = new CustomProperties(settings, NULL);
+	}
+
+	// update_playlist_data(playlist_data, settings);
 
 	// Ensure properties are refreshed or updated if necessary
 	// obs_properties_t *props = update_playlist_properties(playlist_data);

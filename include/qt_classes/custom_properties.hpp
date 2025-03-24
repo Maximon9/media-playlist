@@ -10,7 +10,8 @@
 
 class CustomProperties : public QDialog {
 	// Q_OBJECT
-	// private:
+private:
+	obs_data_t *settings;
 	// QSpinBox queue_list_size;
 	// MediaFileDataArray all_media;
 	// obs_source_t *source;
@@ -26,9 +27,8 @@ class CustomProperties : public QDialog {
 	// bool debug;
 
 public:
-public:
-	explicit CustomProperties(obs_source_t *source, QWidget *parent = nullptr);
+	explicit CustomProperties(obs_data_t *settings, QWidget *parent = nullptr);
 
 	// Destructor: This is called when an object is destroyed.
-	// ~CustomProperties();
+	~CustomProperties();
 };
