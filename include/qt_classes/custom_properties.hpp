@@ -1,3 +1,4 @@
+#include <QDockWidget>
 #include <QWidget>
 #include <QSlider>
 #include <QSpinBox>
@@ -8,7 +9,7 @@
 #include <QPushButton>
 #include <obs-module.h>
 
-class CustomProperties : public QDialog {
+class CustomProperties : public QDockWidget {
 	// Q_OBJECT
 private:
 	obs_data_t *settings;

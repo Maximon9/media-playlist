@@ -535,7 +535,8 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	playlist_data->song_history_limit = 100;
 	playlist_data->queue_list_size = 5;
 
-	playlist_data->properties_ui = new CustomProperties(settings, nullptr);
+	QWidget *properties_window = (QWidget *)obs_frontend_get_main_window();
+	playlist_data->properties_ui = new CustomProperties(settings, properties_window);
 
 	// pthread_mutex_init_value(&playlist_data->mutex);
 	if (pthread_mutex_init(&playlist_data->mutex, NULL) != 0)
@@ -612,22 +613,23 @@ obs_properties_t *playlist_get_properties(void *data)
 {
 	PlaylistSource *playlist_data = (PlaylistSource *)data;
 
-	// playlist_data->properties_ui->exec();
+	// obs_frontend_open_source_properties()
 
-	QWidget *properties_window = (QWidget *)obs_frontend_get_main_window();
+	// playlist_data->properties_ui.;
 
-	const QObjectList children = properties_window->children();
+	// QWidget *properties_window = (QWidget *)obs_frontend_get_main_window();
 
-	obs_log(LOG_INFO, "Main Window: %s", properties_window->windowTitle().toStdString().c_str());
-	obs_log(LOG_INFO, "Main Count: %d", children.size());
-	for (QObject *child : children) {
-		// Cast to QWidget* or any other specific type
-		QWidget *widget = qobject_cast<QWidget *>(child);
-		if (widget) {
-			// Do something with each child widget
-			obs_log(LOG_INFO, "Child Window: %s", widget->windowTitle().toStdString().c_str());
-		}
-	}
+	// const QObjectList children = properties_window->children();
+
+	// obs_log(LOG_INFO, "Main Window: %s", properties_window->windowTitle().toStdString().c_str());
+	// for (QObject *child : children) {
+	// 	// Cast to QWidget* or any other specific type
+	// 	QWidget *widget = qobject_cast<QWidget *>(child);
+	// 	if (widget) {
+	// 		// Do something with each child widget
+	// 		obs_log(LOG_INFO, "Child Window: %s", widget->windowTitle().toStdString().c_str());
+	// 	}
+	// }
 
 	// return update_playlist_properties(playlist_data);
 	return nullptr;

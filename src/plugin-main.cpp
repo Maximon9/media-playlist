@@ -23,9 +23,16 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 
+/* void test_callback_stuff(enum obs_frontend_event event, void *private_data)
+{
+	obs_log(LOG_INFO, "Test Event: %d", event);
+} */
+
 // Called when the plugin is loaded
 bool obs_module_load(void)
 {
+	// obs_frontend_add_event_callback(test_callback_stuff, nullptr);
+
 	struct obs_source_info playlist_source_template{};
 
 	playlist_source_template.id = "media_playlist_code_maximon9",
