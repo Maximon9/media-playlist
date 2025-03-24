@@ -11,7 +11,7 @@ set(CMAKE_INSTALL_PREFIX "C:/ProgramData/obs-studio/plugins")
 
 option(ENABLE_FRONTEND_API "Use obs-frontend-api for UI functionality" ON)
 
-option(ENABLE_QT "Use Qt functionality" OFF)
+option(ENABLE_QT "Use Qt functionality" ON)
 
 include(compilerconfig)
 include(defaults)

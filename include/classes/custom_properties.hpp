@@ -1,3 +1,5 @@
+#include <QSlider>
+#include <QSpinBox>
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -7,6 +9,20 @@
 class CustomProperties : public QDialog {
 	Q_OBJECT
 private:
+	int queue_list_size;
+	MediaFileDataArray all_media;
+	obs_source_t *source;
+	obs_source_t *media_source;
+	bool shuffle_queue;
+	e_StartBehavior playlist_start_behavior;
+	e_EndBehavior playlist_end_behavior;
+	int loop_index;
+	bool infinite;
+	int loop_count;
+	e_LoopEndBehavior loop_end_behavior;
+	int song_history_limit;
+	bool debug;
+
 public:
 	explicit CustomProperties();
 

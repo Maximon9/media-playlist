@@ -20,8 +20,8 @@ typedef struct {
 	obs_source_t *source;
 	obs_source_t *media_source;
 	bool shuffle_queue;
-	e_StartBehavior playlist_start_behavior;
-	e_EndBehavior playlist_end_behavior;
+	e_StartBehavior start_behavior;
+	e_EndBehavior end_behavior;
 	int loop_index;
 	bool infinite;
 	int loop_count;

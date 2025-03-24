@@ -55,7 +55,7 @@ void playlist_media_source_ended(void *data, calldata_t *callback)
 		// }
 		obs_source_media_next(playlist_data->source);
 	} else {
-		switch (playlist_data->end_index) {
+		switch (playlist_data->end_behavior) {
 		case END_BEHAVIOR_STOP:
 			obs_source_media_stop(playlist_data->source);
 			break;
@@ -169,13 +169,75 @@ void playlist_audio_callback(void *data, obs_source_t *source, const struct audi
 bool uses_song_history_limit(PlaylistSource *playlist_data)
 
 {
-	return (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
-		playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_END ||
-		(playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP && playlist_data->shuffle_queue == true));
+	return (playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
+		playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_END ||
+		(playlist_data->end_behavior == END_BEHAVIOR_LOOP && playlist_data->shuffle_queue == true));
 }
 #pragma endregion
 
 #pragma region Property Managment
+
+obs_properties_t *update_playlist_properties(PlaylistSource *playlist_data)
+{
+	obs_properties_t *props = obs_properties_create();
+
+	int all_media_size = (int)playlist_data->all_media.size();
+
+	int last_index = all_media_size - 1;
+
+	if (last_index < 0) {
+		last_index += 1;
+	}
+
+	obs_properties_add_int(props, "queue_list_size", "Queue List Size", 5, 20, 1);
+
+	pthread_mutex_lock(&playlist_data->mutex);
+
+	// obs_log_media_array(LOG_INFO, "Queue Array:\n", &playlist_data->queue, 0, "    ", MEDIA_STRINGIFY_TYPE_NAME);
+
+	std::string result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size, "    ",
+							 MEDIA_STRINGIFY_TYPE_NAME);
+
+	obs_properties_add_text(props, "queue", ("Queue: " + result).c_str(), OBS_TEXT_INFO);
+
+	pthread_mutex_unlock(&playlist_data->mutex);
+
+	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
+					 media_filter, "");
+
+	obs_properties_add_bool(props, "shuffle_queue", "Shuffle Queue");
+
+	obs_property_t *psb_property = obs_properties_add_list(
+		props, "start_behavior", "Playlist Start Behavior", OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
+
+	add_enums_to_property_list(psb_property, StartBehavior, 2);
+
+	obs_property_t *peb_property = obs_properties_add_list(props, "end_behavior", "Playlist End Behavior",
+							       OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
+
+	add_enums_to_property_list(peb_property, EndBehavior, 2);
+
+	if (playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_INDEX) {
+		obs_properties_add_int_slider(props, "loop_index", "Loop Index", 0, last_index, 1);
+	}
+	if (playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
+	    playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_END) {
+		obs_properties_add_bool(props, "infinite", "Infinite");
+		if (playlist_data->infinite == false) {
+			obs_properties_add_int(props, "loop_count", "Loop Count", 0, INT_MAX, 1);
+
+			obs_property_t *leb_property = obs_properties_add_list(props, "loop_end_behavior",
+									       "Loop End Behavior", OBS_COMBO_TYPE_LIST,
+									       OBS_COMBO_FORMAT_INT);
+			add_enums_to_property_list(leb_property, LoopEndBehavior, 3);
+		}
+	}
+
+	obs_properties_add_int(props, "song_history_limit", "Song History Limit", 0, INT_MAX, 1);
+
+	obs_properties_add_bool(props, "debug", "Debug");
+	return props;
+}
 
 /**
  * @brief Updates the playlist data.
@@ -317,13 +379,7 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 	}
 
 	if (playlist_data->all_media_initialized == true && changed_queue == true) {
-		// update_properties = true;
-
-		std::string result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size,
-								 "    ", MEDIA_STRINGIFY_TYPE_NAME);
-
-		obs_data_set_string(settings, "queue", ("Queue: " + result).c_str());
-
+		update_properties = true;
 		playlist_queue(playlist_data);
 	}
 
@@ -348,19 +404,19 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 
 	playlist_data->shuffle_queue = shuffle_queue;
 
-	playlist_data->playlist_start_behavior = (e_StartBehavior)obs_data_get_int(settings, "playlist_start_behavior");
+	playlist_data->start_behavior = (e_StartBehavior)obs_data_get_int(settings, "start_behavior");
 	if (playlist_data->debug == true) {
-		obs_log(LOG_INFO, "Start Behavior: %s", StartBehavior[playlist_data->playlist_start_behavior]);
+		obs_log(LOG_INFO, "Start Behavior: %s", StartBehavior[playlist_data->start_behavior]);
 	}
 
-	e_EndBehavior playlist_end_behavior = (e_EndBehavior)obs_data_get_int(settings, "playlist_end_behavior");
-	if (playlist_data->playlist_end_behavior != playlist_end_behavior) {
+	e_EndBehavior end_behavior = (e_EndBehavior)obs_data_get_int(settings, "end_behavior");
+	if (playlist_data->end_behavior != end_behavior) {
 		update_properties = true;
 	}
 
-	playlist_data->playlist_end_behavior = playlist_end_behavior;
+	playlist_data->end_behavior = end_behavior;
 	if (playlist_data->debug == true) {
-		obs_log(LOG_INFO, "End Behavior: %s", EndBehavior[playlist_data->playlist_end_behavior]);
+		obs_log(LOG_INFO, "End Behavior: %s", EndBehavior[playlist_data->end_behavior]);
 	}
 
 	int all_media_size = (int)playlist_data->all_media.size();
@@ -371,8 +427,8 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 		last_index += 1;
 	}
 
-	if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
-	    playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_END) {
+	if (playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
+	    playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_END) {
 		bool infinite = obs_data_get_bool(settings, "infinite");
 		if (infinite != playlist_data->infinite) {
 			update_properties = true;
@@ -384,7 +440,7 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 				(e_LoopEndBehavior)obs_data_get_int(settings, "loop_end_behavior");
 		}
 	}
-	if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_INDEX) {
+	if (playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_INDEX) {
 		playlist_data->loop_index = (int)obs_data_get_int(settings, "loop_index");
 		if (playlist_data->debug == true) {
 			obs_log(LOG_INFO, "Loop Index: %d", playlist_data->loop_index);
@@ -406,8 +462,8 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 		}
 	}
 
-	if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
-	    playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP_AT_END) {
+	if (playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
+	    playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_END) {
 		obs_log(LOG_INFO, "Infinite: %s", playlist_data->infinite == true ? "true" : "false");
 		if (playlist_data->infinite == false && playlist_data->debug == true) {
 			obs_log(LOG_INFO, "Loop Count: %d", playlist_data->loop_count);
@@ -421,9 +477,9 @@ void update_playlist_data(PlaylistSource *playlist_data, obs_data_t *settings)
 		obs_log(LOG_INFO, "Debug: %s", playlist_data->debug ? "true" : "false");
 	}
 
-	// if (update_properties == true) {
-	// 	obs_source_update_properties(playlist_data->source);
-	// }
+	if (update_properties == true) {
+		obs_source_update_properties(playlist_data->source);
+	}
 }
 
 #pragma endregion
@@ -530,8 +586,8 @@ uint32_t playlist_source_height(void *data)
 
 void playlist_get_defaults(obs_data_t *settings)
 {
-	// obs_data_set_default_int(settings, "playlist_start_behavior", 0);
-	// obs_data_set_default_int(settings, "playlist_end_behavior", 0);
+	// obs_data_set_default_int(settings, "start_behavior", 0);
+	// obs_data_set_default_int(settings, "end_behavior", 0);
 	// obs_data_set_default_int(settings, "loop_index", 0);
 	obs_data_set_default_bool(settings, "shuffle_queue", false);
 	obs_data_set_default_bool(settings, "infinite", true);
@@ -548,7 +604,7 @@ obs_properties_t *playlist_get_properties(void *data)
 	if (playlist_data->properties_ui == NULL) {
 		playlist_data->properties_ui = new CustomProperties();
 	}
-	// return update_playlist_properties(playlist_data);
+	return update_playlist_properties(playlist_data);
 }
 
 void playlist_update(void *data, obs_data_t *settings)
@@ -566,7 +622,7 @@ void playlist_activate(void *data)
 	obs_log(LOG_INFO, "playlist_activate");
 	PlaylistSource *playlist_data = (PlaylistSource *)data;
 
-	switch (playlist_data->playlist_start_behavior) {
+	switch (playlist_data->start_behavior) {
 	case START_BEHAVIOR_RESTART_ENTIRE_PLAYLIST:
 		obs_log(LOG_INFO, "We restarted the entire playlist");
 		// playlist_data->current_media_index = 0;
@@ -607,7 +663,7 @@ void playlist_deactivate(void *data)
 {
 	obs_log(LOG_INFO, "playlist_deactivate");
 	PlaylistSource *playlist_data = (PlaylistSource *)data;
-	switch (playlist_data->playlist_start_behavior) {
+	switch (playlist_data->start_behavior) {
 	case START_BEHAVIOR_RESTART_ENTIRE_PLAYLIST:
 		obs_source_media_stop(playlist_data->source);
 		break;
@@ -787,7 +843,7 @@ void media_next(void *data)
 			if (playlist_data->previous_queue.size() > playlist_data->song_history_limit) {
 				playlist_data->previous_queue.pop_back();
 			}
-		} else if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP) {
+		} else if (playlist_data->end_behavior == END_BEHAVIOR_LOOP) {
 			const MediaFileData *media_file_data = &playlist_data->queue[0];
 
 			const MediaFileData new_entry = create_media_file_data_with_all_info(
@@ -827,7 +883,7 @@ void media_previous(void *data)
 
 			playlist_queue_restart(playlist_data);
 		}
-	} else if (playlist_data->playlist_end_behavior == END_BEHAVIOR_LOOP) {
+	} else if (playlist_data->end_behavior == END_BEHAVIOR_LOOP) {
 		obs_log(LOG_INFO, "Queue Size: %d", playlist_data->queue.size() - 1);
 		std::swap(playlist_data->queue[playlist_data->queue.size() - 1], playlist_data->queue[0]);
 		playlist_queue_restart(playlist_data);
