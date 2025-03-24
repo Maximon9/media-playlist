@@ -45,6 +45,7 @@ bool obs_module_load(void)
 	playlist_source_template.video_tick = playlist_video_tick;
 	playlist_source_template.video_render = playlist_video_render;
 	playlist_source_template.audio_render = playlist_audio_render;
+	// playlist_source_template.get_properties2 = playlist_get_properties2;
 	playlist_source_template.enum_active_sources = playlist_enum_active_sources;
 	playlist_source_template.save = playlist_save;
 	playlist_source_template.load = playlist_load;

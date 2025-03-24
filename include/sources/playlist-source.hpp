@@ -3,7 +3,6 @@
 
 #include <obs-module.h>
 #include <obs-frontend-api.h>
-// #include <qt
 #include <util/threading.h>
 #include <util/deque.h>
 #include <plugin-support.h>
@@ -105,6 +104,8 @@ void playlist_video_render(void *data, gs_effect_t *effect);
 
 bool playlist_audio_render(void *data, uint64_t *ts_out, struct obs_source_audio_mix *audio_output, uint32_t mixers,
 			   size_t channels, size_t sample_rate);
+
+// obs_properties_t *playlist_get_properties2(void *data, void *type_data);
 
 void playlist_enum_active_sources(void *data, obs_source_enum_proc_t enum_callback, void *param);
 

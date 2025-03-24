@@ -29,6 +29,12 @@ void refresh_queue_list(PlaylistSource *playlist_data)
 	}
 }
 
+void playlist_source_callbacks(void *data, const char *callback_name, calldata_t *callback)
+{
+	UNUSED_PARAMETER(callback);
+	obs_log(LOG_INFO, "Source Callbacks: %s", callback_name);
+}
+
 void playlist_media_source_ended(void *data, calldata_t *callback)
 {
 	UNUSED_PARAMETER(callback);
@@ -177,7 +183,7 @@ bool uses_song_history_limit(PlaylistSource *playlist_data)
 
 #pragma region Property Managment
 
-/* obs_properties_t *update_playlist_properties(PlaylistSource *playlist_data)
+obs_properties_t *update_playlist_properties(PlaylistSource *playlist_data)
 {
 	obs_properties_t *props = obs_properties_create();
 
@@ -237,7 +243,7 @@ bool uses_song_history_limit(PlaylistSource *playlist_data)
 
 	obs_properties_add_bool(props, "debug", "Debug");
 	return props;
-} */
+}
 
 /**
  * @brief Updates the playlist data.
@@ -507,6 +513,9 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	obs_source_add_active_child(playlist_data->source, playlist_data->media_source);
 	obs_source_add_audio_capture_callback(playlist_data->media_source, playlist_audio_callback, playlist_data);
 
+	signal_handler_t *sh_source = obs_source_get_signal_handler(playlist_data->source);
+	signal_handler_connect_global(sh_source, playlist_source_callbacks, playlist_data);
+
 	signal_handler_t *sh_media_source = obs_source_get_signal_handler(playlist_data->media_source);
 	signal_handler_connect(sh_media_source, "media_ended", playlist_media_source_ended, playlist_data);
 
@@ -603,9 +612,11 @@ obs_properties_t *playlist_get_properties(void *data)
 {
 	PlaylistSource *playlist_data = (PlaylistSource *)data;
 
-	if (playlist_data->properties_ui != nullptr) {
-		playlist_data->properties_ui->exec();
-	}
+	// playlist_data->properties_ui->exec();
+
+	QWidget *properties_window = (QWidget *)obs_frontend_get_main_window();
+
+	obs_log(LOG_INFO, "Main Window: %s", properties_window->windowTitle().toStdString().c_str());
 
 	// return update_playlist_properties(playlist_data);
 	return nullptr;
@@ -778,6 +789,13 @@ bool playlist_audio_render(void *data, uint64_t *ts_out, struct obs_source_audio
 	return true;
 	// return false;
 }
+
+/* obs_properties_t *playlist_get_properties2(void *data, void *type_data)
+{
+	obs_log(LOG_INFO, "Yo wassup");
+
+	return nullptr;
+} */
 
 void playlist_enum_active_sources(void *data, obs_source_enum_proc_t enum_callback, void *param)
 {
