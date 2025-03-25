@@ -14,15 +14,17 @@ PlaylistQueueViewer::PlaylistQueueViewer(/* const QString &title,  */ QWidget *p
 	QVBoxLayout *layout = new QVBoxLayout(mainWidget);
 
 	QLabel *label = new QLabel("Hello from Custom Dock!", mainWidget);
+
+	label->setAlignment(Qt::AlignCenter);
+
 	layout->addWidget(label);
 
 	setVisible(false);
 	setFloating(true);
 	resize(300, 300);
 
-	if (mainWidget->layout() == nullptr) {
-		mainWidget->setLayout(layout);
-	}
+	mainWidget->setLayout(layout);
+
 	setWidget(mainWidget);
 }
 

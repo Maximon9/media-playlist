@@ -34,13 +34,11 @@ bool obs_module_load(void)
 	QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
 	playlist_queue_viewer = new PlaylistQueueViewer(obs_main_window);
 
-	// playlist_queue_viewer->setObjectName("playlist_media_queue_maximon9");
-
 	// playlist_queue_viewer->show();
 
 	// obs_log(LOG_INFO, "PropertiesViewer Title: %s", playlist_queue_viewer->windowTitle().toStdString().c_str());
 
-	// obs_frontend_add_custom_qdock("playlist_media_queue_maximon9", playlist_queue_viewer);
+	obs_frontend_add_custom_qdock("playlist_media_queue_maximon9", playlist_queue_viewer);
 
 	// obs_frontend_add_event_callback(test_callback_stuff, nullptr);
 

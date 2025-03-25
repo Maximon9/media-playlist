@@ -14,7 +14,7 @@
 class PlaylistQueueViewer : public QDockWidget {
 	// Q_OBJECT
 private:
-	obs_data_t *settings;
+	// obs_data_t *settings;
 	// QSpinBox queue_list_size;
 	// MediaFileDataArray all_media;
 	// obs_source_t *source;
