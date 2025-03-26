@@ -21,5 +21,6 @@ public:
 	explicit PlaylistWidget(const PlaylistData *playlist, QWidget *parent = nullptr);
 	void toggleMediaVisibility();
 	void update_playlist_data();
+	void remove_widget();
 };
 #endif // PLAYLIST_WIDGET_HPP

@@ -16,7 +16,7 @@ void MediaWidget::update_media_file_data()
 	label->setText(QString::fromStdString(media_file_data->name));
 }
 
-void MediaWidget::remove_media_widget()
+void MediaWidget::remove_widget()
 {
 	QWidget *parent = parent;
 	QBoxLayout *layout = qobject_cast<QBoxLayout *>(parent->layout());
