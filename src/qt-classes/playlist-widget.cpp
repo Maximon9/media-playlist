@@ -1,10 +1,10 @@
 #include "../../include/qt-classes/playlist-widget.hpp"
 #include "../../include/qt-classes/playlist-media-widget.hpp"
 
-PlaylistWidget::PlaylistWidget(const PlaylistData &playlist, QWidget *parent) : QWidget(parent), expanded(false)
+PlaylistWidget::PlaylistWidget(const PlaylistData *playlist, QWidget *parent) : QWidget(parent), expanded(false)
 {
 	layout = new QVBoxLayout(this);
-	toggleButton = new QPushButton(QString::fromStdString(playlist.name), this);
+	toggleButton = new QPushButton(QString::fromStdString(playlist->name), this);
 	mediaContainer = new QWidget(this);
 	mediaLayout = new QVBoxLayout(mediaContainer);
 
@@ -15,8 +15,9 @@ PlaylistWidget::PlaylistWidget(const PlaylistData &playlist, QWidget *parent) : 
 	setLayout(layout);
 
 	// Populate media items
-	for (const auto &media : playlist.queue) {
-		mediaLayout->addWidget(new MediaWidget(QString::fromStdString(media.name), this));
+	for (size_t i = 0; i < playlist->queue.size(); i++) {
+		const MediaFileData *media = &playlist->queue[i];
+		mediaLayout->addWidget(new MediaWidget(QString::fromStdString(media->name), this));
 	}
 	mediaContainer->setLayout(mediaLayout);
 
