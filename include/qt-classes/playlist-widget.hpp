@@ -1,9 +1,9 @@
 #include <QWidget>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include "../include/source-types/playlist-source-types.hpp"
 
 class PlaylistWidget : public QWidget {
-	Q_OBJECT
 private:
 	QVBoxLayout *layout;
 	QPushButton *toggleButton;
@@ -12,6 +12,6 @@ private:
 	bool expanded;
 
 public:
-	explicit PlaylistWidget(QWidget *parent = nullptr);
+	explicit PlaylistWidget(const PlaylistData &playlist, QWidget *parent = nullptr);
 	void toggleMediaVisibility();
 };

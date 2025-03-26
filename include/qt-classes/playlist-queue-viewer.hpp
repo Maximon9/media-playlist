@@ -8,7 +8,6 @@
 typedef std::deque<PlaylistData *> PlaylistDatas;
 
 class PlaylistQueueViewer : public QWidget {
-	Q_OBJECT
 private:
 	QVBoxLayout *layout;
 	QScrollArea *scrollArea;

@@ -8,17 +8,11 @@ PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent = nullptr) : QWidget(pa
 {
 	this->playlist_datas = {};
 
-	this->parent = parent;
-
 	this->layout = new QVBoxLayout(this);
-
-	this->layout->addWidget(label);
 
 	resize(300, 300);
 
 	setLayout(this->layout);
 }
-
-PlaylistQueueViewer::~PlaylistQueueViewer() {}
 
 #endif // CUSTOM_PROPERTIES_DIALOG_HPP

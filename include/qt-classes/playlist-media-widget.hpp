@@ -1,4 +1,6 @@
 #include <QWidget>
+#include <QVBoxLayout>
+#include <QLabel>
 
 class MediaWidget : public QWidget {
 	Q_OBJECT

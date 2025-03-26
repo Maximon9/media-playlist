@@ -23,6 +23,7 @@ typedef struct {
 	bool debug;
 #pragma endregion
 #pragma region Private
+	std::string name;
 	bool all_media_initialized;
 	obs_data_t *media_source_settings;
 	MediaFileDataArray queue;
