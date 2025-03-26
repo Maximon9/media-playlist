@@ -27,8 +27,6 @@ typedef struct {
 	obs_data_t *media_source_settings;
 	MediaFileDataArray queue;
 	MediaFileDataArray previous_queue;
-	// bool run;
-	// bool paused;
 	pthread_mutex_t mutex;
 	struct deque audio_data[MAX_AUDIO_CHANNELS];
 	struct deque audio_frames;
@@ -36,6 +34,6 @@ typedef struct {
 	size_t num_channels;
 	pthread_mutex_t audio_mutex;
 #pragma endregion
-} PlaylistSource;
+} PlaylistData;
 
 #endif // PLAYLIST_SOURCE_TYPES_HPP

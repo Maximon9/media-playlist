@@ -13,7 +13,7 @@
 #include <deque>
 #include "../include/source-types/playlist-source-types.hpp"
 
-typedef std::deque<PlaylistSource> PlaylistSources;
+typedef std::deque<PlaylistData> PlaylistSources;
 
 class PlaylistQueueViewer : public QWidget {
 	// Q_OBJECT
