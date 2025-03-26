@@ -549,9 +549,9 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	playlist_queue_viewer->playlist_datas.push_back(playlist_data);
 
-	obs_log(LOG_INFO, "Playlist Datas Size: %d", playlist_queue_viewer->playlist_datas.size())
+	obs_log(LOG_INFO, "Playlist Datas Size: %d", playlist_queue_viewer->playlist_datas.size());
 
-		return playlist_data;
+	return playlist_data;
 error:
 	playlist_source_destroy(playlist_data);
 	return NULL;
