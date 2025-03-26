@@ -1,6 +1,17 @@
-#ifndef CUSTOM_PROPERTIES_HPP
-#define CUSTOM_PROPERTIES_HPP
+#include <QWidget>
+#include <QVBoxLayout>
+#include "../include/qt-classes/playlist-queue-viewer.hpp"
 
+PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent) : QWidget(parent)
+{
+	this->playlist_datas = {};
+
+	this->layout = new QVBoxLayout(this);
+
+	setLayout(this->layout);
+}
+
+/*
 #include "../../include/qt-classes/playlist-queue-viewer.hpp"
 #include "../../include/qt-classes/playlist-widget.hpp"
 
@@ -40,4 +51,4 @@ void PlaylistQueueViewer::updatePlaylists()
 	}
 }
 
-#endif // CUSTOM_PROPERTIES_DIALOG_HPP
+#endif // CUSTOM_PROPERTIES_DIALOG_HPP */

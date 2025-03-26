@@ -494,8 +494,10 @@ const char *playlist_source_name(void *data)
 
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 {
-	obs_log(LOG_INFO, "Playst Has Been Created");
 	PlaylistData *playlist_data = (PlaylistData *)bzalloc(sizeof(*playlist_data));
+
+	playlist_data->name = obs_source_get_name(source);
+	obs_log(LOG_INFO, "Source Name", playlist_data->name);
 
 	playlist_data->source = source;
 
@@ -821,7 +823,12 @@ void playlist_enum_active_sources(void *data, obs_source_enum_proc_t enum_callba
 
 void playlist_save(void *data, obs_data_t *settings)
 {
+	PlaylistData *playlist_data = (PlaylistData *)data;
+
 	obs_log(LOG_INFO, "playlist_save");
+
+	playlist_data->name = obs_source_get_name(playlist_data->source);
+	obs_log(LOG_INFO, "Source Name", playlist_data->name);
 	// PlaylistSource *playlist_data = (PlaylistSource *)data;
 	// obs_data_set_int(settings, S_CURRENT_MEDIA_INDEX, playlist_data->current_media_index);
 	// update_current_filename_setting(playlist_data, settings);
