@@ -124,7 +124,7 @@ void playlist_queue(PlaylistData *playlist_data)
 	// Set file path in ffmpeg_source
 	obs_data_set_string(playlist_data->media_source_settings, S_FFMPEG_LOCAL_FILE, media_data->path.c_str());
 
-	// obs_log(LOG_INFO, " PRINTING: \n%s", obs_data_get_json_pretty(playlist_data->media_source_settings));
+	// obs_log(LOG_INFO, " PRINTING: /n%s", obs_data_get_json_pretty(playlist_data->media_source_settings));
 
 	obs_source_update(playlist_data->media_source, playlist_data->media_source_settings);
 	// obs_source_media_restart(playlist_data->source);
@@ -156,7 +156,7 @@ void playlist_queue_restart(PlaylistData *playlist_data)
 	// Set file path in ffmpeg_source
 	obs_data_set_string(playlist_data->media_source_settings, S_FFMPEG_LOCAL_FILE, media_data->path.c_str());
 
-	// obs_log(LOG_INFO, " PRINTING: \n%s", obs_data_get_json_pretty(playlist_data->media_source_settings));
+	// obs_log(LOG_INFO, " PRINTING: /n%s", obs_data_get_json_pretty(playlist_data->media_source_settings));
 
 	obs_source_update(playlist_data->media_source, playlist_data->media_source_settings);
 	obs_source_media_restart(playlist_data->source);
@@ -170,7 +170,7 @@ void clear_any_media_playing(PlaylistData *playlist_data)
 	// Set file path in ffmpeg_source
 	obs_data_set_string(playlist_data->media_source_settings, S_FFMPEG_LOCAL_FILE, "");
 
-	// obs_log(LOG_INFO, " PRINTING: \n%s", obs_data_get_json_pretty(playlist_data->media_source_settings));
+	// obs_log(LOG_INFO, " PRINTING: /n%s", obs_data_get_json_pretty(playlist_data->media_source_settings));
 
 	obs_source_update(playlist_data->media_source, playlist_data->media_source_settings);
 	obs_source_media_stop(playlist_data->source);
@@ -433,7 +433,7 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 	pthread_mutex_unlock(&playlist_data->mutex);
 
 	if (playlist_data->debug == true) {
-		obs_log_media_array(LOG_INFO, "All Media:\n", &playlist_data->all_media, 0, "    ",
+		obs_log_media_array(LOG_INFO, "All Media:/n", &playlist_data->all_media, 0, "    ",
 				    MEDIA_STRINGIFY_TYPE_FILENAME);
 	}
 
@@ -532,6 +532,8 @@ const char *playlist_source_name(void *data)
 	return "Playlist"; // This should match the filename (without extension) in data/
 }
 
+QueueMediaData fake_entry{};
+
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 {
 	PlaylistData *playlist_data = (PlaylistData *)bzalloc(sizeof(*playlist_data));
@@ -593,6 +595,10 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	playlist_data->playlist_widget = new PlaylistWidget(playlist_data, playlist_queue_viewer);
 	playlist_queue_viewer->contentLayout->addWidget(playlist_data->playlist_widget);
+
+	// fake_entry = load_queue_media_data_from_path(
+	// 	"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4",
+	// 	0, playlist_data);
 
 	// obs_log(LOG_INFO, "Layout 1: %s", playlist_queue_viewer->contentLayout->objectName().toStdString().c_str());
 

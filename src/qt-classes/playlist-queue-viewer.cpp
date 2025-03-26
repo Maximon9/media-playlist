@@ -19,7 +19,7 @@
 PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent) : QWidget(parent)
 {
 	this->playlist_datas = {};
-	this->layout = new QVBoxLayout(this);
+	layout = new QVBoxLayout(this);
 
 	// Scroll area setup
 	scrollArea = new QScrollArea(this);

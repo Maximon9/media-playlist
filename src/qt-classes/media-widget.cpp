@@ -1,11 +1,14 @@
 #pragma region Main
 
 #include "../../include/qt-classes/media-widget.hpp"
+#include <obs-module.h>
+#include <plugin-support.h>
 
 MediaWidget::MediaWidget(const QueueMediaData *media_data, QWidget *parent) : QWidget(parent)
 {
 	this->media_data = media_data;
 	QVBoxLayout *layout = new QVBoxLayout(this);
+	obs_log(LOG_INFO, "Queue Media Name: %s", media_data->name.c_str());
 	label = new QLabel(QString::fromStdString(media_data->name), this);
 	layout->addWidget(label);
 	setLayout(layout);

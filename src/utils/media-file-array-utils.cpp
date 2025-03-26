@@ -122,8 +122,9 @@ QueueMediaData load_queue_media_data_from_path(std::string path, size_t index, P
 	// Extract the file extension (including the dot)
 	std::string ext = file_path.extension().string();
 
-	QueueMediaData new_entry = {path, filename, name,
-				    ext,  index,    new MediaWidget(&new_entry, playlist_data->playlist_widget)};
+	QueueMediaData new_entry = {path, filename, name, ext, index, nullptr};
+
+	new_entry.media_widget = new MediaWidget(&new_entry, playlist_data->playlist_widget);
 
 	playlist_data->playlist_widget->mediaLayout->addWidget(new_entry.media_widget);
 

@@ -32,6 +32,7 @@ PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *paren
 void PlaylistWidget::toggleMediaVisibility()
 {
 	expanded = !expanded;
+
 	mediaContainer->setVisible(expanded);
 }
 
