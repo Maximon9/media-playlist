@@ -8,7 +8,7 @@
 #include <obs-module.h>
 #include <plugin-support.h>
 #include <deque>
-#include "../include/source-types/playlist-source-types.hpp"
+#include "../include/types/playlist-source-types.hpp"
 
 typedef std::deque<PlaylistData *> PlaylistDatas;
 

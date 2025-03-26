@@ -1,3 +1,5 @@
+#pragma region Main
+
 #include "../../include/qt-classes/playlist-widget.hpp"
 #include "../../include/qt-classes/playlist-media-widget.hpp"
 
@@ -30,3 +32,5 @@ void PlaylistWidget::toggleMediaVisibility()
 	expanded = !expanded;
 	mediaContainer->setVisible(expanded);
 }
+
+#pragma endregion

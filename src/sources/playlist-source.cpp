@@ -1,4 +1,5 @@
 #pragma region Main
+
 #include "../include/sources/playlist-source.hpp"
 
 #define S_FFMPEG_LOG_CHANGES "log_changes"

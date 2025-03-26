@@ -3,8 +3,9 @@
 
 #include <util/threading.h>
 #include <util/deque.h>
-#include "../include/utils/utils.hpp"
+#include "./media-file-array-utils.hpp"
 #include "../include/utils/enum-utils.hpp"
+#include "../../include/qt-classes/playlist-queue-viewer.hpp"
 
 typedef struct {
 #pragma region Public

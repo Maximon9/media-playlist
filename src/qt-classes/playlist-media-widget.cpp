@@ -1,3 +1,5 @@
+#pragma region Main
+
 #include "../../include/qt-classes/playlist-media-widget.hpp"
 
 MediaWidget::MediaWidget(const QString &mediaName, QWidget *parent) : QWidget(parent)
@@ -7,3 +9,5 @@ MediaWidget::MediaWidget(const QString &mediaName, QWidget *parent) : QWidget(pa
 	layout->addWidget(label);
 	setLayout(layout);
 }
+
+#pragma endregion

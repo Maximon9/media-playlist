@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QPushButton>
 #include <QVBoxLayout>
-#include "../include/source-types/playlist-source-types.hpp"
+#include "../include/types/playlist-source-types.hpp"
 
 class PlaylistWidget : public QWidget {
 private:

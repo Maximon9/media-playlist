@@ -4,6 +4,7 @@
 #include <obs-module.h>
 #include <obs-frontend-api.h>
 #include <plugin-support.h>
+#include "../include/utils/utils.hpp"
 #include "../include/qt-classes/playlist-queue-viewer.hpp"
 
 #pragma region Media Functions

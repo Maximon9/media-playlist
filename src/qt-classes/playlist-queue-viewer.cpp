@@ -1,4 +1,7 @@
-#include "../include/qt-classes/playlist-queue-viewer.hpp"
+#pragma region Main
+
+#include "../../include/qt-classes/playlist-queue-viewer.hpp"
+#include "../../include/qt-classes/playlist-widget.hpp"
 
 PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent) : QWidget(parent)
 {
@@ -16,11 +19,6 @@ PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent) : QWidget(parent)
 PlaylistQueueViewer *playlist_queue_viewer = nullptr;
 
 /*
-#include "../../include/qt-classes/playlist-queue-viewer.hpp"
-#include "../../include/qt-classes/playlist-widget.hpp"
-
-// CustomProperties::CustomProperties() : QDialog() {}
-
 PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent) : QWidget(parent)
 {
 	this->playlist_datas = {};
@@ -56,3 +54,5 @@ void PlaylistQueueViewer::updatePlaylists()
 }
 
 #endif // CUSTOM_PROPERTIES_DIALOG_HPP */
+
+#pragma endregion
