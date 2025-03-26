@@ -14,7 +14,7 @@ class PlaylistWidget;
 typedef struct PlaylistData {
 #pragma region Public
 	int queue_list_size;
-	MediaFileDataArray all_media;
+	MediaDataArray all_media;
 	obs_source_t *source;
 	obs_source_t *media_source;
 	bool shuffle_queue;
@@ -32,8 +32,8 @@ typedef struct PlaylistData {
 	std::string name;
 	bool all_media_initialized;
 	obs_data_t *media_source_settings;
-	MediaFileDataArray queue;
-	MediaFileDataArray previous_queue;
+	QueueMediaDataArray queue;
+	MediaDataArray previous_queue;
 	pthread_mutex_t mutex;
 	struct deque audio_data[MAX_AUDIO_CHANNELS];
 	struct deque audio_frames;

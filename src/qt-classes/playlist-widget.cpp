@@ -20,7 +20,7 @@ PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *paren
 
 	// Populate media items
 	/* for (size_t i = 0; i < playlist->queue.size(); i++) {
-		const MediaFileData *media_file_data = &playlist->queue[i];
+		const MediaData *media_file_data = &playlist->queue[i];
 		mediaLayout->addWidget(new MediaWidget(media_file_data, this));
 	} */
 	mediaContainer->setLayout(mediaLayout);
@@ -44,7 +44,7 @@ void PlaylistWidget::update_playlist_data()
 {
 	PlaylistWidget::update_playlist_name();
 	for (size_t i = 0; i < playlist_data->queue.size(); i++) {
-		const MediaFileData *media_file_data = &playlist_data->queue[i];
+		const QueueMediaData *media_file_data = &playlist_data->queue[i];
 		media_file_data->media_widget->update_media_file_data();
 	}
 }

@@ -17,14 +17,17 @@ const char *get_current_media_input(obs_data_t *settings)
 
 void refresh_queue_list(PlaylistData *playlist_data)
 {
-	playlist_data->queue.clear();
+	for (size_t i = playlist_data->all_media.size(); i-- > 0;) {
+		const MediaData *media_file_data = &playlist_data->all_media[i];
 
-	for (size_t i = 0; i < playlist_data->all_media.size(); i++) {
-		const MediaFileData *media_file_data = &playlist_data->all_media[i];
+		MediaWidget *media_widget = nullptr;
+		if (i < playlist_data->queue.size()) {
+			media_widget = playlist_data->queue[i].media_widget;
+		}
 
-		const MediaFileData new_entry = create_media_file_data_with_all_info(
+		const QueueMediaData new_entry = construct_complete_queue_media_data(
 			media_file_data->path, media_file_data->filename, media_file_data->name, media_file_data->ext,
-			media_file_data->index);
+			media_file_data->index, media_widget, playlist_data->playlist_widget);
 
 		playlist_data->queue.push_back(new_entry);
 	}
@@ -94,7 +97,7 @@ void playlist_queue(PlaylistData *playlist_data)
 		return;
 
 	// Get video file path from the array
-	const MediaFileData *media_data = &playlist_data->queue[0];
+	const MediaData *media_data = &playlist_data->queue[0];
 
 	if (!media_data)
 		return;
@@ -126,7 +129,7 @@ void playlist_queue_restart(PlaylistData *playlist_data)
 		return;
 
 	// Get video file path from the array
-	const MediaFileData *media_data = &playlist_data->queue[0];
+	const MediaData *media_data = &playlist_data->queue[0];
 
 	if (!media_data)
 		return;
@@ -276,7 +279,7 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 		obs_data_array_release(obs_playlist);
 	} else {
 		size_t entry_index = 0;
-		MediaFileDataArray added_medias{};
+		MediaDataArray added_medias{};
 		for (size_t i = 0; i < array_size; ++i) {
 			obs_data_t *data = obs_data_array_item(obs_playlist, i);
 
@@ -307,10 +310,10 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 					if (!valid_extension(&extension))
 						continue;
 
-					MediaFileData new_entry =
-						create_media_file_data_from_path(entry.path().string(), entry_index);
+					MediaData new_entry =
+						load_media_data_from_path(entry.path().string(), entry_index);
 					if (entry_index < playlist_data->all_media.size()) {
-						const MediaFileData *media_file_data = &playlist_data->all_media[i];
+						const MediaData *media_file_data = &playlist_data->all_media[i];
 						if (media_file_data->path != new_entry.path) {
 							playlist_data->all_media[entry_index] = new_entry;
 						}
@@ -322,10 +325,9 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 					entry_index++;
 				}
 			} else {
-				MediaFileData new_entry =
-					create_media_file_data_from_path(std::string(element), entry_index);
+				MediaData new_entry = load_media_data_from_path(std::string(element), entry_index);
 				if (entry_index < playlist_data->all_media.size()) {
-					const MediaFileData *media_file_data = &playlist_data->all_media[i];
+					const MediaData *media_file_data = &playlist_data->all_media[i];
 					if (media_file_data->path != new_entry.path) {
 						playlist_data->all_media[entry_index] = new_entry;
 						// added_medias.push_back(new_entry);
@@ -345,9 +347,9 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 
 		if (playlist_data->all_media_initialized == true) {
 			for (size_t i = playlist_data->queue.size(); i-- > 0;) {
-				MediaFileData *queue_item = &playlist_data->queue[i];
+				MediaData *queue_item = &playlist_data->queue[i];
 				if (queue_item->index < playlist_data->all_media.size()) {
-					MediaFileData new_entry = playlist_data->all_media[queue_item->index];
+					MediaData new_entry = playlist_data->all_media[queue_item->index];
 					if (queue_item->path != new_entry.path) {
 						playlist_data->queue[i] = new_entry;
 						if (changed_queue == false) {
@@ -370,7 +372,7 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 			// to-do Only add songs that have actually been added to the all media list.
 			for (size_t i = 0; i < added_medias.size(); i++) {
 				// obs_log(LOG_INFO, "Queue Index: %d", i);
-				MediaFileData added_item = added_medias[i];
+				MediaData added_item = added_medias[i];
 				if (added_item.index > queue_last_index) {
 					playlist_data->queue.push_back(added_item);
 					if (changed_queue == false) {
@@ -892,9 +894,9 @@ void media_next(void *data)
 
 	if (playlist_data->queue.size() > 0) {
 		if (uses_song_history_limit(playlist_data) == true) {
-			const MediaFileData *media_file_data = &playlist_data->queue[0];
+			const MediaData *media_file_data = &playlist_data->queue[0];
 
-			const MediaFileData new_entry = create_media_file_data_with_all_info(
+			const MediaData new_entry = construct_complete_media_data(
 				media_file_data->path, media_file_data->filename, media_file_data->name,
 				media_file_data->ext, media_file_data->index);
 
@@ -904,9 +906,9 @@ void media_next(void *data)
 				playlist_data->previous_queue.pop_back();
 			}
 		} else if (playlist_data->end_behavior == END_BEHAVIOR_LOOP) {
-			const MediaFileData *media_file_data = &playlist_data->queue[0];
+			const MediaData *media_file_data = &playlist_data->queue[0];
 
-			const MediaFileData new_entry = create_media_file_data_with_all_info(
+			const MediaData new_entry = construct_complete_media_data(
 				media_file_data->path, media_file_data->filename, media_file_data->name,
 				media_file_data->ext, media_file_data->index);
 
@@ -931,9 +933,9 @@ void media_previous(void *data)
 
 	if (uses_song_history_limit(playlist_data) == true) {
 		if (playlist_data->previous_queue.size() > 0) {
-			const MediaFileData *media_file_data = &playlist_data->previous_queue[0];
+			const MediaData *media_file_data = &playlist_data->previous_queue[0];
 
-			const MediaFileData new_entry = create_media_file_data_with_all_info(
+			const MediaData new_entry = construct_complete_media_data(
 				media_file_data->path, media_file_data->filename, media_file_data->name,
 				media_file_data->ext, media_file_data->index);
 

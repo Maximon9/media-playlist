@@ -2,40 +2,40 @@
 
 #include <../../include/utils/media-file-array-utils.hpp>
 
-void push_media_back(MediaFileDataArray *media_array, const std::string path)
+void push_media_back(MediaDataArray *media_array, const std::string path)
 {
-	MediaFileData entry = create_media_file_data_from_path(path, 0);
+	MediaData entry = load_media_data_from_path(path, 0);
 	media_array->push_back(entry);
 }
 
-void push_media_front(MediaFileDataArray *media_array, const std::string path)
+void push_media_front(MediaDataArray *media_array, const std::string path)
 {
-	MediaFileData entry = create_media_file_data_from_path(path, 0);
+	MediaData entry = load_media_data_from_path(path, 0);
 	media_array->push_front(entry);
 }
 
-void push_media_at(MediaFileDataArray *media_array, const std::string path, size_t index)
+void push_media_at(MediaDataArray *media_array, const std::string path, size_t index)
 {
-	MediaFileDataArray::const_iterator it = media_array->cbegin() + index;
-	MediaFileData entry = create_media_file_data_from_path(path, 0);
+	MediaDataArray::const_iterator it = media_array->cbegin() + index;
+	MediaData entry = load_media_data_from_path(path, 0);
 	media_array->insert(it, entry);
 }
 
-void push_media_media_file_at(MediaFileDataArray *media_array, MediaFileData *entry, size_t index)
+void push_media_media_file_at(MediaDataArray *media_array, MediaData *entry, size_t index)
 {
-	MediaFileDataArray::const_iterator it = media_array->cbegin() + index;
+	MediaDataArray::const_iterator it = media_array->cbegin() + index;
 	media_array->insert(it, *entry);
 }
 
-void pop_media_at(MediaFileDataArray *media_array, size_t index)
+void pop_media_at(MediaDataArray *media_array, size_t index)
 {
-	MediaFileDataArray::const_iterator it = media_array->cbegin() + index;
+	MediaDataArray::const_iterator it = media_array->cbegin() + index;
 	media_array->erase(it);
 }
 
-MediaFileData create_media_file_data_from_path(std::string path, size_t index)
+MediaData load_media_data_from_path(std::string path, size_t index)
 {
-	// Create and insert new MediaFileData
+	// Create and insert new MediaData
 	fs::path file_path = path;
 
 	// Extract the filename (with extension)
@@ -47,30 +47,54 @@ MediaFileData create_media_file_data_from_path(std::string path, size_t index)
 	// Extract the file extension (including the dot)
 	std::string ext = file_path.extension().string();
 
-	MediaFileData new_entry = {nullptr, path, filename, name, ext, index};
+	MediaData new_entry = {path, filename, name, ext, index};
+
 	return new_entry;
 }
 
-/* MediaFileData create_media_file_data_from_path_and_file_name(const  std::string  path, const  std::string  filename, size_t index)
+MediaData construct_complete_media_data(const std::string path, const std::string filename, const std::string name,
+					const std::string ext, size_t index)
 {
-	// Create and insert new MediaFileData
-	fs::path file_path = filename;
+	// Create and insert new MediaData
+	MediaData new_entry = {path, filename, name, ext, index};
+	return new_entry;
+}
+
+QueueMediaData load_queue_media_data_from_path(std::string path, size_t index, QWidget *parent_widget)
+{
+	// Create and insert new MediaData
+	fs::path file_path = path;
+
+	// Extract the filename (with extension)
+	std::string filename = file_path.filename().string();
 
 	// Extract the file name without extension
-	std::string  name = file_path.stem().string();
+	std::string name = file_path.stem().string();
 
 	// Extract the file extension (including the dot)
-	std::string  ext = file_path.extension().string();
+	std::string ext = file_path.extension().string();
 
-	MediaFileData new_entry = {path, filename, name, ext, index};
+	QueueMediaData new_entry = {path, filename, name, ext, index, new MediaWidget(&new_entry, parent_widget)};
+
 	return new_entry;
-} */
+}
 
-MediaFileData create_media_file_data_with_all_info(const std::string path, const std::string filename,
-						   const std::string name, const std::string ext, size_t index)
+QueueMediaData construct_complete_queue_media_data(const std::string path, const std::string filename,
+						   const std::string name, const std::string ext, size_t index,
+						   MediaWidget *media_widget, QWidget *parent)
 {
-	// Create and insert new MediaFileData
-	MediaFileData new_entry = {nullptr, path, filename, name, ext, index};
+	// Create and insert new MediaData
+	QueueMediaData new_entry = {};
+	new_entry.path = path;
+	new_entry.filename = filename;
+	new_entry.name = name;
+	new_entry.ext = ext;
+	if (media_widget == nullptr) {
+		new_entry.media_widget = new MediaWidget(&new_entry, parent);
+	} else {
+		new_entry.media_widget = media_widget;
+		new_entry.media_widget->media_file_data = &new_entry;
+	}
 	return new_entry;
 }
 
@@ -133,7 +157,7 @@ bool valid_extension(const std::string *ext)
 	return valid;
 }
 
-/* void obs_data_media_array_retain(MediaFileDataArray *media_file_data_array, obs_data_array_t *obs_playlist)
+/* void obs_data_media_array_retain(MediaDataArray *media_file_data_array, obs_data_array_t *obs_playlist)
 {
 	size_t array_size = obs_data_array_count(obs_playlist);
 	if (array_size == 0) {
@@ -167,14 +191,14 @@ bool valid_extension(const std::string *ext)
 				std::string  extension = entry_path.extension().string();
 				if (!valid_extension(&extension))
 					continue;
-				const MediaFileData new_entry = create_media_file_data_from_path(
+				const MediaData new_entry = load_media_data_from_path(
 					entry.path().string(), media_file_data_array->size());
 				media_file_data_array->push_back(new_entry);
 				// push_media_file_data_back(media_file_data_array, new_entry);
 			}
 		} else {
 			media_file_data_array->push_back(
-				create_media_file_data_from_path(file_path.string(), media_file_data_array->size()));
+				load_media_data_from_path(file_path.string(), media_file_data_array->size()));
 		}
 
 		obs_data_release(data);
@@ -182,7 +206,7 @@ bool valid_extension(const std::string *ext)
 	obs_data_array_release(obs_playlist);
 } */
 
-const char *stringify_media_array(const MediaFileDataArray *media_array, size_t threshold, const std::string indent,
+const char *stringify_media_array(const MediaDataArray *media_array, size_t threshold, const std::string indent,
 				  e_MediaStringifyTYPE media_stringify_type)
 {
 	if (media_array == NULL || media_array->size() <= 0) {
@@ -197,7 +221,7 @@ const char *stringify_media_array(const MediaFileDataArray *media_array, size_t 
 	for (size_t i = 0; i < media_array->size(); i++) {
 		result += "\"";
 
-		const MediaFileData *media_file_data = &((*media_array)[i]);
+		const MediaData *media_file_data = &((*media_array)[i]);
 
 		switch (media_stringify_type) {
 		case MEDIA_STRINGIFY_TYPE_PATH:
@@ -231,7 +255,7 @@ const char *stringify_media_array(const MediaFileDataArray *media_array, size_t 
 			prettified_result += indent; // Add indentation before each element
 			prettified_result += "\"";
 
-			const MediaFileData *media_file_data = &media_array->at(i);
+			const MediaData *media_file_data = &media_array->at(i);
 
 			switch (media_stringify_type) {
 			case MEDIA_STRINGIFY_TYPE_PATH:
@@ -260,8 +284,8 @@ const char *stringify_media_array(const MediaFileDataArray *media_array, size_t 
 
 	return result.c_str(); // Return the compact  std::string  if it's within the threshold
 }
-const char *stringify_media_queue_array(const MediaFileDataArray *media_array, int queue_limit,
-					const std::string indent, e_MediaStringifyTYPE media_stringify_type)
+const char *stringify_media_queue_array(const MediaDataArray *media_array, int queue_limit, const std::string indent,
+					e_MediaStringifyTYPE media_stringify_type)
 {
 	size_t queue_size_list = (size_t)(queue_limit);
 
@@ -294,7 +318,7 @@ const char *stringify_media_queue_array(const MediaFileDataArray *media_array, i
 		prettified_result += indent; // Add indentation before each element
 		prettified_result += "\"";
 
-		const MediaFileData *media_file_data = &media_array->at(i);
+		const MediaData *media_file_data = &media_array->at(i);
 
 		switch (media_stringify_type) {
 		case MEDIA_STRINGIFY_TYPE_PATH:
@@ -321,7 +345,7 @@ const char *stringify_media_queue_array(const MediaFileDataArray *media_array, i
 	return prettified_result.c_str();
 }
 
-void obs_log_media_array(int log_level, std::string format, const MediaFileDataArray *media_array, size_t threshold,
+void obs_log_media_array(int log_level, std::string format, const MediaDataArray *media_array, size_t threshold,
 			 const std::string indent, e_MediaStringifyTYPE media_stringify_type)
 {
 	std::string result = stringify_media_array(media_array, threshold, indent, media_stringify_type);
@@ -329,7 +353,7 @@ void obs_log_media_array(int log_level, std::string format, const MediaFileDataA
 	obs_log(log_level, (format + result).c_str());
 }
 
-bool compare_media_file_data(const MediaFileData *data_1, const MediaFileData *data_2)
+bool compare_media_file_data(const MediaData *data_1, const MediaData *data_2)
 {
 	if (data_1->path == data_2->path && data_1->index == data_2->index) {
 		return true;
@@ -337,12 +361,12 @@ bool compare_media_file_data(const MediaFileData *data_1, const MediaFileData *d
 	return false;
 }
 
-bool compare_media_file_data_arrays(const MediaFileDataArray *array_1, const MediaFileDataArray *array_2)
+bool compare_media_file_data_arrays(const MediaDataArray *array_1, const MediaDataArray *array_2)
 {
 	if (array_1->size() == array_2->size()) {
 		for (size_t i = 0; i < array_1->size(); i++) {
-			const MediaFileData *data_1 = &array_1->at(i);
-			const MediaFileData *data_2 = &array_2->at(i);
+			const MediaData *data_1 = &array_1->at(i);
+			const MediaData *data_2 = &array_2->at(i);
 			if (compare_media_file_data(data_1, data_2) == false) {
 				return false;
 			}

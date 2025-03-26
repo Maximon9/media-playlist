@@ -13,10 +13,10 @@ private:
 	QVBoxLayout *layout;
 	QPushButton *toggleButton;
 	QWidget *mediaContainer;
-	QVBoxLayout *mediaLayout;
 	bool expanded;
 
 public:
+	QVBoxLayout *mediaLayout;
 	const PlaylistData *playlist_data;
 	explicit PlaylistWidget(const PlaylistData *playlist, QWidget *parent = nullptr);
 	void toggleMediaVisibility();

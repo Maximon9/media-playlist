@@ -86,7 +86,7 @@ bool obs_module_load(void)
 
 	// obs_frontend_add_event_callback(on_scene_initialized, NULL);
 
-	// Initialize two MediaFileData arrays
+	// Initialize two MediaData arrays
 
 	return true;
 }

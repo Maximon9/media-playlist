@@ -6,13 +6,13 @@
 #include <QLabel>
 #include "../types/media-file-data-types.hpp"
 
-typedef struct MediaFileData MediaFileData;
+typedef struct QueueMediaData QueueMediaData;
 
 class MediaWidget : public QWidget {
 public:
 	QLabel *label;
-	const MediaFileData *media_file_data;
-	explicit MediaWidget(const MediaFileData *media_file_data, QWidget *parent = nullptr);
+	const QueueMediaData *media_file_data;
+	explicit MediaWidget(const QueueMediaData *media_file_data, QWidget *parent = nullptr);
 	void update_media_file_data();
 	void remove_widget();
 };

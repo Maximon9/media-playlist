@@ -2,7 +2,7 @@
 
 #include "../../include/qt-classes/media-widget.hpp"
 
-MediaWidget::MediaWidget(const MediaFileData *media_file_data, QWidget *parent) : QWidget(parent)
+MediaWidget::MediaWidget(const QueueMediaData *media_file_data, QWidget *parent) : QWidget(parent)
 {
 	this->media_file_data = media_file_data;
 	QVBoxLayout *layout = new QVBoxLayout(this);
