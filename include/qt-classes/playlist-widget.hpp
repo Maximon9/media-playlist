@@ -17,9 +17,10 @@ private:
 	bool expanded;
 
 public:
-	const PlaylistData *playlist;
+	const PlaylistData *playlist_data;
 	explicit PlaylistWidget(const PlaylistData *playlist, QWidget *parent = nullptr);
 	void toggleMediaVisibility();
+	void update_playlist_name();
 	void update_playlist_data();
 	void remove_widget();
 };

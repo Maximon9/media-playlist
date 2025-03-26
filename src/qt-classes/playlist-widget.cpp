@@ -3,12 +3,12 @@
 #include "../../include/qt-classes/playlist-widget.hpp"
 #include "../../include/qt-classes/media-widget.hpp"
 
-PlaylistWidget::PlaylistWidget(const PlaylistData *playlist, QWidget *parent) : QWidget(parent), expanded(false)
+PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *parent) : QWidget(parent), expanded(false)
 {
-	this->playlist = playlist;
+	this->playlist_data = playlist_data;
 
 	layout = new QVBoxLayout(this);
-	toggleButton = new QPushButton(QString::fromStdString(playlist->name), this);
+	toggleButton = new QPushButton(QString::fromStdString(playlist_data->name), this);
 	mediaContainer = new QWidget(this);
 	mediaLayout = new QVBoxLayout(mediaContainer);
 
@@ -35,10 +35,16 @@ void PlaylistWidget::toggleMediaVisibility()
 	mediaContainer->setVisible(expanded);
 }
 
+void PlaylistWidget::update_playlist_name()
+{
+	toggleButton->setText(QString::fromStdString(playlist_data->name));
+}
+
 void PlaylistWidget::update_playlist_data()
 {
-	for (size_t i = 0; i < playlist->queue.size(); i++) {
-		const MediaFileData *media_file_data = &playlist->queue[i];
+	PlaylistWidget::update_playlist_name();
+	for (size_t i = 0; i < playlist_data->queue.size(); i++) {
+		const MediaFileData *media_file_data = &playlist_data->queue[i];
 		media_file_data->media_widget->update_media_file_data();
 	}
 }
