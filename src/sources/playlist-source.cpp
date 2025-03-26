@@ -17,24 +17,35 @@ const char *get_current_media_input(obs_data_t *settings)
 
 void refresh_queue_list(PlaylistData *playlist_data)
 {
-	for (size_t i = playlist_data->all_media.size(); i-- > 0;) {
-		const MediaData media_data = playlist_data->all_media[i];
+	// obs_log(LOG_INFO, "This is doing stuff 4");
+	size_t max_queue_size = std::max(playlist_data->queue.size(), playlist_data->all_media.size());
+
+	for (size_t i = max_queue_size; i-- > 0;) {
+		const MediaData *media_data = nullptr;
+		if (i < playlist_data->all_media.size()) {
+			media_data = &playlist_data->all_media[i];
+			obs_log(LOG_INFO, "Media Data: %s", (*media_data).path.c_str());
+		}
 
 		MediaWidget *media_widget = nullptr;
 		if (i < playlist_data->queue.size()) {
 			media_widget = playlist_data->queue[i].media_widget;
 		}
 
-		const QueueMediaData new_entry = construct_complete_queue_media_data(
-			media_data.path, media_data.filename, media_data.name, media_data.ext, media_data.index,
-			media_widget, playlist_data);
+		if (media_data == nullptr && media_widget != nullptr) {
+			media_widget->remove_widget();
+			playlist_data->queue.pop_back();
+		} else if (media_data != nullptr) {
+			const QueueMediaData new_entry = construct_complete_queue_media_data(
+				media_data->path, media_data->filename, media_data->name, media_data->ext,
+				media_data->index, media_widget, playlist_data);
+			if (media_widget != nullptr) {
+				media_widget->media_data = &new_entry;
+				media_widget->update_media_data();
+			}
 
-		if (media_widget != nullptr) {
-			media_widget->media_data = &new_entry;
-			media_widget->update_media_data();
+			playlist_data->queue.push_front(new_entry);
 		}
-
-		playlist_data->queue.push_back(new_entry);
 	}
 }
 
@@ -48,6 +59,9 @@ void playlist_media_source_ended(void *data, calldata_t *callback)
 {
 	UNUSED_PARAMETER(callback);
 	PlaylistData *playlist_data = (PlaylistData *)data;
+
+	obs_log_queue_media_array(LOG_INFO, "IMPORTANT!!!!: ", &playlist_data->queue, 1000000, "    ",
+				  MEDIA_STRINGIFY_TYPE_FILENAME);
 
 	if (playlist_data->queue.size() > 0) {
 
@@ -361,6 +375,9 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 						media_data.index, queue_media_data->media_widget, playlist_data);
 
 					if (queue_media_data->path != new_entry.path) {
+						obs_log(LOG_INFO, "Path 1: %s, Path 2: %s",
+							queue_media_data->path.c_str(), new_entry.path.c_str());
+						obs_log(LOG_INFO, "This is doing stuff 1");
 						playlist_data->queue[i] = new_entry;
 						if (changed_queue == false) {
 							changed_queue = true;
@@ -388,6 +405,7 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 					QueueMediaData new_entry = construct_complete_queue_media_data(
 						added_media_data.path, added_media_data.filename, added_media_data.name,
 						added_media_data.ext, added_media_data.index, nullptr, playlist_data);
+					obs_log(LOG_INFO, "This is doing stuff 2");
 
 					playlist_data->queue.push_back(new_entry);
 					if (changed_queue == false) {
@@ -667,8 +685,8 @@ obs_properties_t *playlist_get_properties(void *data)
 	// 	}
 	// }
 
-	obs_log_queue_media_array(LOG_INFO, "IMORTANT!!!!: ", &playlist_data->queue, 1000000, "    ",
-				  MEDIA_STRINGIFY_TYPE_FILENAME);
+	// obs_log_queue_media_array(LOG_INFO, "IMPORTANT!!!!: ", &playlist_data->queue, 1000000, "    ",
+	// 			  MEDIA_STRINGIFY_TYPE_FILENAME);
 	return make_playlist_properties(playlist_data);
 	// return nullptr;
 }
@@ -917,6 +935,7 @@ void media_next(void *data)
 				construct_complete_media_data(media_data->path, media_data->filename, media_data->name,
 							      media_data->ext, media_data->index);
 
+			obs_log(LOG_INFO, "This is doing stuff 3");
 			playlist_data->previous_queue.push_back(new_entry);
 
 			if (playlist_data->previous_queue.size() > playlist_data->song_history_limit) {
@@ -925,12 +944,6 @@ void media_next(void *data)
 
 			pop_queue_media_front(&playlist_data->queue);
 		} else if (playlist_data->end_behavior == END_BEHAVIOR_LOOP) {
-			// const MediaData *media_data = &playlist_data->queue[0];
-
-			// const QueueMediaData new_entry =
-			// 	construct_complete_queue_media_data(media_data->path, media_data->filename, media_data->name,
-			// 				      media_data->ext, media_data->index);
-
 			std::swap(playlist_data->queue[0], playlist_data->queue[1]);
 			std::swap(playlist_data->queue[1], playlist_data->queue[playlist_data->queue.size() - 1]);
 		} else {
