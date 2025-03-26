@@ -24,7 +24,6 @@ void refresh_queue_list(PlaylistData *playlist_data)
 		const MediaData *media_data = nullptr;
 		if (i < playlist_data->all_media.size()) {
 			media_data = &playlist_data->all_media[i];
-			obs_log(LOG_INFO, "Media Data: %s", (*media_data).path.c_str());
 		}
 
 		MediaWidget *media_widget = nullptr;
@@ -370,8 +369,6 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 			for (size_t i = playlist_data->queue.size(); i-- > 0;) {
 				QueueMediaData *queue_media_data = &playlist_data->queue[i];
 				if (queue_media_data->index < playlist_data->all_media.size()) {
-					obs_log(LOG_INFO, "Path: %s, %d", queue_media_data->path.c_str(),
-						queue_media_data->index);
 					MediaData media_data = playlist_data->all_media[queue_media_data->index];
 
 					QueueMediaData new_entry = construct_complete_queue_media_data(
@@ -379,9 +376,6 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 						media_data.index, queue_media_data->media_widget, playlist_data);
 
 					if (queue_media_data->path != new_entry.path) {
-						// obs_log(LOG_INFO, "Path 1: %s, Path 2: %s",
-						// queue_media_data->path.c_str(), new_entry.path.c_str());
-						obs_log(LOG_INFO, "This is doing stuff 1");
 						playlist_data->queue[i] = new_entry;
 						if (changed_queue == false) {
 							changed_queue = true;
@@ -409,7 +403,6 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 					QueueMediaData new_entry = construct_complete_queue_media_data(
 						added_media_data.path, added_media_data.filename, added_media_data.name,
 						added_media_data.ext, added_media_data.index, nullptr, playlist_data);
-					obs_log(LOG_INFO, "This is doing stuff 2");
 
 					playlist_data->queue.push_back(new_entry);
 					if (changed_queue == false) {
@@ -677,28 +670,7 @@ obs_properties_t *playlist_get_properties(void *data)
 {
 	PlaylistData *playlist_data = (PlaylistData *)data;
 
-	// obs_frontend_open_source_properties()
-
-	// playlist_data->properties_ui.;
-
-	// QWidget *properties_window = (QWidget *)obs_frontend_get_main_window();
-
-	// const QObjectList children = properties_window->children();
-
-	// obs_log(LOG_INFO, "Main Window: %s", properties_window->windowTitle().toStdString().c_str());
-	// for (QObject *child : children) {
-	// 	// Cast to QWidget* or any other specific type
-	// 	QWidget *widget = qobject_cast<QWidget *>(child);
-	// 	if (widget) {
-	// 		// Do something with each child widget
-	// 		obs_log(LOG_INFO, "Child Window: %s", widget->windowTitle().toStdString().c_str());
-	// 	}
-	// }
-
-	// obs_log_queue_media_array(LOG_INFO, "IMPORTANT!!!!: ", &playlist_data->queue, 1000000, "    ",
-	// 			  MEDIA_STRINGIFY_TYPE_FILENAME);
 	return make_playlist_properties(playlist_data);
-	// return nullptr;
 }
 
 void playlist_update(void *data, obs_data_t *settings)
@@ -804,7 +776,6 @@ void playlist_video_tick(void *data, float seconds)
 		}
 	}
 	playlist_data->num_channels = audio_output_get_channels(a);
-	// obs_log(LOG_INFO, "Channels: %d", playlist_data->num_channels);
 	pthread_mutex_unlock(&playlist_data->audio_mutex);
 }
 
@@ -945,7 +916,6 @@ void media_next(void *data)
 				construct_complete_media_data(media_data->path, media_data->filename, media_data->name,
 							      media_data->ext, media_data->index);
 
-			obs_log(LOG_INFO, "This is doing stuff 3");
 			playlist_data->previous_queue.push_back(new_entry);
 
 			if (playlist_data->previous_queue.size() > playlist_data->song_history_limit) {
@@ -989,7 +959,7 @@ void media_previous(void *data)
 			playlist_queue_restart(playlist_data);
 		}
 	} else if (playlist_data->end_behavior == END_BEHAVIOR_LOOP) {
-		obs_log(LOG_INFO, "Queue Size: %d", playlist_data->queue.size() - 1);
+		// obs_log(LOG_INFO, "Queue Size: %d", playlist_data->queue.size() - 1);
 		std::swap(playlist_data->queue[playlist_data->queue.size() - 1], playlist_data->queue[0]);
 		playlist_queue_restart(playlist_data);
 	}
