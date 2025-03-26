@@ -497,7 +497,6 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	PlaylistData *playlist_data = (PlaylistData *)bzalloc(sizeof(*playlist_data));
 
 	playlist_data->name = obs_source_get_name(source);
-	obs_log(LOG_INFO, "Source Name: %s", playlist_data->name);
 
 	playlist_data->source = source;
 
@@ -548,9 +547,11 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	update_playlist_data(playlist_data, settings);
 
-	playlist_queue_viewer->playlist_datas->push_back(playlist_data);
+	playlist_queue_viewer->playlist_datas.push_back(playlist_data);
 
-	return playlist_data;
+	obs_log(LOG_INFO, "Playlist Datas Size: %d", playlist_queue_viewer->playlist_datas.size())
+
+		return playlist_data;
 error:
 	playlist_source_destroy(playlist_data);
 	return NULL;
@@ -828,7 +829,6 @@ void playlist_save(void *data, obs_data_t *settings)
 	obs_log(LOG_INFO, "playlist_save");
 
 	playlist_data->name = obs_source_get_name(playlist_data->source);
-	obs_log(LOG_INFO, "Source Name: %s", playlist_data->name);
 	// PlaylistSource *playlist_data = (PlaylistSource *)data;
 	// obs_data_set_int(settings, S_CURRENT_MEDIA_INDEX, playlist_data->current_media_index);
 	// update_current_filename_setting(playlist_data, settings);

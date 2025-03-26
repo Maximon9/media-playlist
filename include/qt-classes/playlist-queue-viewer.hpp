@@ -2,6 +2,7 @@
 #define PLAYLIST_QUEUE_VIEWER_HPP
 
 #include <QWidget>
+#include <QScrollArea>
 #include <QLabel>
 #include <QVBoxLayout>
 #include <obs-module.h>
@@ -16,7 +17,7 @@ private:
 	QVBoxLayout *layout;
 
 public:
-	PlaylistDatas *playlist_datas;
+	PlaylistDatas playlist_datas;
 	explicit PlaylistQueueViewer(QWidget *parent);
 };
 
