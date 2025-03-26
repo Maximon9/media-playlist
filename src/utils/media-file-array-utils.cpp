@@ -60,7 +60,55 @@ MediaData construct_complete_media_data(const std::string path, const std::strin
 	return new_entry;
 }
 
-QueueMediaData load_queue_media_data_from_path(std::string path, size_t index, QWidget *parent_widget)
+void push_queue_media_back(QueueMediaDataArray *media_array, const std::string path, PlaylistData *playlist_data)
+{
+	QueueMediaData entry = load_queue_media_data_from_path(path, 0, playlist_data);
+	media_array->push_back(entry);
+}
+
+void push_queue_media_front(QueueMediaDataArray *media_array, const std::string path, PlaylistData *playlist_data)
+{
+	QueueMediaData entry = load_queue_media_data_from_path(path, 0, playlist_data);
+	media_array->push_front(entry);
+}
+
+void push_queue_media_at(QueueMediaDataArray *media_array, const std::string path, size_t index,
+			 PlaylistData *playlist_data)
+{
+	QueueMediaDataArray::const_iterator it = media_array->cbegin() + index;
+	QueueMediaData entry = load_queue_media_data_from_path(path, 0, playlist_data);
+	media_array->insert(it, entry);
+}
+
+void push_queue_media_media_file_at(QueueMediaDataArray *media_array, QueueMediaData *entry, size_t index)
+{
+	QueueMediaDataArray::const_iterator it = media_array->cbegin() + index;
+	media_array->insert(it, *entry);
+}
+
+void pop_queue_media_back(QueueMediaDataArray *media_array)
+{
+	QueueMediaData *new_entry = &media_array->at(media_array->size() - 1);
+	new_entry->media_widget->remove_widget();
+	media_array->pop_front();
+}
+
+void pop_queue_media_front(QueueMediaDataArray *media_array)
+{
+	QueueMediaData *new_entry = &media_array->at(0);
+	new_entry->media_widget->remove_widget();
+	media_array->pop_front();
+}
+
+void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index)
+{
+	QueueMediaData *new_entry = &media_array->at(index);
+	new_entry->media_widget->remove_widget();
+	QueueMediaDataArray::const_iterator it = media_array->cbegin() + index;
+	media_array->erase(it);
+}
+
+QueueMediaData load_queue_media_data_from_path(std::string path, size_t index, PlaylistData *playlist_data)
 {
 	// Create and insert new MediaData
 	fs::path file_path = path;
@@ -74,14 +122,17 @@ QueueMediaData load_queue_media_data_from_path(std::string path, size_t index, Q
 	// Extract the file extension (including the dot)
 	std::string ext = file_path.extension().string();
 
-	QueueMediaData new_entry = {path, filename, name, ext, index, new MediaWidget(&new_entry, parent_widget)};
+	QueueMediaData new_entry = {path, filename, name,
+				    ext,  index,    new MediaWidget(&new_entry, playlist_data->playlist_widget)};
+
+	playlist_data->playlist_widget->mediaLayout->addWidget(new_entry.media_widget);
 
 	return new_entry;
 }
 
 QueueMediaData construct_complete_queue_media_data(const std::string path, const std::string filename,
 						   const std::string name, const std::string ext, size_t index,
-						   MediaWidget *media_widget, QWidget *parent)
+						   MediaWidget *media_widget, PlaylistData *playlist_data)
 {
 	// Create and insert new MediaData
 	QueueMediaData new_entry = {};
@@ -90,10 +141,11 @@ QueueMediaData construct_complete_queue_media_data(const std::string path, const
 	new_entry.name = name;
 	new_entry.ext = ext;
 	if (media_widget == nullptr) {
-		new_entry.media_widget = new MediaWidget(&new_entry, parent);
+		new_entry.media_widget = new MediaWidget(&new_entry, playlist_data->playlist_widget);
+		playlist_data->playlist_widget->mediaLayout->addWidget(media_widget);
 	} else {
 		new_entry.media_widget = media_widget;
-		new_entry.media_widget->media_file_data = &new_entry;
+		new_entry.media_widget->media_data = &new_entry;
 	}
 	return new_entry;
 }

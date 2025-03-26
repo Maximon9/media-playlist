@@ -11,9 +11,9 @@ typedef struct QueueMediaData QueueMediaData;
 class MediaWidget : public QWidget {
 public:
 	QLabel *label;
-	const QueueMediaData *media_file_data;
-	explicit MediaWidget(const QueueMediaData *media_file_data, QWidget *parent = nullptr);
-	void update_media_file_data();
+	const QueueMediaData *media_data;
+	explicit MediaWidget(const QueueMediaData *media_data, QWidget *parent = nullptr);
+	void update_media_data();
 	void remove_widget();
 };
 

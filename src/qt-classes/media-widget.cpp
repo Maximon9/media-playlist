@@ -2,18 +2,18 @@
 
 #include "../../include/qt-classes/media-widget.hpp"
 
-MediaWidget::MediaWidget(const QueueMediaData *media_file_data, QWidget *parent) : QWidget(parent)
+MediaWidget::MediaWidget(const QueueMediaData *media_data, QWidget *parent) : QWidget(parent)
 {
-	this->media_file_data = media_file_data;
+	this->media_data = media_data;
 	QVBoxLayout *layout = new QVBoxLayout(this);
-	label = new QLabel(QString::fromStdString(media_file_data->name), this);
+	label = new QLabel(QString::fromStdString(media_data->name), this);
 	layout->addWidget(label);
 	setLayout(layout);
 }
 
-void MediaWidget::update_media_file_data()
+void MediaWidget::update_media_data()
 {
-	label->setText(QString::fromStdString(media_file_data->name));
+	label->setText(QString::fromStdString(media_data->name));
 }
 
 void MediaWidget::remove_widget()

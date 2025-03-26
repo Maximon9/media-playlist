@@ -6,6 +6,7 @@
 #include <util/dstr.h>
 #include <filesystem>
 #include "../types/media-file-data-types.hpp"
+#include <../../include/types/playlist-source-types.hpp>
 #include "../utils/enum-utils.hpp"
 
 // using namespace std;
@@ -30,11 +31,24 @@ MediaData load_media_data_from_path(std::string path, size_t index);
 MediaData construct_complete_media_data(const std::string path, const std::string filename, const std::string name,
 					const std::string ext, size_t index);
 
-QueueMediaData load_queue_media_data_from_path(QWidget *parent_widget, std::string path, size_t index);
+void push_queue_media_back(QueueMediaDataArray *media_array, const std::string path, PlaylistData *playlist_data);
+
+void push_queue_media_front(QueueMediaDataArray *media_array, const std::string path, PlaylistData *playlist_data);
+
+void push_queue_media_at(QueueMediaDataArray *media_array, const std::string path, size_t index,
+			 PlaylistData *playlist_data);
+
+void pop_queue_media_back(QueueMediaDataArray *media_array);
+
+void pop_queue_media_front(QueueMediaDataArray *media_array);
+
+void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index);
+
+QueueMediaData load_queue_media_data_from_path(std::string path, size_t index, PlaylistData *playlist_data);
 
 QueueMediaData construct_complete_queue_media_data(const std::string path, const std::string filename,
 						   const std::string name, const std::string ext, size_t index,
-						   MediaWidget *media_widget, QWidget *parent);
+						   MediaWidget *media_widget, PlaylistData *playlist_data);
 
 std::string obs_array_to_string(obs_data_array_t *array);
 
