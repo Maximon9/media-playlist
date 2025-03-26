@@ -140,6 +140,7 @@ QueueMediaData construct_complete_queue_media_data(const std::string path, const
 	new_entry.filename = filename;
 	new_entry.name = name;
 	new_entry.ext = ext;
+	new_entry.index = index;
 	if (media_widget == nullptr) {
 		new_entry.media_widget = new MediaWidget(&new_entry, playlist_data->playlist_widget);
 		playlist_data->playlist_widget->mediaLayout->addWidget(media_widget);

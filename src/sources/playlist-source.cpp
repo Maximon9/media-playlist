@@ -353,6 +353,8 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 					}
 				} else {
 					push_media_media_file_at(&playlist_data->all_media, &new_entry, entry_index);
+					// obs_log(LOG_INFO, "Media Entry: %s, %d", new_entry.path.c_str(),
+					// 	new_entry.index);
 					added_medias.push_back(new_entry);
 				}
 				entry_index++;
@@ -368,6 +370,8 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 			for (size_t i = playlist_data->queue.size(); i-- > 0;) {
 				QueueMediaData *queue_media_data = &playlist_data->queue[i];
 				if (queue_media_data->index < playlist_data->all_media.size()) {
+					obs_log(LOG_INFO, "Path: %s, %d", queue_media_data->path.c_str(),
+						queue_media_data->index);
 					MediaData media_data = playlist_data->all_media[queue_media_data->index];
 
 					QueueMediaData new_entry = construct_complete_queue_media_data(
@@ -375,8 +379,8 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 						media_data.index, queue_media_data->media_widget, playlist_data);
 
 					if (queue_media_data->path != new_entry.path) {
-						obs_log(LOG_INFO, "Path 1: %s, Path 2: %s",
-							queue_media_data->path.c_str(), new_entry.path.c_str());
+						// obs_log(LOG_INFO, "Path 1: %s, Path 2: %s",
+						// queue_media_data->path.c_str(), new_entry.path.c_str());
 						obs_log(LOG_INFO, "This is doing stuff 1");
 						playlist_data->queue[i] = new_entry;
 						if (changed_queue == false) {
