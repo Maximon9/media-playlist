@@ -2,6 +2,7 @@
 #define PLAYLIST_QUEUE_VIEWER_HPP
 
 #include <QWidget>
+#include <QLabel>
 #include <QVBoxLayout>
 #include <obs-module.h>
 #include <plugin-support.h>

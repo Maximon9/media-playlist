@@ -1,5 +1,3 @@
-#include <QWidget>
-#include <QVBoxLayout>
 #include "../include/qt-classes/playlist-queue-viewer.hpp"
 
 PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent) : QWidget(parent)
@@ -7,6 +5,8 @@ PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent) : QWidget(parent)
 	this->playlist_datas = {};
 
 	this->layout = new QVBoxLayout(this);
+
+	QLabel label = QLabel("Hi, this is my custom dock", this);
 
 	setLayout(this->layout);
 }
