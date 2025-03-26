@@ -7,8 +7,11 @@
 #include <util/deque.h>
 #include "./media-file-data-types.hpp"
 #include "../include/utils/enum-utils.hpp"
+#include "../include/qt-classes/playlist-widget.hpp"
 
-typedef struct {
+class PlaylistWidget;
+
+typedef struct PlaylistData {
 #pragma region Public
 	int queue_list_size;
 	MediaFileDataArray all_media;
@@ -25,6 +28,7 @@ typedef struct {
 	bool debug;
 #pragma endregion
 #pragma region Private
+	PlaylistWidget *playlist_widget;
 	std::string name;
 	bool all_media_initialized;
 	obs_data_t *media_source_settings;

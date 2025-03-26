@@ -1,9 +1,9 @@
 #pragma region Main
 
 #include "../../include/qt-classes/playlist-widget.hpp"
-#include "../../include/qt-classes/playlist-media-widget.hpp"
+#include "../../include/qt-classes/media-widget.hpp"
 
-PlaylistWidget::PlaylistWidget(const PlaylistData *playlist, QWidget *parent) : QWidget(parent), expanded(false)
+PlaylistWidget::PlaylistWidget(PlaylistData *playlist, QWidget *parent) : QWidget(parent), expanded(false)
 {
 	layout = new QVBoxLayout(this);
 	toggleButton = new QPushButton(QString::fromStdString(playlist->name), this);

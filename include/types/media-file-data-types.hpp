@@ -3,8 +3,10 @@
 
 #include <string>
 #include <deque>
+#include "../qt-classes/media-widget.hpp"
 
 typedef struct {
+	MediaWidget *media_widget;
 	std::string path;
 	std::string filename;
 	std::string name;

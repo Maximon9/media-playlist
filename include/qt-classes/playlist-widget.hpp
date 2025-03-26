@@ -6,6 +6,8 @@
 #include <QVBoxLayout>
 #include "../include/types/playlist-source-types.hpp"
 
+typedef struct PlaylistData PlaylistData;
+
 class PlaylistWidget : public QWidget {
 private:
 	QVBoxLayout *layout;
@@ -15,7 +17,8 @@ private:
 	bool expanded;
 
 public:
-	explicit PlaylistWidget(const PlaylistData *playlist, QWidget *parent = nullptr);
+	PlaylistData *playlist;
+	explicit PlaylistWidget(PlaylistData *playlist, QWidget *parent = nullptr);
 	void toggleMediaVisibility();
 };
 #endif // PLAYLIST_WIDGET_HPP

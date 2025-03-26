@@ -47,7 +47,7 @@ MediaFileData create_media_file_data_from_path(std::string path, size_t index)
 	// Extract the file extension (including the dot)
 	std::string ext = file_path.extension().string();
 
-	MediaFileData new_entry = {path, filename, name, ext, index};
+	MediaFileData new_entry = {nullptr, path, filename, name, ext, index};
 	return new_entry;
 }
 
@@ -70,7 +70,7 @@ MediaFileData create_media_file_data_with_all_info(const std::string path, const
 						   const std::string name, const std::string ext, size_t index)
 {
 	// Create and insert new MediaFileData
-	MediaFileData new_entry = {path, filename, name, ext, index};
+	MediaFileData new_entry = {nullptr, path, filename, name, ext, index};
 	return new_entry;
 }
 
