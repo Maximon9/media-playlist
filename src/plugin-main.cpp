@@ -31,13 +31,17 @@ OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 // Called when the plugin is loaded
 bool obs_module_load(void)
 {
+	obs_log(LOG_INFO, "Loading Playlists");
+
 	QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
 	playlist_queue_viewer = new PlaylistQueueViewer(obs_main_window);
 
 	if (obs_frontend_add_dock_by_id("playlist_queue_viewer_maximon9", "Playlist Queue Viewer",
 					playlist_queue_viewer) == false) {
+		obs_log(LOG_INFO, "We deleted playlist_queue_viewer which is wrong");
 		delete playlist_queue_viewer;
 	}
+	obs_log(LOG_INFO, "Loaded Playlist Queue Viewer: %s", playlist_queue_viewer == nullptr ? "true" : "false");
 
 	struct obs_source_info playlist_source_template{};
 
