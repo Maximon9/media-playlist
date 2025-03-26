@@ -11,8 +11,10 @@ typedef struct MediaFileData MediaFileData;
 class MediaWidget : public QWidget {
 public:
 	QLabel *label;
+	const MediaFileData *media_file_data;
 	explicit MediaWidget(const MediaFileData *media_file_data, QWidget *parent = nullptr);
 	void update_media_file_data();
+	void remove_media_widget();
 };
 
 #endif // MEDIA_WIDGET_HPP
