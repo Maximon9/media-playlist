@@ -13,6 +13,8 @@ PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent) : QWidget(parent)
 	setLayout(this->layout);
 }
 
+PlaylistQueueViewer *playlist_queue_viewer = nullptr;
+
 /*
 #include "../../include/qt-classes/playlist-queue-viewer.hpp"
 #include "../../include/qt-classes/playlist-widget.hpp"

@@ -21,7 +21,7 @@ public:
 	explicit PlaylistQueueViewer(QWidget *parent);
 };
 
-static PlaylistQueueViewer *playlist_queue_viewer;
+extern PlaylistQueueViewer *playlist_queue_viewer;
 
 /*
 #include <QWidget>
