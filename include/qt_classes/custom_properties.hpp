@@ -14,6 +14,10 @@
 class PlaylistQueueViewer : public QDockWidget {
 	// Q_OBJECT
 private:
+	QWidget *parent;
+	QWidget *mainWidget;
+	QVBoxLayout *layout;
+	QLabel *label;
 	// obs_data_t *settings;
 	// QSpinBox queue_list_size;
 	// MediaFileDataArray all_media;
@@ -30,6 +34,7 @@ private:
 	// bool debug;
 
 public:
+	explicit PlaylistQueueViewer();
 	explicit PlaylistQueueViewer(/* const QString &title,  */ QWidget *parent);
 
 	// Destructor: This is called when an object is destroyed.

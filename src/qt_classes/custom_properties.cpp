@@ -4,30 +4,50 @@
 #include "../include/qt_classes/custom_properties.hpp"
 
 // CustomProperties::CustomProperties() : QDialog() {}
-PlaylistQueueViewer::PlaylistQueueViewer(/* const QString &title,  */ QWidget *parent)
-	: QDockWidget("Playlist Media Queue", parent)
-{
-	QWidget *mainWidget = new QWidget(this);
+PlaylistQueueViewer::PlaylistQueueViewer() : PlaylistQueueViewer(this->parent) {}
 
-	bool set_layout = false;
+PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent = nullptr) : QDockWidget(parent)
+{
+	/*
+	QWidget *mainWidget = new QWidget(this);
 
 	QVBoxLayout *layout = new QVBoxLayout(mainWidget);
 
 	QLabel *label = new QLabel("Hello from Custom Dock!", mainWidget);
-
-	label->setAlignment(Qt::AlignCenter);
-
 	layout->addWidget(label);
 
 	setVisible(false);
 	setFloating(true);
 	resize(300, 300);
 
-	mainWidget->setLayout(layout);
-
+	if (mainWidget->layout() == nullptr) {
+		mainWidget->setLayout(layout);
+	}
 	setWidget(mainWidget);
+	*/
+	// this->mainWidget = new QWidget(this);
+	// this->parent = parent;
+
+	// this->layout = new QVBoxLayout(this->mainWidget);
+
+	// this->label = new QLabel("Hello from Custom Dock!", this->mainWidget);
+
+	// this->label->setAlignment(Qt::AlignCenter);
+
+	// this->layout->addWidget(label);
+
+	// setVisible(false);
+	// setFloating(true);
+	// resize(300, 300);
+
+	// this->mainWidget->setLayout(this->layout);
 }
 
-PlaylistQueueViewer::~PlaylistQueueViewer() {}
+PlaylistQueueViewer::~PlaylistQueueViewer()
+{
+	delete this->label;
+	delete this->layout;
+	delete this->mainWidget;
+}
 
 #endif // CUSTOM_PROPERTIES_DIALOG_HPP
