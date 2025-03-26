@@ -907,67 +907,68 @@ void media_next(void *data)
 
 	pthread_mutex_lock(&playlist_data->mutex);
 
-	// if (playlist_data->queue.size() > 0) {
-	// 	if (uses_song_history_limit(playlist_data) == true) {
-	// 		const MediaData *media_data = &playlist_data->queue[0];
+	if (playlist_data->queue.size() > 0) {
+		if (uses_song_history_limit(playlist_data) == true) {
+			const MediaData *media_data = &playlist_data->queue[0];
 
-	// 		const MediaData new_entry =
-	// 			construct_complete_media_data(media_data->path, media_data->filename, media_data->name,
-	// 						      media_data->ext, media_data->index);
+			const MediaData new_entry =
+				construct_complete_media_data(media_data->path, media_data->filename, media_data->name,
+							      media_data->ext, media_data->index);
 
-	// 		playlist_data->previous_queue.push_back(new_entry);
+			playlist_data->previous_queue.push_back(new_entry);
 
-	// 		if (playlist_data->previous_queue.size() > playlist_data->song_history_limit) {
-	// 			playlist_data->previous_queue.pop_back();
-	// 		}
-	// 		pop_queue_media_front(&playlist_data->queue);
-	// 	} else if (playlist_data->end_behavior == END_BEHAVIOR_LOOP) {
-	// 		// const MediaData *media_data = &playlist_data->queue[0];
+			if (playlist_data->previous_queue.size() > playlist_data->song_history_limit) {
+				playlist_data->previous_queue.pop_back();
+			}
+			pop_queue_media_front(&playlist_data->queue);
+		} else if (playlist_data->end_behavior == END_BEHAVIOR_LOOP) {
+			// const MediaData *media_data = &playlist_data->queue[0];
 
-	// 		// const QueueMediaData new_entry =
-	// 		// 	construct_complete_queue_media_data(media_data->path, media_data->filename, media_data->name,
-	// 		// 				      media_data->ext, media_data->index);
+			// const QueueMediaData new_entry =
+			// 	construct_complete_queue_media_data(media_data->path, media_data->filename, media_data->name,
+			// 				      media_data->ext, media_data->index);
 
-	// 		// std::swap(playlist_data->queue[0], playlist_data->queue[1]);
-	// 		// std::swap(playlist_data->queue[1], playlist_data->queue[playlist_data->queue.size() - 1]);
-	// 	}
+			std::swap(playlist_data->queue[0], playlist_data->queue[1]);
+			std::swap(playlist_data->queue[1], playlist_data->queue[playlist_data->queue.size() - 1]);
+		}
 
-	// 	playlist_queue_restart(playlist_data);
-	// }
+		playlist_queue_restart(playlist_data);
+	}
 
-	// // obs_source_update_properties(playlist_data->source);
+	// obs_source_update_properties(playlist_data->source);
 
 	pthread_mutex_unlock(&playlist_data->mutex);
 }
 
 void media_previous(void *data)
 {
-	// PlaylistData *playlist_data = (PlaylistData *)data;
+	PlaylistData *playlist_data = (PlaylistData *)data;
 
-	// pthread_mutex_lock(&playlist_data->mutex);
+	pthread_mutex_lock(&playlist_data->mutex);
 
-	// if (uses_song_history_limit(playlist_data) == true) {
-	// 	if (playlist_data->previous_queue.size() > 0) {
-	// 		const MediaData *media_data = &playlist_data->previous_queue[0];
+	if (uses_song_history_limit(playlist_data) == true) {
+		if (playlist_data->previous_queue.size() > 0) {
+			const MediaData *media_data = &playlist_data->previous_queue[0];
 
-	// 		const MediaData new_entry =
-	// 			construct_complete_media_data(media_data->path, media_data->filename, media_data->name,
-	// 						      media_data->ext, media_data->index);
+			const QueueMediaData new_entry = construct_complete_queue_media_data(
+				media_data->path, media_data->filename, media_data->name, media_data->ext,
+				media_data->index, nullptr, playlist_data);
 
-	// 		playlist_data->previous_queue.erase(playlist_data->previous_queue.begin());
+			playlist_data->previous_queue.erase(playlist_data->previous_queue.begin());
 
-	// 		playlist_data->queue.push_front(new_entry);
+			playlist_data->queue.push_front(new_entry);
 
-	// 		playlist_queue_restart(playlist_data);
-	// 	}
-	// } else if (playlist_data->end_behavior == END_BEHAVIOR_LOOP) {
-	// 	obs_log(LOG_INFO, "Queue Size: %d", playlist_data->queue.size() - 1);
-	// 	std::swap(playlist_data->queue[playlist_data->queue.size() - 1], playlist_data->queue[0]);
-	// 	playlist_queue_restart(playlist_data);
-	// }
+			playlist_queue_restart(playlist_data);
+		}
+	} else if (playlist_data->end_behavior == END_BEHAVIOR_LOOP) {
+		obs_log(LOG_INFO, "Queue Size: %d", playlist_data->queue.size() - 1);
+		std::swap(playlist_data->queue[playlist_data->queue.size() - 1], playlist_data->queue[0]);
+		playlist_queue_restart(playlist_data);
+	}
 
-	// pthread_mutex_unlock(&playlist_data->mutex);
 	// obs_source_update_properties(playlist_data->source);
+
+	pthread_mutex_unlock(&playlist_data->mutex);
 }
 
 int64_t media_get_duration(void *data)

@@ -28,17 +28,53 @@ OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 	obs_log(LOG_INFO, "Test Event: %d", event);
 } */
 
+typedef struct BasicBruv {
+	int not_ptr;
+	int *ptr;
+} BasicBruv;
+
+typedef std::deque<BasicBruv> BasicBruvArray;
+
 // Called when the plugin is loaded
 bool obs_module_load(void)
 {
-	obs_log(LOG_INFO, "Loading Playlists");
+	// BasicBruvArray basic_bruv_array_1{};
+
+	// BasicBruv basic_bruv_1{};
+
+	// int this_int_1 = 9;
+
+	// basic_bruv_1.not_ptr = 8;
+	// basic_bruv_1.ptr = &this_int_1;
+
+	// basic_bruv_array_1.push_back(basic_bruv_1);
+
+	// BasicBruvArray basic_bruv_array_2{};
+
+	// BasicBruv basic_bruv_2{};
+
+	// int this_int_2 = 19;
+
+	// basic_bruv_2.not_ptr = 18;
+	// basic_bruv_2.ptr = &this_int_2;
+
+	// basic_bruv_array_2.push_back(basic_bruv_2);
+
+	// obs_log(LOG_INFO, "Basic Bruv 1: %d, %d", *basic_bruv_array_1[0].ptr, basic_bruv_array_1[0].not_ptr);
+	// obs_log(LOG_INFO, "Basic Bruv 2: %d, %d", *basic_bruv_array_2[0].ptr, basic_bruv_array_2[0].not_ptr);
+
+	// std::swap(basic_bruv_array_1[0], basic_bruv_array_2[0]);
+
+	// obs_log(LOG_INFO, "Basic Bruv 1: %d, %d", *basic_bruv_array_1[0].ptr, basic_bruv_array_1[0].not_ptr);
+	// obs_log(LOG_INFO, "Basic Bruv 2: %d, %d", *basic_bruv_array_2[0].ptr, basic_bruv_array_2[0].not_ptr);
+
+	// obs_log(LOG_INFO, "Loading Playlists");
 
 	QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
 	playlist_queue_viewer = new PlaylistQueueViewer(obs_main_window);
 
 	if (obs_frontend_add_dock_by_id("playlist_queue_viewer_maximon9", "Playlist Queue Viewer",
 					playlist_queue_viewer) == false) {
-		obs_log(LOG_INFO, "We deleted playlist_queue_viewer which is wrong");
 		delete playlist_queue_viewer;
 	}
 
