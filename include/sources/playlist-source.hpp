@@ -4,6 +4,7 @@
 #include <obs-module.h>
 #include <obs-frontend-api.h>
 #include <plugin-support.h>
+#include "../include/utils/media-file-array-utils.hpp"
 #include "../include/utils/utils.hpp"
 #include "../include/qt-classes/playlist-queue-viewer.hpp"
 

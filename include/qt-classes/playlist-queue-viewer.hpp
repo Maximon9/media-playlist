@@ -1,13 +1,13 @@
 #ifndef PLAYLIST_QUEUE_VIEWER_HPP
 #define PLAYLIST_QUEUE_VIEWER_HPP
 
+#include <obs-module.h>
+#include <plugin-support.h>
+#include <deque>
 #include <QWidget>
 #include <QScrollArea>
 #include <QLabel>
 #include <QVBoxLayout>
-#include <obs-module.h>
-#include <plugin-support.h>
-#include <deque>
 #include "../include/types/playlist-source-types.hpp"
 
 typedef std::deque<PlaylistData *> PlaylistDatas;

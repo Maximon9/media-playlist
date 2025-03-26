@@ -1,11 +1,12 @@
 #ifndef PLAYLIST_SOURCE_TYPES_HPP
 #define PLAYLIST_SOURCE_TYPES_HPP
 
+#include <obs-module.h>
+#include <plugin-support.h>
 #include <util/threading.h>
 #include <util/deque.h>
-#include "./media-file-array-utils.hpp"
+#include "./media-file-data-types.hpp"
 #include "../include/utils/enum-utils.hpp"
-#include "../../include/qt-classes/playlist-queue-viewer.hpp"
 
 typedef struct {
 #pragma region Public
