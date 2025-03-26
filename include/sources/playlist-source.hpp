@@ -3,50 +3,8 @@
 
 #include <obs-module.h>
 #include <obs-frontend-api.h>
-#include <util/threading.h>
-#include <util/deque.h>
 #include <plugin-support.h>
-#include "../include/utils/utils.hpp"
-#include "../include/utils/enum-utils.hpp"
-#include "../include/qt_classes/custom_properties.hpp"
-
-#pragma region Custom Types
-
-static PlaylistQueueViewer *playlist_queue_viewer;
-
-typedef struct {
-#pragma region Public
-	int queue_list_size;
-	MediaFileDataArray all_media;
-	obs_source_t *source;
-	obs_source_t *media_source;
-	bool shuffle_queue;
-	e_StartBehavior start_behavior;
-	e_EndBehavior end_behavior;
-	int loop_index;
-	bool infinite;
-	int loop_count;
-	e_LoopEndBehavior loop_end_behavior;
-	int song_history_limit;
-	bool debug;
-#pragma endregion
-#pragma region Private
-	bool all_media_initialized;
-	obs_data_t *media_source_settings;
-	MediaFileDataArray queue;
-	MediaFileDataArray previous_queue;
-	// bool run;
-	// bool paused;
-	pthread_mutex_t mutex;
-	struct deque audio_data[MAX_AUDIO_CHANNELS];
-	struct deque audio_frames;
-	struct deque audio_timestamps;
-	size_t num_channels;
-	pthread_mutex_t audio_mutex;
-#pragma endregion
-} PlaylistSource;
-
-#pragma endregion
+#include "../include/qt-classes/custom-properties.hpp"
 
 #pragma region Media Functions
 void playlist_global_signal_callback(void *data, const char *signal, calldata_t *callback_data);

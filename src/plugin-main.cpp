@@ -31,8 +31,8 @@ OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 // Called when the plugin is loaded
 bool obs_module_load(void)
 {
-	// QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
-	playlist_queue_viewer = new PlaylistQueueViewer();
+	QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
+	playlist_queue_viewer = new PlaylistQueueViewer(obs_main_window);
 
 	// playlist_queue_viewer->show();
 
@@ -112,10 +112,10 @@ void obs_module_unload(void)
 	// 	obs_log(LOG_INFO, "Media source released successfully");
 	// }
 	// da_free(test_array);
-	if (playlist_queue_viewer != nullptr) {
-		delete playlist_queue_viewer;
-		playlist_queue_viewer = nullptr;
-	}
+	// if (playlist_queue_viewer != nullptr) {
+	// 	delete playlist_queue_viewer;
+	// 	playlist_queue_viewer = nullptr;
+	// }
 	obs_log(LOG_INFO, "%s plugin unloaded %s", PLUGIN_NAME, PLUGIN_VERSION);
 }
 

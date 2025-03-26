@@ -10,12 +10,16 @@
 #include <QPushButton>
 #include <obs-module.h>
 #include <plugin-support.h>
+#include <deque>
+#include "../include/source-types/playlist-source-types.hpp"
 
-class PlaylistQueueViewer : public QDockWidget {
+typedef std::deque<PlaylistSource> PlaylistSources;
+
+class PlaylistQueueViewer : public QWidget {
 	// Q_OBJECT
 private:
+	PlaylistSources *playlist_sources;
 	QWidget *parent;
-	QWidget *mainWidget;
 	QVBoxLayout *layout;
 	QLabel *label;
 	// obs_data_t *settings;
@@ -34,9 +38,10 @@ private:
 	// bool debug;
 
 public:
-	explicit PlaylistQueueViewer();
 	explicit PlaylistQueueViewer(/* const QString &title,  */ QWidget *parent);
 
 	// Destructor: This is called when an object is destroyed.
 	~PlaylistQueueViewer();
 };
+
+static PlaylistQueueViewer *playlist_queue_viewer;
