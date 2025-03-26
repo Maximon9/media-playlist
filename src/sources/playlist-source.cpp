@@ -494,6 +494,7 @@ const char *playlist_source_name(void *data)
 
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 {
+	obs_log(LOG_INFO, "Playst Has Been Created");
 	PlaylistData *playlist_data = (PlaylistData *)bzalloc(sizeof(*playlist_data));
 
 	playlist_data->source = source;
@@ -544,6 +545,8 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 		goto error;
 
 	update_playlist_data(playlist_data, settings);
+
+	playlist_queue_viewer->playlist_datas->push_back(playlist_data);
 
 	return playlist_data;
 error:

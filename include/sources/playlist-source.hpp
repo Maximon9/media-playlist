@@ -4,7 +4,7 @@
 #include <obs-module.h>
 #include <obs-frontend-api.h>
 #include <plugin-support.h>
-#include "../include/qt-classes/custom-properties.hpp"
+#include "../include/qt-classes/playlist-queue-viewer.hpp"
 
 #pragma region Media Functions
 void playlist_global_signal_callback(void *data, const char *signal, calldata_t *callback_data);
