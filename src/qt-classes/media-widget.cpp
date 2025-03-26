@@ -18,9 +18,14 @@ void MediaWidget::update_media_file_data()
 
 void MediaWidget::remove_widget()
 {
-	QWidget *parent = parent;
-	QBoxLayout *layout = qobject_cast<QBoxLayout *>(parent->layout());
-	layout->removeWidget(this);
+	QWidget *parent_widget = parentWidget();
+	if (parent_widget) {
+		QLayout *layout = parent_widget->layout();
+		if (layout) {
+			layout->removeWidget(this);
+		}
+	}
+	deleteLater();
 }
 
 #pragma endregion

@@ -539,17 +539,24 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	// playlist_data->properties_ui = new CustomProperties(settings, properties_window);
 
 	// pthread_mutex_init_value(&playlist_data->mutex);
-	if (pthread_mutex_init(&playlist_data->mutex, NULL) != 0)
+	if (pthread_mutex_init(&playlist_data->mutex, NULL) != 0) {
 		goto error;
+	}
 
 	// pthread_mutex_init_value(&playlist_data->audio_mutex);
-	if (pthread_mutex_init(&playlist_data->audio_mutex, NULL) != 0)
+	if (pthread_mutex_init(&playlist_data->audio_mutex, NULL) != 0) {
 		goto error;
+	}
 
 	update_playlist_data(playlist_data, settings);
 
 	playlist_data->playlist_widget = new PlaylistWidget(playlist_data, playlist_queue_viewer);
 	playlist_queue_viewer->contentLayout->addWidget(playlist_data->playlist_widget);
+
+	// obs_log(LOG_INFO, "Layout 1: %s", playlist_queue_viewer->contentLayout->objectName().toStdString().c_str());
+
+	// QWidget *parent_widget = qobject_cast<QWidget *>(playlist_data->playlist_widget->parent());
+	// obs_log(LOG_INFO, "Layout 2: %s", parent_widget->layout()->objectName().toStdString().c_str());
 
 	playlist_queue_viewer->playlist_datas.push_back(playlist_data);
 
@@ -561,6 +568,7 @@ error:
 
 void playlist_source_destroy(void *data)
 {
+	obs_log(LOG_INFO, "Destroying Playlist");
 	PlaylistData *playlist_data = (PlaylistData *)data;
 
 	if (playlist_data->media_source != NULL) {
@@ -577,6 +585,11 @@ void playlist_source_destroy(void *data)
 	deque_free(&playlist_data->audio_timestamps);
 	pthread_mutex_destroy(&playlist_data->mutex);
 	pthread_mutex_destroy(&playlist_data->audio_mutex);
+
+	if (playlist_data->playlist_widget != nullptr) {
+		// playlist_queue_viewer->contentLayout->removeWidget(playlist_data->playlist_widget);
+		playlist_data->playlist_widget->remove_widget();
+	}
 
 	// free_media_array(&playlist_data->queue);
 	// free_media_array(&playlist_data->previous_queue);
