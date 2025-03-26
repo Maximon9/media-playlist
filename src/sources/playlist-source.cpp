@@ -667,6 +667,8 @@ obs_properties_t *playlist_get_properties(void *data)
 	// 	}
 	// }
 
+	obs_log_queue_media_array(LOG_INFO, "IMORTANT!!!!: ", &playlist_data->queue, 1000000, "    ",
+				  MEDIA_STRINGIFY_TYPE_FILENAME);
 	return make_playlist_properties(playlist_data);
 	// return nullptr;
 }
@@ -920,6 +922,7 @@ void media_next(void *data)
 			if (playlist_data->previous_queue.size() > playlist_data->song_history_limit) {
 				playlist_data->previous_queue.pop_back();
 			}
+
 			pop_queue_media_front(&playlist_data->queue);
 		} else if (playlist_data->end_behavior == END_BEHAVIOR_LOOP) {
 			// const MediaData *media_data = &playlist_data->queue[0];
@@ -930,6 +933,8 @@ void media_next(void *data)
 
 			std::swap(playlist_data->queue[0], playlist_data->queue[1]);
 			std::swap(playlist_data->queue[1], playlist_data->queue[playlist_data->queue.size() - 1]);
+		} else {
+			pop_queue_media_front(&playlist_data->queue);
 		}
 
 		playlist_queue_restart(playlist_data);

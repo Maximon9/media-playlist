@@ -59,15 +59,17 @@ bool valid_extension(const std::string *ext);
 // void obs_data_media_array_retain(MediaDataArray *media_file_data_array, obs_data_array_t *obs_playlist);
 
 // Turns the media array into a string
-const char *stringify_media_array(const MediaDataArray *media_array, size_t threshold, const std::string *indent,
+const char *stringify_media_array(const MediaDataArray *media_array, size_t threshold, const std::string indent,
 				  e_MediaStringifyTYPE media_stringify_type);
 
-const char *stringify_media_queue_array(const MediaDataArray *media_array, int queue_limit, const std::string indent,
-					e_MediaStringifyTYPE media_stringify_type);
+const char *stringify_queue_media_array(const QueueMediaDataArray *media_array, int queue_limit,
+					const std::string indent, e_MediaStringifyTYPE media_stringify_type);
 
-// Logs the media array in the obs log files
 void obs_log_media_array(int log_level, std::string format, const MediaDataArray *media_array, size_t threshold,
 			 const std::string indent, e_MediaStringifyTYPE media_stringify_type);
+
+void obs_log_queue_media_array(int log_level, std::string format, const QueueMediaDataArray *media_array,
+			       int queue_limit, const std::string indent, e_MediaStringifyTYPE media_stringify_type);
 
 bool compare_media_file_data(const MediaData *data_1, const MediaData *data_2);
 

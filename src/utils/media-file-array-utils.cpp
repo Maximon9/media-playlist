@@ -336,8 +336,8 @@ const char *stringify_media_array(const MediaDataArray *media_array, size_t thre
 
 	return result.c_str(); // Return the compact  std::string  if it's within the threshold
 }
-const char *stringify_media_queue_array(const MediaDataArray *media_array, int queue_limit, const std::string indent,
-					e_MediaStringifyTYPE media_stringify_type)
+const char *stringify_queue_media_array(const QueueMediaDataArray *media_array, int queue_limit,
+					const std::string indent, e_MediaStringifyTYPE media_stringify_type)
 {
 	size_t queue_size_list = (size_t)(queue_limit);
 
@@ -401,6 +401,14 @@ void obs_log_media_array(int log_level, std::string format, const MediaDataArray
 			 const std::string indent, e_MediaStringifyTYPE media_stringify_type)
 {
 	std::string result = stringify_media_array(media_array, threshold, indent, media_stringify_type);
+
+	obs_log(log_level, (format + result).c_str());
+}
+
+void obs_log_queue_media_array(int log_level, std::string format, const QueueMediaDataArray *media_array,
+			       int queue_limit, const std::string indent, e_MediaStringifyTYPE media_stringify_type)
+{
+	std::string result = stringify_queue_media_array(media_array, queue_limit, indent, media_stringify_type);
 
 	obs_log(log_level, (format + result).c_str());
 }
