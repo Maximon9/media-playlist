@@ -41,7 +41,6 @@ bool obs_module_load(void)
 		obs_log(LOG_INFO, "We deleted playlist_queue_viewer which is wrong");
 		delete playlist_queue_viewer;
 	}
-	obs_log(LOG_INFO, "Loaded Playlist Queue Viewer: %s", playlist_queue_viewer == nullptr ? "true" : "false");
 
 	struct obs_source_info playlist_source_template{};
 

@@ -494,11 +494,6 @@ const char *playlist_source_name(void *data)
 
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 {
-	obs_log(LOG_INFO, "Created Playlist Before");
-	obs_log(LOG_INFO, "Created Playlist: %s", playlist_queue_viewer == nullptr ? "true" : "false");
-	// obs_log(LOG_INFO, "Created Playlist: %s", playlist_queue_viewer->windowTitle().toStdString().c_str());
-	obs_log(LOG_INFO, "Created Playlist After");
-
 	PlaylistData *playlist_data = (PlaylistData *)bzalloc(sizeof(*playlist_data));
 
 	playlist_data->name = obs_source_get_name(source);
