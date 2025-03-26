@@ -4,10 +4,15 @@
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QLabel>
+#include "../types/media-file-data-types.hpp"
+
+typedef struct MediaFileData MediaFileData;
 
 class MediaWidget : public QWidget {
 public:
-	explicit MediaWidget(const QString &mediaName, QWidget *parent = nullptr);
+	QLabel *label;
+	explicit MediaWidget(const MediaFileData *media_file_data, QWidget *parent = nullptr);
+	void update_media_file_data();
 };
 
 #endif // MEDIA_WIDGET_HPP

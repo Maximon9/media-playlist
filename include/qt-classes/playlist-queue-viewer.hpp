@@ -15,10 +15,14 @@ typedef std::deque<PlaylistData *> PlaylistDatas;
 class PlaylistQueueViewer : public QWidget {
 private:
 	QVBoxLayout *layout;
+	QScrollArea *scrollArea;
+	QWidget *contentWidget;
 
 public:
+	QVBoxLayout *contentLayout;
 	PlaylistDatas playlist_datas;
-	explicit PlaylistQueueViewer(QWidget *parent);
+	explicit PlaylistQueueViewer(QWidget *parent = nullptr);
+	void updatePlaylists();
 };
 
 extern PlaylistQueueViewer *playlist_queue_viewer;

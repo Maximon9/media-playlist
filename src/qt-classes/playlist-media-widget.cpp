@@ -1,6 +1,6 @@
 #pragma region Main
 
-#include "../../include/qt-classes/playlist-media-widget.hpp"
+#include "../../include/qt-classes/media-widget.hpp"
 
 MediaWidget::MediaWidget(const QString &mediaName, QWidget *parent) : QWidget(parent)
 {

@@ -5,7 +5,9 @@
 #include <deque>
 #include "../qt-classes/media-widget.hpp"
 
-typedef struct {
+class MediaWidget;
+
+typedef struct MediaFileData {
 	MediaWidget *media_widget;
 	std::string path;
 	std::string filename;

@@ -17,8 +17,9 @@ private:
 	bool expanded;
 
 public:
-	PlaylistData *playlist;
-	explicit PlaylistWidget(PlaylistData *playlist, QWidget *parent = nullptr);
+	const PlaylistData *playlist;
+	explicit PlaylistWidget(const PlaylistData *playlist, QWidget *parent = nullptr);
 	void toggleMediaVisibility();
+	void update_playlist_data();
 };
 #endif // PLAYLIST_WIDGET_HPP

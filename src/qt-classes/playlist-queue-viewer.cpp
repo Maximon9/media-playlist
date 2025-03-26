@@ -3,7 +3,7 @@
 #include "../../include/qt-classes/playlist-queue-viewer.hpp"
 #include "../../include/qt-classes/playlist-widget.hpp"
 
-PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent) : QWidget(parent)
+/* PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent) : QWidget(parent)
 {
 	this->playlist_datas = {};
 
@@ -14,11 +14,8 @@ PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent) : QWidget(parent)
 	layout->addWidget(label);
 
 	setLayout(this->layout);
-}
+} */
 
-PlaylistQueueViewer *playlist_queue_viewer = nullptr;
-
-/*
 PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent) : QWidget(parent)
 {
 	this->playlist_datas = {};
@@ -40,19 +37,16 @@ PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent) : QWidget(parent)
 
 void PlaylistQueueViewer::updatePlaylists()
 {
-	QLayoutItem *child;
-	while ((child = contentLayout->takeAt(0)) != nullptr) {
-		delete child->widget(); // Delete each PlaylistWidget
-		delete child;
-	}
-
 	// Add new playlists
-	for (const PlaylistData *playlist : *this->playlist_datas) {
-		PlaylistWidget *playlistWidget = new PlaylistWidget(playlist, this);
-		contentLayout->addWidget(playlistWidget);
+	for (size_t i = 0; i < this->playlist_datas.size(); i++) {
+		const PlaylistData *playlist_data = this->playlist_datas[i];
+		if (playlist_data->playlist_widget == nullptr) {
+			continue;
+		}
+		playlist_data->playlist_widget->update_playlist_data();
 	}
 }
 
-#endif // CUSTOM_PROPERTIES_DIALOG_HPP */
+PlaylistQueueViewer *playlist_queue_viewer = nullptr;
 
 #pragma endregion

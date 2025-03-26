@@ -3,8 +3,10 @@
 #include "../../include/qt-classes/playlist-widget.hpp"
 #include "../../include/qt-classes/media-widget.hpp"
 
-PlaylistWidget::PlaylistWidget(PlaylistData *playlist, QWidget *parent) : QWidget(parent), expanded(false)
+PlaylistWidget::PlaylistWidget(const PlaylistData *playlist, QWidget *parent) : QWidget(parent), expanded(false)
 {
+	this->playlist = playlist;
+
 	layout = new QVBoxLayout(this);
 	toggleButton = new QPushButton(QString::fromStdString(playlist->name), this);
 	mediaContainer = new QWidget(this);
@@ -18,8 +20,8 @@ PlaylistWidget::PlaylistWidget(PlaylistData *playlist, QWidget *parent) : QWidge
 
 	// Populate media items
 	for (size_t i = 0; i < playlist->queue.size(); i++) {
-		const MediaFileData *media = &playlist->queue[i];
-		mediaLayout->addWidget(new MediaWidget(QString::fromStdString(media->name), this));
+		const MediaFileData *media_file_data = &playlist->queue[i];
+		mediaLayout->addWidget(new MediaWidget(media_file_data, this));
 	}
 	mediaContainer->setLayout(mediaLayout);
 
@@ -32,5 +34,7 @@ void PlaylistWidget::toggleMediaVisibility()
 	expanded = !expanded;
 	mediaContainer->setVisible(expanded);
 }
+
+void PlaylistWidget::update_playlist_data() {}
 
 #pragma endregion

@@ -548,9 +548,10 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	update_playlist_data(playlist_data, settings);
 
-	playlist_queue_viewer->playlist_datas.push_back(playlist_data);
+	playlist_data->playlist_widget = new PlaylistWidget(playlist_data, playlist_queue_viewer);
+	playlist_queue_viewer->contentLayout->addWidget(playlist_data->playlist_widget);
 
-	// obs_log(LOG_INFO, "Playlist Datas Size: %d", playlist_queue_viewer->playlist_datas.size());
+	playlist_queue_viewer->playlist_datas.push_back(playlist_data);
 
 	return playlist_data;
 error:
