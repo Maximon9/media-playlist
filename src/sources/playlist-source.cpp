@@ -497,7 +497,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	PlaylistData *playlist_data = (PlaylistData *)bzalloc(sizeof(*playlist_data));
 
 	playlist_data->name = obs_source_get_name(source);
-	obs_log(LOG_INFO, "Source Name", playlist_data->name);
+	obs_log(LOG_INFO, "Source Name: %s", playlist_data->name);
 
 	playlist_data->source = source;
 
@@ -828,7 +828,7 @@ void playlist_save(void *data, obs_data_t *settings)
 	obs_log(LOG_INFO, "playlist_save");
 
 	playlist_data->name = obs_source_get_name(playlist_data->source);
-	obs_log(LOG_INFO, "Source Name", playlist_data->name);
+	obs_log(LOG_INFO, "Source Name: %s", playlist_data->name);
 	// PlaylistSource *playlist_data = (PlaylistSource *)data;
 	// obs_data_set_int(settings, S_CURRENT_MEDIA_INDEX, playlist_data->current_media_index);
 	// update_current_filename_setting(playlist_data, settings);
