@@ -6,7 +6,6 @@
 
 MediaWidget::MediaWidget(const MediaData *media_data, QWidget *parent) : QWidget(parent)
 {
-	moveToThread(parent->thread());
 	this->media_data = media_data;
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	obs_log(LOG_INFO, "Queue Media Name: %s", media_data->name.c_str());

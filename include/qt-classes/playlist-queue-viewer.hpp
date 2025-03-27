@@ -10,7 +10,7 @@
 #include <QVBoxLayout>
 #include "../include/types/playlist-source-types.hpp"
 
-typedef std::deque<PlaylistData *> PlaylistDatas;
+typedef std::deque<PlaylistWidgetData*> PlaylistWidgetDatas;
 
 class PlaylistQueueViewer : public QWidget {
 private:
@@ -20,7 +20,7 @@ private:
 
 public:
 	QVBoxLayout *contentLayout;
-	PlaylistDatas playlist_datas;
+	PlaylistWidgetDatas playlist_datas;
 	explicit PlaylistQueueViewer(QWidget *parent = nullptr);
 	void updatePlaylists();
 };
@@ -35,7 +35,7 @@ extern PlaylistQueueViewer *playlist_queue_viewer;
 #include <deque>
 #include "../include/source-types/playlist-source-types.hpp"
 
-typedef std::deque<PlaylistData *> PlaylistDatas;
+typedef std::deque<PlaylistData *> PlaylistWidgetDatas;
 
 class PlaylistQueueViewer : public QWidget {
 private:
@@ -45,7 +45,7 @@ private:
 	QVBoxLayout *contentLayout;
 
 public:
-	PlaylistDatas *playlist_datas;
+	PlaylistWidgetDatas *playlist_datas;
 	explicit PlaylistQueueViewer(QWidget *parent = nullptr);
 	void updatePlaylists();
 };

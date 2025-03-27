@@ -18,7 +18,6 @@
 
 PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent) : QWidget(parent)
 {
-	moveToThread(parent->thread());
 	this->playlist_datas = {};
 	layout = new QVBoxLayout(this);
 
@@ -40,11 +39,11 @@ void PlaylistQueueViewer::updatePlaylists()
 {
 	// Add new playlists
 	for (size_t i = 0; i < this->playlist_datas.size(); i++) {
-		const PlaylistData *playlist_data = this->playlist_datas[i];
-		if (playlist_data->playlist_widget == nullptr) {
+		const PlaylistWidgetData *playlist_widget_data = this->playlist_datas[i];
+		if (playlist_widget_data == nullptr) {
 			continue;
 		}
-		playlist_data->playlist_widget->update_playlist_data();
+		playlist_widget_data->playlist_widget->update_playlist_data();
 	}
 }
 

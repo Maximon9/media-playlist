@@ -28,7 +28,6 @@ typedef struct PlaylistData {
 	bool debug;
 #pragma endregion
 #pragma region Private
-	PlaylistWidget *playlist_widget;
 	std::string name;
 	bool all_media_initialized;
 	obs_data_t *media_source_settings;
@@ -42,5 +41,10 @@ typedef struct PlaylistData {
 	pthread_mutex_t audio_mutex;
 #pragma endregion
 } PlaylistData;
+
+typedef struct PlaylistWidgetData {
+	PlaylistWidget *playlist_widget;
+	PlaylistData *playlist_data;
+} PlaylistWidgetData;
 
 #endif // PLAYLIST_SOURCE_TYPES_HPP

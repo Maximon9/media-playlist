@@ -119,7 +119,7 @@ void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool era
 }
 
 void init_queue_media_data_from_path(QueueMediaData *new_entry, std::string path, size_t index,
-				     PlaylistData *playlist_data)
+				     PlaylistWidgetData *playlist_widget_data)
 {
 	// Create and insert new MediaData
 	fs::path file_path = path;
@@ -135,20 +135,25 @@ void init_queue_media_data_from_path(QueueMediaData *new_entry, std::string path
 
 	new_entry->media_data = {path, filename, name, ext, index};
 
-	new_entry->media_widget = new MediaWidget(&new_entry->media_data, playlist_data->playlist_widget);
+	new_entry->media_widget = new MediaWidget(&new_entry->media_data, nullptr);
 
-	playlist_data->playlist_widget->mediaLayout->addWidget(new_entry->media_widget);
+	// new_entry->media_widget->moveToThread(playlist_data->playlist_widget->thread());
+
+	// new_entry->media_widget->setParent(playlist_data->playlist_widget);
+
+	// playlist_data->playlist_widget->mediaLayout->addWidget(new_entry->media_widget);
 }
 
 void init_queue_media_data(QueueMediaData *new_entry, const std::string path, const std::string filename,
 			   const std::string name, const std::string ext, size_t index, MediaWidget *media_widget,
-			   PlaylistData *playlist_data)
+			   PlaylistWidgetData *playlist_widget_data)
 {
 	// Create and insert new MediaData
 	new_entry->media_data = {path, filename, name, ext, index};
 	if (media_widget == nullptr) {
-		new_entry->media_widget = new MediaWidget(&new_entry->media_data, playlist_data->playlist_widget);
-		playlist_data->playlist_widget->mediaLayout->addWidget(media_widget);
+		new_entry->media_widget =
+			new MediaWidget(&new_entry->media_data, playlist_widget_data->playlist_widget);
+		playlist_widget_data->playlist_widget->mediaLayout->addWidget(media_widget);
 	} else {
 		media_widget->media_data = nullptr;
 		media_widget->media_data = &new_entry->media_data;
@@ -157,14 +162,15 @@ void init_queue_media_data(QueueMediaData *new_entry, const std::string path, co
 }
 
 void init_queue_media_data_from_media_data(QueueMediaData *new_entry, MediaData media_data, MediaWidget *media_widget,
-					   PlaylistData *playlist_data)
+					   PlaylistWidgetData *playlist_widget_data)
 
 {
 	// Create and insert new MediaData
 	new_entry->media_data = media_data;
 	if (media_widget == nullptr) {
-		new_entry->media_widget = new MediaWidget(&new_entry->media_data, playlist_data->playlist_widget);
-		playlist_data->playlist_widget->mediaLayout->addWidget(media_widget);
+		new_entry->media_widget =
+			new MediaWidget(&new_entry->media_data, playlist_widget_data->playlist_widget);
+		playlist_widget_data->playlist_widget->mediaLayout->addWidget(media_widget);
 	} else {
 		media_widget->media_data = nullptr;
 		media_widget->media_data = &new_entry->media_data;
