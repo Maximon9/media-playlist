@@ -18,6 +18,7 @@
 
 PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent) : QWidget(parent)
 {
+	moveToThread(parent->thread());
 	this->playlist_datas = {};
 	layout = new QVBoxLayout(this);
 

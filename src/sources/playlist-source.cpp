@@ -591,10 +591,6 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	playlist_data->playlist_widget = new PlaylistWidget(playlist_data, playlist_queue_viewer);
 	playlist_queue_viewer->contentLayout->addWidget(playlist_data->playlist_widget);
 
-	// fake_entry = init_queue_media_data_from_path(
-	// 	"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4",
-	// 	0, playlist_data);
-
 	// obs_log(LOG_INFO, "Layout 1: %s", playlist_queue_viewer->contentLayout->objectName().toStdString().c_str());
 
 	// QWidget *parent_widget = qobject_cast<QWidget *>(playlist_data->playlist_widget->parent());
@@ -691,6 +687,11 @@ void playlist_activate(void *data)
 	obs_log(LOG_INFO, "playlist_activate");
 	PlaylistData *playlist_data = (PlaylistData *)data;
 
+	init_queue_media_data_from_path(
+		&fake_entry,
+		"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4",
+		0, playlist_data);
+
 	switch (playlist_data->start_behavior) {
 	case START_BEHAVIOR_RESTART_ENTIRE_PLAYLIST:
 		obs_log(LOG_INFO, "We restarted the entire playlist");
@@ -702,7 +703,7 @@ void playlist_activate(void *data)
 
 		// da_
 		// obs_log_media_array(LOG_INFO, "Testing Queue 1: ", &playlist_data->all_media, 90, "    ", true);
-		refresh_queue_list(playlist_data);
+		// refresh_queue_list(playlist_data);
 
 		// obs_log_media_array(LOG_INFO, "Testing Queue 2: ", &playlist_data->queue, 90, "    ", true);
 		// obs_log_media_array(LOG_INFO, "Testing Queue 3: ", &playlist_data->all_media, 90, "    ", true);

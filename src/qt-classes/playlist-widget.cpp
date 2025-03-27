@@ -5,6 +5,7 @@
 
 PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *parent) : QWidget(parent), expanded(false)
 {
+	moveToThread(parent->thread());
 	this->playlist_data = playlist_data;
 
 	layout = new QVBoxLayout(this);
