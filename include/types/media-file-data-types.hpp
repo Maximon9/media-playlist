@@ -15,7 +15,8 @@ typedef struct MediaData {
 	size_t index;
 } MediaData;
 
-typedef struct QueueMediaData : public MediaData {
+typedef struct QueueMediaData {
+	MediaData media_data;
 	MediaWidget *media_widget;
 	// std::string path;
 	// std::string filename;

@@ -21,9 +21,10 @@ void refresh_queue_list(PlaylistData *playlist_data)
 	size_t max_queue_size = std::max(playlist_data->queue.size(), playlist_data->all_media.size());
 
 	for (size_t i = max_queue_size; i-- > 0;) {
-		const MediaData *media_data = nullptr;
-		if (i < playlist_data->all_media.size()) {
-			media_data = &playlist_data->all_media[i];
+		const bool media_exist = i < playlist_data->all_media.size();
+		MediaData media_data;
+		if (media_exist) {
+			media_data = playlist_data->all_media[i];
 		}
 
 		MediaWidget *media_widget = nullptr;
@@ -31,16 +32,15 @@ void refresh_queue_list(PlaylistData *playlist_data)
 			media_widget = playlist_data->queue[i].media_widget;
 		}
 
-		if (media_data == nullptr && media_widget != nullptr) {
+		if (media_exist == false && media_widget != nullptr) {
 			media_widget->remove_widget();
 			playlist_data->queue.pop_back();
-		} else if (media_data != nullptr) {
-			const QueueMediaData new_entry = construct_complete_queue_media_data(
-				media_data->path, media_data->filename, media_data->name, media_data->ext,
-				media_data->index, media_widget, playlist_data);
+		} else if (media_exist == true) {
+			QueueMediaData new_entry{};
+			init_queue_media_data_from_media_data(&new_entry, media_data, media_widget, playlist_data);
 			if (media_widget != nullptr) {
-				media_widget->media_data = &new_entry;
 				media_widget->update_media_data();
+				playlist_data->queue.pop_back();
 			}
 
 			playlist_data->queue.push_front(new_entry);
@@ -115,7 +115,7 @@ void playlist_queue(PlaylistData *playlist_data)
 		return;
 
 	// Get video file path from the array
-	const MediaData *media_data = &playlist_data->queue[0];
+	const MediaData *media_data = &(playlist_data->queue[0].media_data);
 
 	if (!media_data)
 		return;
@@ -147,7 +147,7 @@ void playlist_queue_restart(PlaylistData *playlist_data)
 		return;
 
 	// Get video file path from the array
-	const MediaData *media_data = &playlist_data->queue[0];
+	const MediaData *media_data = &(playlist_data->queue[0].media_data);
 
 	if (!media_data)
 		return;
@@ -368,14 +368,15 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 		if (playlist_data->all_media_initialized == true) {
 			for (size_t i = playlist_data->queue.size(); i-- > 0;) {
 				QueueMediaData *queue_media_data = &playlist_data->queue[i];
-				if (queue_media_data->index < playlist_data->all_media.size()) {
-					MediaData media_data = playlist_data->all_media[queue_media_data->index];
+				if (queue_media_data->media_data.index < playlist_data->all_media.size()) {
+					MediaData media_data =
+						playlist_data->all_media[queue_media_data->media_data.index];
 
-					QueueMediaData new_entry = construct_complete_queue_media_data(
-						media_data.path, media_data.filename, media_data.name, media_data.ext,
-						media_data.index, queue_media_data->media_widget, playlist_data);
+					QueueMediaData new_entry{};
+					init_queue_media_data_from_media_data(
+						&new_entry, media_data, queue_media_data->media_widget, playlist_data);
 
-					if (queue_media_data->path != new_entry.path) {
+					if (queue_media_data->media_data.path != new_entry.media_data.path) {
 						playlist_data->queue[i] = new_entry;
 						if (changed_queue == false) {
 							changed_queue = true;
@@ -391,7 +392,8 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 			size_t queue_last_index = 0;
 
 			if (playlist_data->queue.size() > 0) {
-				queue_last_index = playlist_data->queue[playlist_data->queue.size() - 1].index;
+				queue_last_index =
+					playlist_data->queue[playlist_data->queue.size() - 1].media_data.index;
 			}
 
 			// to-do Only add songs that have actually been added to the all media list.
@@ -400,9 +402,9 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 				MediaData added_media_data = added_medias[i];
 				if (added_media_data.index > queue_last_index) {
 
-					QueueMediaData new_entry = construct_complete_queue_media_data(
-						added_media_data.path, added_media_data.filename, added_media_data.name,
-						added_media_data.ext, added_media_data.index, nullptr, playlist_data);
+					QueueMediaData new_entry{};
+					init_queue_media_data_from_media_data(&new_entry, added_media_data, nullptr,
+									      playlist_data);
 
 					playlist_data->queue.push_back(new_entry);
 					if (changed_queue == false) {
@@ -589,7 +591,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	playlist_data->playlist_widget = new PlaylistWidget(playlist_data, playlist_queue_viewer);
 	playlist_queue_viewer->contentLayout->addWidget(playlist_data->playlist_widget);
 
-	// fake_entry = load_queue_media_data_from_path(
+	// fake_entry = init_queue_media_data_from_path(
 	// 	"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4",
 	// 	0, playlist_data);
 
@@ -910,7 +912,7 @@ void media_next(void *data)
 
 	if (playlist_data->queue.size() > 0) {
 		if (uses_song_history_limit(playlist_data) == true) {
-			const MediaData *media_data = &playlist_data->queue[0];
+			const MediaData *media_data = &playlist_data->queue[0].media_data;
 
 			const MediaData new_entry =
 				construct_complete_media_data(media_data->path, media_data->filename, media_data->name,
@@ -946,11 +948,10 @@ void media_previous(void *data)
 
 	if (uses_song_history_limit(playlist_data) == true) {
 		if (playlist_data->previous_queue.size() > 0) {
-			const MediaData *media_data = &playlist_data->previous_queue[0];
+			const MediaData media_data = playlist_data->previous_queue[0];
 
-			const QueueMediaData new_entry = construct_complete_queue_media_data(
-				media_data->path, media_data->filename, media_data->name, media_data->ext,
-				media_data->index, nullptr, playlist_data);
+			QueueMediaData new_entry{};
+			init_queue_media_data_from_media_data(&new_entry, media_data, nullptr, playlist_data);
 
 			playlist_data->previous_queue.erase(playlist_data->previous_queue.begin());
 

@@ -44,11 +44,15 @@ void pop_queue_media_front(QueueMediaDataArray *media_array);
 
 void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index);
 
-QueueMediaData load_queue_media_data_from_path(std::string path, size_t index, PlaylistData *playlist_data);
+void init_queue_media_data_from_path(QueueMediaData *new_entry, std::string path, size_t index,
+				     PlaylistData *playlist_data);
 
-QueueMediaData construct_complete_queue_media_data(const std::string path, const std::string filename,
-						   const std::string name, const std::string ext, size_t index,
-						   MediaWidget *media_widget, PlaylistData *playlist_data);
+void init_queue_media_data(QueueMediaData *new_entry, const std::string path, const std::string filename,
+			   const std::string name, const std::string ext, size_t index, MediaWidget *media_widget,
+			   PlaylistData *playlist_data);
+
+void init_queue_media_data_from_media_data(QueueMediaData *new_entry, MediaData media_data, MediaWidget *media_widget,
+					   PlaylistData *playlist_data);
 
 std::string obs_array_to_string(obs_data_array_t *array);
 

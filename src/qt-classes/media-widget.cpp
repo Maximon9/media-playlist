@@ -4,7 +4,7 @@
 #include <obs-module.h>
 #include <plugin-support.h>
 
-MediaWidget::MediaWidget(const QueueMediaData *media_data, QWidget *parent) : QWidget(parent)
+MediaWidget::MediaWidget(const MediaData *media_data, QWidget *parent) : QWidget(parent)
 {
 	this->media_data = media_data;
 	QVBoxLayout *layout = new QVBoxLayout(this);

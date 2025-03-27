@@ -28,16 +28,39 @@ OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 	obs_log(LOG_INFO, "Test Event: %d", event);
 } */
 
-typedef struct BasicBruv {
-	int not_ptr;
-	int *ptr;
-} BasicBruv;
+// typedef struct BasicBruv {
+// 	int not_ptr;
+// 	int *ptr;
+// } BasicBruv;
 
-typedef std::deque<BasicBruv> BasicBruvArray;
+// typedef std::deque<BasicBruv> BasicBruvArray;
+
+typedef struct test_str_struct {
+	std::string str;
+} test_str_struct;
 
 // Called when the plugin is loaded
 bool obs_module_load(void)
 {
+	test_str_struct test_string{};
+	test_string.str = "wassup";
+
+	test_str_struct test_string_1{};
+	test_string_1.str = "boyo";
+
+	obs_log(LOG_INFO, "Testing: %s, %s", test_string.str, test_string_1.str);
+
+	test_string = test_string_1;
+
+	obs_log(LOG_INFO, "Testing: %s, %s", test_string.str, test_string_1.str);
+
+	test_string.str = "ok bruh";
+
+	obs_log(LOG_INFO, "Testing: %s, %s", test_string.str, test_string_1.str);
+
+	// test_str_struct test_string_3 {};
+	// test_string_3.std = "boyo";
+
 	// BasicBruvArray basic_bruv_array_1{};
 
 	// BasicBruv basic_bruv_1{};
