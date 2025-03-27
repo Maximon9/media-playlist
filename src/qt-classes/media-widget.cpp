@@ -10,7 +10,7 @@ MediaWidget::MediaWidget(const MediaData *media_data, QWidget *parent) : QWidget
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	obs_log(LOG_INFO, "Queue Media Name: %s", media_data->name.c_str());
 	label = new QLabel(QString::fromStdString(media_data->name), this);
-	label->setAlignment(Qt::AlignCenter);
+	label->setAlignment(Qt::AlignTop);
 	layout->addWidget(label);
 	setLayout(layout);
 }
