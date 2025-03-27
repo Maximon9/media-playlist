@@ -716,11 +716,6 @@ void playlist_activate(void *data)
 	obs_log(LOG_INFO, "playlist_activate");
 	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
 
-	init_queue_media_data_from_path(
-		&fake_entry,
-		"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4",
-		0, playlist_widget_data);
-
 	switch (playlist_widget_data->playlist_data->start_behavior) {
 	case START_BEHAVIOR_RESTART_ENTIRE_PLAYLIST:
 		obs_log(LOG_INFO, "We restarted the entire playlist");
@@ -732,7 +727,7 @@ void playlist_activate(void *data)
 
 		// da_
 		// obs_log_media_array(LOG_INFO, "Testing Queue 1: ", &playlist_widget_data->playlist_data->all_media, 90, "    ", true);
-		// refresh_queue_list(playlist_widget_data->playlist_data);
+		refresh_queue_list(playlist_widget_data);
 
 		// obs_log_media_array(LOG_INFO, "Testing Queue 2: ", &playlist_widget_data->playlist_data->queue, 90, "    ", true);
 		// obs_log_media_array(LOG_INFO, "Testing Queue 3: ", &playlist_widget_data->playlist_data->all_media, 90, "    ", true);

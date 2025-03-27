@@ -13,7 +13,7 @@ void playlist_global_signal_callback(void *data, const char *signal, calldata_t 
 
 const char *get_current_media_input(obs_data_t *settings);
 
-void refresh_queue_list(PlaylistData *playlist_data);
+void refresh_queue_list(PlaylistWidgetData *playlist_data);
 
 void playlist_media_source_ended(void *data, calldata_t *callback);
 
