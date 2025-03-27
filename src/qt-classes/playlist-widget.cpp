@@ -16,6 +16,18 @@ PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *paren
 	toggleButton = new QPushButton(QString::fromStdString(playlist_data->name), this);
 	toggleButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed); // Make button expand horizontally
 
+	toggleButton->setStyleSheet("QPushButton {"
+				    "border: 1px solid rgb(53, 57, 70);" // Border for the button
+				    "border-radius: 5px;"                // Rounded corners
+				    "padding: 10px;"                     // Some padding
+				    "background-color:rgb(54, 53, 66);"  // Light background
+				    "font-size: 14px;"                   // Font size
+				    "text-align: center;"                // Text aligned to the left
+				    "}"
+				    "QPushButton:pressed {"
+				    "background-color:rgb(59, 58, 78);" // Darker background when pressed
+				    "}");
+
 	buttonLayout->addWidget(toggleButton);
 	buttonLayout->setAlignment(Qt::AlignTop);
 

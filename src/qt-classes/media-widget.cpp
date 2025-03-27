@@ -8,8 +8,23 @@ MediaWidget::MediaWidget(const MediaData *media_data, QWidget *parent) : QWidget
 {
 	this->media_data = media_data;
 	QVBoxLayout *layout = new QVBoxLayout(this);
-	obs_log(LOG_INFO, "Queue Media Name: %s", media_data->name.c_str());
+
+	this->setStyleSheet("QWidget {"
+			    "border: 2px solid rgb(53, 57, 70);" // Gray border
+			    "border-radius: 5px;"                // Rounded corners
+			    "padding: 5px;"                      // Padding around content
+			    "background-color: rgb(63, 62, 77);" // Light background
+			    "}");
+
 	label = new QLabel(QString::fromStdString(media_data->name), this);
+
+	label->setStyleSheet("QLabel {"
+			     "border: 2px solid transparent;" // Gray border
+			     "border-radius: 5px;"            // Rounded corners
+			     "padding: 5px;"                  // Padding around content
+			     "background-color: transparent;" // Light background
+			     "}");
+
 	label->setAlignment(Qt::AlignTop);
 	layout->addWidget(label);
 	setLayout(layout);
