@@ -137,11 +137,15 @@ void init_queue_media_data_from_path(QueueMediaData *new_entry, std::string path
 
 	new_entry->media_data = {path, filename, name, ext, index};
 
-	QFuture<MediaWidget *> future =
-		playlist_widget_data->playlist_widget->create_media_widget(&new_entry->media_data);
-	new_entry->media_widget = future.result();
+	playlist_widget_data->playlist_widget->create_media_widget(
+		&new_entry->media_data, [new_entry, playlist_widget_data](MediaWidget *widget) {
+			new_entry->media_widget = widget;
+			playlist_widget_data->playlist_widget->add_media_widget(new_entry->media_widget);
+		});
 
-	playlist_widget_data->playlist_widget->add_media_widget(new_entry->media_widget);
+	// QFuture<MediaWidget *> future =
+	// 	playlist_widget_data->playlist_widget->create_media_widget(&new_entry->media_data);
+	// new_entry->media_widget = future.result();
 }
 
 void init_queue_media_data(QueueMediaData *new_entry, const std::string path, const std::string filename,
@@ -151,9 +155,11 @@ void init_queue_media_data(QueueMediaData *new_entry, const std::string path, co
 	// Create and insert new MediaData
 	new_entry->media_data = {path, filename, name, ext, index};
 	if (media_widget == nullptr) {
-		new_entry->media_widget =
-			new MediaWidget(&new_entry->media_data, playlist_widget_data->playlist_widget);
-		playlist_widget_data->playlist_widget->add_media_widget(media_widget);
+		playlist_widget_data->playlist_widget->create_media_widget(
+			&new_entry->media_data, [new_entry, playlist_widget_data](MediaWidget *widget) {
+				new_entry->media_widget = widget;
+				playlist_widget_data->playlist_widget->add_media_widget(new_entry->media_widget);
+			});
 	} else {
 		media_widget->media_data = nullptr;
 		media_widget->media_data = &new_entry->media_data;
@@ -168,9 +174,11 @@ void init_queue_media_data_from_media_data(QueueMediaData *new_entry, MediaData 
 	// Create and insert new MediaData
 	new_entry->media_data = media_data;
 	if (media_widget == nullptr) {
-		new_entry->media_widget =
-			new MediaWidget(&new_entry->media_data, playlist_widget_data->playlist_widget);
-		playlist_widget_data->playlist_widget->add_media_widget(media_widget);
+		playlist_widget_data->playlist_widget->create_media_widget(
+			&new_entry->media_data, [new_entry, playlist_widget_data](MediaWidget *widget) {
+				new_entry->media_widget = widget;
+				playlist_widget_data->playlist_widget->add_media_widget(new_entry->media_widget);
+			});
 	} else {
 		media_widget->media_data = nullptr;
 		media_widget->media_data = &new_entry->media_data;

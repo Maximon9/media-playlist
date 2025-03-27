@@ -25,7 +25,7 @@ public:
 	void update_playlist_name();
 	void update_playlist_data();
 	void remove_widget();
-	QFuture<MediaWidget *> create_media_widget(MediaData *media_data);
+	void create_media_widget(MediaData *media_data, std::function<void(MediaWidget *)> callback);
 	void add_media_widget(MediaWidget *mediaWidget);
 };
 #endif // PLAYLIST_WIDGET_HPP
