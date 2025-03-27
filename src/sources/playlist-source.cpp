@@ -554,6 +554,9 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	ss << obs_source_get_name(source);
 	playlist_widget_data->playlist_data->name = ss.str();
 
+	obs_log(LOG_INFO, "No Error");
+	obs_log(LOG_INFO, "Playlist Name: %s", playlist_widget_data->playlist_data->name.c_str());
+
 	playlist_widget_data->playlist_data->source = source;
 
 	playlist_widget_data->playlist_data->media_source_settings = obs_data_create();
@@ -621,7 +624,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	playlist_queue_viewer->playlist_datas.push_back(playlist_widget_data);
 
-	return playlist_widget_data->playlist_data;
+	return playlist_widget_data;
 error:
 	playlist_source_destroy(playlist_widget_data->playlist_data);
 	return NULL;
@@ -884,12 +887,12 @@ bool playlist_audio_render(void *data, uint64_t *ts_out, struct obs_source_audio
 
 void playlist_enum_active_sources(void *data, obs_source_enum_proc_t enum_callback, void *param)
 {
-	// PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
 
-	// 	pthread_mutex_lock(&playlist_widget_data->playlist_data->mutex);
-	// 	enum_callback(playlist_widget_data->playlist_data->source, playlist_widget_data->playlist_data->media_source,
-	// 		      param);
-	// 	pthread_mutex_unlock(&playlist_widget_data->playlist_data->mutex);
+	pthread_mutex_lock(&playlist_widget_data->playlist_data->mutex);
+	enum_callback(playlist_widget_data->playlist_data->source, playlist_widget_data->playlist_data->media_source,
+		      param);
+	pthread_mutex_unlock(&playlist_widget_data->playlist_data->mutex);
 }
 
 void playlist_save(void *data, obs_data_t *settings)
