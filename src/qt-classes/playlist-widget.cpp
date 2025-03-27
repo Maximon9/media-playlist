@@ -13,25 +13,29 @@ PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *paren
 	layout->setContentsMargins(0, 0, 0, 0); // Remove margins around the layout
 
 	// Create a layout for the toggleButton to make it expand horizontally
-	QHBoxLayout *buttonLayout = new QHBoxLayout();
+	buttonLayout = new QHBoxLayout();
 	buttonLayout->setContentsMargins(0, 0, 0, 0); // Remove margins for the button layout
 
 	toggleButton = new QPushButton(QString::fromStdString(playlist_data->name), this);
-	toggleButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed); // Make button expand horizontally
-	toggleButton->setMaximumHeight(40); // Set the maximum height of the button if needed
+	toggleButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed); // Make button expand horizontally
 
 	buttonLayout->addWidget(toggleButton);
+	buttonLayout->setAlignment(Qt::AlignTop);
 
 	mediaContainer = new QWidget(this);
 	mediaLayout = new QVBoxLayout(mediaContainer);
+	mediaLayout->setSpacing(0);                  // No spacing between items in the container
+	mediaLayout->setContentsMargins(0, 0, 0, 0); // Remove margins
 
 	// Shrink the mediaContainer horizontally
-	mediaContainer->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed); // Fixed size for vertical
-	mediaContainer->setVisible(expanded);
+	mediaContainer->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum); // Fixed size for vertical
 
 	// Set the mediaLayout properties to shrink to the content
 	mediaLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
 	mediaLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter); // Align to top and center
+
+	// Initially hide media items
+	mediaContainer->setVisible(expanded);
 
 	// Add the button layout and media container to the main layout
 	layout->addLayout(buttonLayout); // This ensures the button takes up full width
@@ -41,6 +45,9 @@ PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *paren
 
 	mediaContainer->setLayout(mediaLayout);
 	mediaContainer->adjustSize(); // Shrink the container to fit its content
+
+	// Ensure that the container is aligned at the top
+	layout->setAlignment(mediaContainer, Qt::AlignTop); // Align mediaContainer to the top when collapsed
 	// Toggle playlist expansion
 	connect(toggleButton, &QPushButton::clicked, this, &PlaylistWidget::toggleMediaVisibility);
 }

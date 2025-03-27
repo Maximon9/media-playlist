@@ -18,6 +18,7 @@ private:
 	QWidget *topContainer;
 	QVBoxLayout *topLayout;
 	QVBoxLayout *mediaLayout;
+	QHBoxLayout *buttonLayout;
 	bool expanded;
 
 public:
