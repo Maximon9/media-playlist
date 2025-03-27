@@ -12,15 +12,15 @@ PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *paren
 	layout->setSpacing(0);                  // Remove any default spacing between items
 	layout->setContentsMargins(0, 0, 0, 0); // Remove margins around the layout
 
-	// Parent container to control the alignment of the button and media container
-	topContainer = new QWidget(this);
-	topLayout = new QVBoxLayout(topContainer);
-	topLayout->setSpacing(0);                  // Ensure no space between the button and media container
-	topLayout->setContentsMargins(0, 0, 0, 0); // Remove margins
+	// Create a layout for the toggleButton to make it expand horizontally
+	QHBoxLayout *buttonLayout = new QHBoxLayout();
+	buttonLayout->setContentsMargins(0, 0, 0, 0); // Remove margins for the button layout
 
 	toggleButton = new QPushButton(QString::fromStdString(playlist_data->name), this);
-	toggleButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed); // Shrink horizontally
-	toggleButton->setMaximumWidth(150); // Set a max width for the button if needed
+	toggleButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed); // Make button expand horizontally
+	toggleButton->setMaximumHeight(40); // Set the maximum height of the button if needed
+
+	buttonLayout->addWidget(toggleButton);
 
 	mediaContainer = new QWidget(this);
 	mediaLayout = new QVBoxLayout(mediaContainer);
@@ -33,17 +33,14 @@ PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *paren
 	mediaLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
 	mediaLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter); // Align to top and center
 
-	topLayout->addWidget(toggleButton);
-	topLayout->addWidget(mediaContainer);
-
-	// Add the top container to the main layout
-	layout->addWidget(topContainer);
+	// Add the button layout and media container to the main layout
+	layout->addLayout(buttonLayout); // This ensures the button takes up full width
+	layout->addWidget(mediaContainer);
 
 	setLayout(layout);
 
 	mediaContainer->setLayout(mediaLayout);
 	mediaContainer->adjustSize(); // Shrink the container to fit its content
-
 	// Toggle playlist expansion
 	connect(toggleButton, &QPushButton::clicked, this, &PlaylistWidget::toggleMediaVisibility);
 }
