@@ -108,7 +108,7 @@ void PlaylistWidget::remove_widget()
 // 	return future;
 // }
 
-void PlaylistWidget::create_media_widget(MediaData *media_data, std::function<void(MediaWidget *)> callback)
+/* void PlaylistWidget::create_media_widget(MediaData *media_data, std::function<void(MediaWidget *)> callback)
 {
 	QMetaObject::invokeMethod(
 		this,
@@ -119,6 +119,28 @@ void PlaylistWidget::create_media_widget(MediaData *media_data, std::function<vo
 			}
 		},
 		Qt::QueuedConnection);
+} */
+MediaWidget *PlaylistWidget::create_media_widget(MediaData *media_data)
+{
+	// Create an event loop to ensure synchronous execution
+	QEventLoop loop;
+	MediaWidget *widget = nullptr;
+
+	// Create the MediaWidget on the main thread
+	QMetaObject::invokeMethod(
+		this,
+		[=, &widget, &loop]() {
+			widget = new MediaWidget(media_data, this);
+			loop.quit(); // Exit the event loop once widget is created
+		},
+		Qt::QueuedConnection);
+
+	// Block until the widget is created
+	loop.exec();
+
+	// Now that the widget is created, add it to the layout
+	return widget;
+	// Store or handle the widget as necessary
 }
 
 void PlaylistWidget::add_media_widget(MediaWidget *mediaWidget)

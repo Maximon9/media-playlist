@@ -1,8 +1,7 @@
 #ifndef PLAYLIST_WIDGET_HPP
 #define PLAYLIST_WIDGET_HPP
 
-#include <QFuture>
-#include <QPromise>
+#include <QEventLoop>
 #include <QWidget>
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -28,7 +27,8 @@ public:
 	void update_playlist_name();
 	void update_playlist_data();
 	void remove_widget();
-	void create_media_widget(MediaData *media_data, std::function<void(MediaWidget *)> callback);
+	// void create_media_widget(MediaData *media_data, std::function<void(MediaWidget *)> callback);
+	MediaWidget *create_media_widget(MediaData *media_data);
 	void add_media_widget(MediaWidget *mediaWidget);
 };
 #endif // PLAYLIST_WIDGET_HPP

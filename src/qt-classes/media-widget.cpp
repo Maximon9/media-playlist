@@ -10,10 +10,10 @@ MediaWidget::MediaWidget(const MediaData *media_data, QWidget *parent) : QWidget
 	QVBoxLayout *layout = new QVBoxLayout(this);
 
 	this->setStyleSheet("QWidget {"
-			    "border: 2px solid rgb(53, 57, 70);" // Gray border
-			    "border-radius: 5px;"                // Rounded corners
-			    "padding: 5px;"                      // Padding around content
-			    "background-color: rgb(63, 62, 77);" // Light background
+			    "border: 2px solid rgb(89, 94, 109);" // Gray border
+			    "border-radius: 5px;"                 // Rounded corners
+			    "padding: 5px;"                       // Padding around content
+			    "background-color: rgb(52, 51, 61);"  // Light background
 			    "}");
 
 	label = new QLabel(QString::fromStdString(media_data->name), this);
