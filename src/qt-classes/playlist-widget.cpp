@@ -45,8 +45,7 @@ void PlaylistWidget::update_playlist_data()
 {
 	PlaylistWidget::update_playlist_name();
 	for (size_t i = 0; i < playlist_data->queue.size(); i++) {
-		const QueueMediaData *media_data = &playlist_data->queue[i];
-		media_data->media_widget->update_media_data();
+		playlist_data->queue[i]->media_widget->update_media_data();
 	}
 }
 

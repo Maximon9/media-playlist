@@ -30,19 +30,19 @@ void refresh_queue_list(PlaylistWidgetData *playlist_widget_data)
 
 		MediaWidget *media_widget = nullptr;
 		if (i < playlist_widget_data->playlist_data->queue.size()) {
-			media_widget = playlist_widget_data->playlist_data->queue[i].media_widget;
+			media_widget = playlist_widget_data->playlist_data->queue[i]->media_widget;
 		}
 
 		if (media_exist == false && media_widget != nullptr) {
 			pop_queue_media_at(&playlist_widget_data->playlist_data->queue, i, true);
 		} else if (media_exist == true) {
 			if (media_widget == nullptr) {
-				QueueMediaData new_entry{};
-				init_queue_media_data_from_media_data(&new_entry, media_data, media_widget,
+				std::shared_ptr<QueueMediaData> new_entry = std::make_shared<QueueMediaData>();
+				init_queue_media_data_from_media_data(new_entry, media_data, media_widget,
 								      playlist_widget_data);
 				playlist_widget_data->playlist_data->queue.push_back(new_entry);
 			} else {
-				playlist_widget_data->playlist_data->queue[i].media_data = media_data;
+				playlist_widget_data->playlist_data->queue[i]->media_data = media_data;
 				media_widget->update_media_data();
 			}
 		}
@@ -60,8 +60,8 @@ void playlist_media_source_ended(void *data, calldata_t *callback)
 	UNUSED_PARAMETER(callback);
 	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
 
-	obs_log_queue_media_array(LOG_INFO, "IMPORTANT!!!!: ", &playlist_widget_data->playlist_data->queue, 1000000,
-				  "    ", MEDIA_STRINGIFY_TYPE_FILENAME);
+	// obs_log_queue_media_array(LOG_INFO, "IMPORTANT!!!!: ", &playlist_widget_data->playlist_data->queue, 1000000,
+	// 			  "    ", MEDIA_STRINGIFY_TYPE_FILENAME);
 
 	if (playlist_widget_data->playlist_data->queue.size() > 0) {
 
@@ -116,7 +116,7 @@ void playlist_queue(PlaylistData *playlist_data)
 		return;
 
 	// Get video file path from the array
-	const MediaData *media_data = &(playlist_data->queue[0].media_data);
+	MediaData *media_data = &playlist_data->queue[0]->media_data;
 
 	if (!media_data)
 		return;
@@ -148,7 +148,7 @@ void playlist_queue_restart(PlaylistData *playlist_data)
 		return;
 
 	// Get video file path from the array
-	const MediaData *media_data = &(playlist_data->queue[0].media_data);
+	MediaData *media_data = &playlist_data->queue[0]->media_data;
 
 	if (!media_data)
 		return;
@@ -332,7 +332,7 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 						continue;
 
 					MediaData new_entry =
-						load_media_data_from_path(entry.path().string(), entry_index);
+						init_media_data_from_path(entry.path().string(), entry_index);
 					if (entry_index < playlist_widget_data->playlist_data->all_media.size()) {
 						const MediaData *media_data =
 							&playlist_widget_data->playlist_data->all_media[i];
@@ -349,7 +349,7 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 					entry_index++;
 				}
 			} else {
-				MediaData new_entry = load_media_data_from_path(std::string(element), entry_index);
+				MediaData new_entry = init_media_data_from_path(std::string(element), entry_index);
 				if (entry_index < playlist_widget_data->playlist_data->all_media.size()) {
 					const MediaData *media_data =
 						&playlist_widget_data->playlist_data->all_media[i];
@@ -375,18 +375,19 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 
 		if (playlist_widget_data->playlist_data->all_media_initialized == true) {
 			for (size_t i = playlist_widget_data->playlist_data->queue.size(); i-- > 0;) {
-				QueueMediaData *queue_media_data = &playlist_widget_data->playlist_data->queue[i];
+				std::shared_ptr<QueueMediaData> queue_media_data =
+					playlist_widget_data->playlist_data->queue[i];
 				if (queue_media_data->media_data.index <
 				    playlist_widget_data->playlist_data->all_media.size()) {
 					MediaData media_data = playlist_widget_data->playlist_data
 								       ->all_media[queue_media_data->media_data.index];
 
-					QueueMediaData new_entry{};
-					init_queue_media_data_from_media_data(&new_entry, media_data,
+					std::shared_ptr<QueueMediaData> new_entry = std::make_shared<QueueMediaData>();
+					init_queue_media_data_from_media_data(new_entry, media_data,
 									      queue_media_data->media_widget,
 									      playlist_widget_data);
 
-					if (queue_media_data->media_data.path != new_entry.media_data.path) {
+					if (queue_media_data->media_data.path != new_entry->media_data.path) {
 						playlist_widget_data->playlist_data->queue[i] = new_entry;
 						if (changed_queue == false) {
 							changed_queue = true;
@@ -405,7 +406,7 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 				queue_last_index =
 					playlist_widget_data->playlist_data
 						->queue[playlist_widget_data->playlist_data->queue.size() - 1]
-						.media_data.index;
+						->media_data.index;
 			}
 
 			// to-do Only add songs that have actually been added to the all media list.
@@ -414,8 +415,9 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 				MediaData added_media_data = added_medias[i];
 				if (added_media_data.index > queue_last_index) {
 
-					QueueMediaData new_entry{};
-					init_queue_media_data_from_media_data(&new_entry, added_media_data, nullptr,
+					std::shared_ptr<QueueMediaData> new_entry = std::make_shared<QueueMediaData>();
+
+					init_queue_media_data_from_media_data(new_entry, added_media_data, nullptr,
 									      playlist_widget_data);
 
 					playlist_widget_data->playlist_data->queue.push_back(new_entry);
@@ -543,8 +545,6 @@ const char *playlist_source_name(void *data)
 	return "Playlist"; // This should match the filename (without extension) in data/
 }
 
-QueueMediaData fake_entry{};
-
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 {
 	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)bzalloc(sizeof(*playlist_widget_data));
@@ -553,9 +553,6 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	std::stringstream ss;
 	ss << obs_source_get_name(source);
 	playlist_widget_data->playlist_data->name = ss.str();
-
-	obs_log(LOG_INFO, "No Error");
-	obs_log(LOG_INFO, "Playlist Name: %s", playlist_widget_data->playlist_data->name.c_str());
 
 	playlist_widget_data->playlist_data->source = source;
 
@@ -570,7 +567,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	obs_source_add_active_child(playlist_widget_data->playlist_data->source,
 				    playlist_widget_data->playlist_data->media_source);
 	obs_source_add_audio_capture_callback(playlist_widget_data->playlist_data->media_source,
-					      playlist_audio_callback, playlist_widget_data->playlist_data);
+					      playlist_audio_callback, playlist_widget_data);
 
 	// signal_handler_t *sh_source = obs_source_get_signal_handler(playlist_widget_data->playlist_data->source);
 	// signal_handler_connect_global(sh_source, playlist_source_callbacks, playlist_widget_data->playlist_data);
@@ -590,6 +587,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	// playlist_widget_data->playlist_data->current_media = NULL;
 	// playlist_widget_data->playlist_data->current_media_index = 0;
+	playlist_widget_data->playlist_data->num_channels = 2;
 	playlist_widget_data->playlist_data->loop_index = 0;
 	playlist_widget_data->playlist_data->infinite = true;
 	playlist_widget_data->playlist_data->loop_count = 0;
@@ -624,9 +622,11 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	playlist_queue_viewer->playlist_datas.push_back(playlist_widget_data);
 
+	obs_log(LOG_INFO, "Playlist Name: %s", playlist_widget_data->playlist_data->name.c_str());
+	obs_log(LOG_INFO, "Channels: %d", playlist_widget_data->playlist_data->num_channels);
 	return playlist_widget_data;
 error:
-	playlist_source_destroy(playlist_widget_data->playlist_data);
+	playlist_source_destroy(playlist_widget_data);
 	return NULL;
 }
 
@@ -711,10 +711,20 @@ void playlist_update(void *data, obs_data_t *settings)
 	// obs_source_update(playlist_widget_data->playlist_data->source, props);
 }
 
+// QueueMediaData fake_entry{};
 void playlist_activate(void *data)
 {
 	obs_log(LOG_INFO, "playlist_activate");
 	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+
+	// MediaData test_media_data{};
+	// test_media_data.path =
+	// 	"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4";
+	// test_media_data.filename = "Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4";
+	// test_media_data.name = "Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen";
+	// test_media_data.ext = ".mp4";
+
+	// init_queue_media_data_from_media_data(&fake_entry, test_media_data, 0, playlist_widget_data);
 
 	switch (playlist_widget_data->playlist_data->start_behavior) {
 	case START_BEHAVIOR_RESTART_ENTIRE_PLAYLIST:
@@ -727,6 +737,7 @@ void playlist_activate(void *data)
 
 		// da_
 		// obs_log_media_array(LOG_INFO, "Testing Queue 1: ", &playlist_widget_data->playlist_data->all_media, 90, "    ", true);
+
 		refresh_queue_list(playlist_widget_data);
 
 		// obs_log_media_array(LOG_INFO, "Testing Queue 2: ", &playlist_widget_data->playlist_data->queue, 90, "    ", true);
@@ -944,11 +955,10 @@ void media_next(void *data)
 
 	if (playlist_widget_data->playlist_data->queue.size() > 0) {
 		if (uses_song_history_limit(playlist_widget_data->playlist_data) == true) {
-			const MediaData *media_data = &playlist_widget_data->playlist_data->queue[0].media_data;
+			const MediaData media_data = playlist_widget_data->playlist_data->queue[0]->media_data;
 
-			const MediaData new_entry =
-				construct_complete_media_data(media_data->path, media_data->filename, media_data->name,
-							      media_data->ext, media_data->index);
+			const MediaData new_entry = init_media_data(media_data.path, media_data.filename,
+								    media_data.name, media_data.ext, media_data.index);
 
 			playlist_widget_data->playlist_data->previous_queue.push_back(new_entry);
 
@@ -986,8 +996,9 @@ void media_previous(void *data)
 		if (playlist_widget_data->playlist_data->previous_queue.size() > 0) {
 			const MediaData media_data = playlist_widget_data->playlist_data->previous_queue[0];
 
-			QueueMediaData new_entry{};
-			init_queue_media_data_from_media_data(&new_entry, media_data, nullptr, playlist_widget_data);
+			std::shared_ptr<QueueMediaData> new_entry = std::make_shared<QueueMediaData>();
+
+			init_queue_media_data_from_media_data(new_entry, media_data, nullptr, playlist_widget_data);
 
 			playlist_widget_data->playlist_data->previous_queue.erase(
 				playlist_widget_data->playlist_data->previous_queue.begin());
@@ -1050,41 +1061,6 @@ enum obs_media_state media_get_state(void *data)
 }
 
 #pragma endregion
-
-// #pragma region Template
-
-// static struct obs_source_info playlist_source_template = {
-// 	.id = "media_playlist_code_maximon9",
-// 	.type = OBS_SOURCE_TYPE_INPUT,
-// 	.get_name = playlist_source_name,
-// 	.create = playlist_source_create,
-// 	.destroy = playlist_source_destroy,
-// 	.get_width = playlist_source_width,
-// 	.get_height = playlist_source_height,
-// 	.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_CUSTOM_DRAW | OBS_SOURCE_AUDIO | OBS_SOURCE_CONTROLLABLE_MEDIA,
-// 	.get_defaults = playlist_get_defaults,
-// 	.get_properties = playlist_get_properties,
-// 	.update = playlist_update,
-// 	.activate = playlist_activate,
-// 	.deactivate = playlist_deactivate,
-// 	.video_tick = playlist_video_tick,
-// 	.video_render = playlist_video_render,
-// 	.audio_render = playlist_audio_render,
-// 	.enum_active_sources = playlist_enum_active_sources,
-// 	.save = playlist_save,
-// 	.load = playlist_load,
-// 	.icon_type = OBS_ICON_TYPE_MEDIA,
-// 	.media_play_pause = media_play_pause,
-// 	.media_restart = media_restart,
-// 	.media_stop = media_stop,
-// 	.media_next = media_next,
-// 	.media_previous = media_previous,
-// 	.media_get_duration = media_get_duration,
-// 	.media_get_time = media_get_time,
-// 	.media_set_time = media_set_time,
-// 	.media_get_state = media_get_state,
-// };
-// #pragma endregion
 
 #pragma endregion
 

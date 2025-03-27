@@ -26,6 +26,6 @@ typedef struct QueueMediaData {
 } QueueMediaData;
 
 typedef std::deque<MediaData> MediaDataArray;
-typedef std::deque<QueueMediaData> QueueMediaDataArray;
+typedef std::deque<std::shared_ptr<QueueMediaData>> QueueMediaDataArray;
 
 #endif MEDIA_FILE_DATA_TYPES_HPP

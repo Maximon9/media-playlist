@@ -26,10 +26,12 @@ void push_media_media_file_at(MediaDataArray *media_array, MediaData *entry, siz
 
 void pop_media_at(MediaDataArray *media_array, size_t index);
 
-MediaData load_media_data_from_path(std::string path, size_t index);
+MediaData init_media_data_from_path(std::string path, size_t index);
 
-MediaData construct_complete_media_data(const std::string path, const std::string filename, const std::string name,
-					const std::string ext, size_t index);
+MediaData init_media_data(const std::string path, const std::string filename, const std::string name,
+			  const std::string ext, size_t index);
+
+MediaData init_media_data_from_media_data(const MediaData media_data);
 
 void push_queue_media_back(QueueMediaDataArray *media_array, const std::string path,
 			   PlaylistWidgetData *playlist_widget_data);
@@ -46,15 +48,15 @@ void pop_queue_media_front(QueueMediaDataArray *media_array, bool erase_widget);
 
 void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool erase_widget);
 
-void init_queue_media_data_from_path(QueueMediaData *new_entry, std::string path, size_t index,
+void init_queue_media_data_from_path(std::shared_ptr<QueueMediaData> new_entry, std::string path, size_t index,
 				     PlaylistWidgetData *playlist_data);
 
-void init_queue_media_data(QueueMediaData *new_entry, const std::string path, const std::string filename,
-			   const std::string name, const std::string ext, size_t index, MediaWidget *media_widget,
-			   PlaylistWidgetData *playlist_data);
+void init_queue_media_data(std::shared_ptr<QueueMediaData> new_entry, const std::string path,
+			   const std::string filename, const std::string name, const std::string ext, size_t index,
+			   MediaWidget *media_widget, PlaylistWidgetData *playlist_data);
 
-void init_queue_media_data_from_media_data(QueueMediaData *new_entry, MediaData media_data, MediaWidget *media_widget,
-					   PlaylistWidgetData *playlist_data);
+void init_queue_media_data_from_media_data(std::shared_ptr<QueueMediaData> new_entry, MediaData media_data,
+					   MediaWidget *media_widget, PlaylistWidgetData *playlist_widget_data);
 
 std::string obs_array_to_string(obs_data_array_t *array);
 
