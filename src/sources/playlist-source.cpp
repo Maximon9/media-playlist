@@ -574,8 +574,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	signal_handler_t *sh_media_source =
 		obs_source_get_signal_handler(playlist_widget_data->playlist_data->media_source);
-	signal_handler_connect(sh_media_source, "media_ended", playlist_media_source_ended,
-			       playlist_widget_data->playlist_data);
+	signal_handler_connect(sh_media_source, "media_ended", playlist_media_source_ended, playlist_widget_data);
 
 	playlist_widget_data->playlist_data->all_media_initialized = false;
 
