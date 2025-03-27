@@ -20,7 +20,7 @@ void refresh_queue_list(PlaylistData *playlist_data)
 	// obs_log(LOG_INFO, "This is doing stuff 4");
 	size_t max_queue_size = std::max(playlist_data->queue.size(), playlist_data->all_media.size());
 
-	for (size_t i = max_queue_size; i-- > 0;) {
+	for (size_t i = 0; i < max_queue_size; i++) {
 		const bool media_exist = i < playlist_data->all_media.size();
 		MediaData media_data;
 		if (media_exist) {
@@ -33,17 +33,17 @@ void refresh_queue_list(PlaylistData *playlist_data)
 		}
 
 		if (media_exist == false && media_widget != nullptr) {
-			media_widget->remove_widget();
-			playlist_data->queue.pop_back();
+			pop_queue_media_at(&playlist_data->queue, i, true);
 		} else if (media_exist == true) {
-			QueueMediaData new_entry{};
-			init_queue_media_data_from_media_data(&new_entry, media_data, media_widget, playlist_data);
-			if (media_widget != nullptr) {
+			if (media_widget == nullptr) {
+				QueueMediaData new_entry{};
+				init_queue_media_data_from_media_data(&new_entry, media_data, media_widget,
+								      playlist_data);
+				playlist_data->queue.push_back(new_entry);
+			} else {
+				playlist_data->queue[i].media_data = media_data;
 				media_widget->update_media_data();
-				playlist_data->queue.pop_back();
 			}
-
-			playlist_data->queue.push_front(new_entry);
 		}
 	}
 }
@@ -383,7 +383,7 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 						}
 					}
 				} else {
-					pop_queue_media_at(&playlist_data->queue, i);
+					pop_queue_media_at(&playlist_data->queue, i, true);
 					if (changed_queue == false) {
 						changed_queue = true;
 					}
@@ -924,12 +924,12 @@ void media_next(void *data)
 				playlist_data->previous_queue.pop_back();
 			}
 
-			pop_queue_media_front(&playlist_data->queue);
+			pop_queue_media_front(&playlist_data->queue, true);
 		} else if (playlist_data->end_behavior == END_BEHAVIOR_LOOP) {
 			std::swap(playlist_data->queue[0], playlist_data->queue[1]);
 			std::swap(playlist_data->queue[1], playlist_data->queue[playlist_data->queue.size() - 1]);
 		} else {
-			pop_queue_media_front(&playlist_data->queue);
+			pop_queue_media_front(&playlist_data->queue, true);
 		}
 
 		playlist_queue_restart(playlist_data);

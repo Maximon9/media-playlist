@@ -90,24 +90,30 @@ void push_queue_media_media_file_at(QueueMediaDataArray *media_array, QueueMedia
 	media_array->insert(it, *entry);
 }
 
-void pop_queue_media_back(QueueMediaDataArray *media_array)
+void pop_queue_media_back(QueueMediaDataArray *media_array, bool erase_widget)
 {
 	QueueMediaData *new_entry = &media_array->at(media_array->size() - 1);
-	new_entry->media_widget->remove_widget();
+	if (erase_widget == true) {
+		new_entry->media_widget->remove_widget();
+	}
 	media_array->pop_front();
 }
 
-void pop_queue_media_front(QueueMediaDataArray *media_array)
+void pop_queue_media_front(QueueMediaDataArray *media_array, bool erase_widget)
 {
 	QueueMediaData *new_entry = &media_array->at(0);
-	new_entry->media_widget->remove_widget();
+	if (erase_widget == true) {
+		new_entry->media_widget->remove_widget();
+	}
 	media_array->pop_front();
 }
 
-void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index)
+void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool erase_widget)
 {
 	QueueMediaData *new_entry = &media_array->at(index);
-	new_entry->media_widget->remove_widget();
+	if (erase_widget == true) {
+		new_entry->media_widget->remove_widget();
+	}
 	QueueMediaDataArray::const_iterator it = media_array->cbegin() + index;
 	media_array->erase(it);
 }

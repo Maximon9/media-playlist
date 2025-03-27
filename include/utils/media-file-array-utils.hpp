@@ -38,11 +38,11 @@ void push_queue_media_front(QueueMediaDataArray *media_array, const std::string 
 void push_queue_media_at(QueueMediaDataArray *media_array, const std::string path, size_t index,
 			 PlaylistData *playlist_data);
 
-void pop_queue_media_back(QueueMediaDataArray *media_array);
+void pop_queue_media_back(QueueMediaDataArray *media_array, bool erase_widget);
 
-void pop_queue_media_front(QueueMediaDataArray *media_array);
+void pop_queue_media_front(QueueMediaDataArray *media_array, bool erase_widget);
 
-void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index);
+void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool erase_widget);
 
 void init_queue_media_data_from_path(QueueMediaData *new_entry, std::string path, size_t index,
 				     PlaylistData *playlist_data);
