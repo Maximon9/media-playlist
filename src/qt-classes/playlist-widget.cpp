@@ -9,21 +9,30 @@ PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *paren
 
 	layout = new QVBoxLayout(this);
 	toggleButton = new QPushButton(QString::fromStdString(playlist_data->name), this);
+
 	mediaContainer = new QWidget(this);
 	mediaLayout = new QVBoxLayout(mediaContainer);
 
+	// Prevent mediaContainer from expanding unnecessarily
+	mediaContainer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+	mediaLayout->setSizeConstraint(QLayout::SetFixedSize);
+
+	// Center all media items inside the mediaContainer
+	mediaLayout->setAlignment(Qt::AlignCenter);
+
 	// Initially hide media items
 	mediaContainer->setVisible(expanded);
+
 	layout->addWidget(toggleButton);
 	layout->addWidget(mediaContainer);
+
+	// Align mediaContainer to the top center
+	layout->setAlignment(mediaContainer, Qt::AlignTop | Qt::AlignHCenter);
+
 	setLayout(layout);
 
-	// Populate media items
-	/* for (size_t i = 0; i < playlist->queue.size(); i++) {
-		const MediaData *media_data = &playlist->queue[i];
-		mediaLayout->addWidget(new MediaWidget(media_data, this));
-	} */
 	mediaContainer->setLayout(mediaLayout);
+	mediaContainer->adjustSize(); // Ensure it shrinks to fit content
 
 	// Toggle playlist expansion
 	connect(toggleButton, &QPushButton::clicked, this, &PlaylistWidget::toggleMediaVisibility);
