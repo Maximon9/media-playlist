@@ -62,4 +62,27 @@ void PlaylistWidget::remove_widget()
 	deleteLater();
 }
 
+QFuture<MediaWidget *> PlaylistWidget::create_media_widget(MediaData *media_data)
+{
+	QPromise<MediaWidget *> promise;
+	QFuture<MediaWidget *> future = promise.future();
+
+	QMetaObject::invokeMethod(
+		this,
+		[=, p = std::move(promise)]() mutable {
+			MediaWidget *widget = new MediaWidget(media_data, this);
+			p.addResult(widget);
+			p.finish();
+		},
+		Qt::QueuedConnection);
+
+	return future;
+}
+
+void PlaylistWidget::add_media_widget(MediaWidget *mediaWidget)
+{
+	// Add the MediaWidget to this PlaylistWidget's layout
+	QMetaObject::invokeMethod(this, [=]() { mediaLayout->addWidget(mediaWidget); }, Qt::QueuedConnection);
+}
+
 #pragma endregion

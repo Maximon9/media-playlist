@@ -31,12 +31,14 @@ MediaData load_media_data_from_path(std::string path, size_t index);
 MediaData construct_complete_media_data(const std::string path, const std::string filename, const std::string name,
 					const std::string ext, size_t index);
 
-void push_queue_media_back(QueueMediaDataArray *media_array, const std::string path, PlaylistData *playlist_data);
+void push_queue_media_back(QueueMediaDataArray *media_array, const std::string path,
+			   PlaylistWidgetData *playlist_widget_data);
 
-void push_queue_media_front(QueueMediaDataArray *media_array, const std::string path, PlaylistData *playlist_data);
+void push_queue_media_front(QueueMediaDataArray *media_array, const std::string path,
+			    PlaylistWidgetData *playlist_widget_data);
 
 void push_queue_media_at(QueueMediaDataArray *media_array, const std::string path, size_t index,
-			 PlaylistData *playlist_data);
+			 PlaylistWidgetData *playlist_widget_data);
 
 void pop_queue_media_back(QueueMediaDataArray *media_array, bool erase_widget);
 
@@ -45,14 +47,14 @@ void pop_queue_media_front(QueueMediaDataArray *media_array, bool erase_widget);
 void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool erase_widget);
 
 void init_queue_media_data_from_path(QueueMediaData *new_entry, std::string path, size_t index,
-				     PlaylistData *playlist_data);
+				     PlaylistWidgetData *playlist_data);
 
 void init_queue_media_data(QueueMediaData *new_entry, const std::string path, const std::string filename,
 			   const std::string name, const std::string ext, size_t index, MediaWidget *media_widget,
-			   PlaylistData *playlist_data);
+			   PlaylistWidgetData *playlist_data);
 
 void init_queue_media_data_from_media_data(QueueMediaData *new_entry, MediaData media_data, MediaWidget *media_widget,
-					   PlaylistData *playlist_data);
+					   PlaylistWidgetData *playlist_data);
 
 std::string obs_array_to_string(obs_data_array_t *array);
 

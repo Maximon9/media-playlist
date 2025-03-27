@@ -35,7 +35,7 @@ bool playlist_queue_modified(obs_properties_t *props, obs_property_t *property, 
 
 obs_properties_t *update_playlist_properties();
 
-void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings);
+void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *settings);
 
 #pragma endregion
 

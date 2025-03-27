@@ -60,25 +60,27 @@ MediaData construct_complete_media_data(const std::string path, const std::strin
 	return new_entry;
 }
 
-void push_queue_media_back(QueueMediaDataArray *media_array, const std::string path, PlaylistData *playlist_data)
+void push_queue_media_back(QueueMediaDataArray *media_array, const std::string path,
+			   PlaylistWidgetData *playlist_widget_data)
 {
 	QueueMediaData entry{};
-	init_queue_media_data_from_path(&entry, path, media_array->size() - 1, playlist_data);
+	init_queue_media_data_from_path(&entry, path, media_array->size() - 1, playlist_widget_data);
 	media_array->push_back(entry);
 }
 
-void push_queue_media_front(QueueMediaDataArray *media_array, const std::string path, PlaylistData *playlist_data)
+void push_queue_media_front(QueueMediaDataArray *media_array, const std::string path,
+			    PlaylistWidgetData *playlist_widget_data)
 {
 	QueueMediaData entry{};
-	init_queue_media_data_from_path(&entry, path, 0, playlist_data);
+	init_queue_media_data_from_path(&entry, path, 0, playlist_widget_data);
 	media_array->push_front(entry);
 }
 
 void push_queue_media_at(QueueMediaDataArray *media_array, const std::string path, size_t index,
-			 PlaylistData *playlist_data)
+			 PlaylistWidgetData *playlist_widget_data)
 {
 	QueueMediaData entry{};
-	init_queue_media_data_from_path(&entry, path, index, playlist_data);
+	init_queue_media_data_from_path(&entry, path, index, playlist_widget_data);
 
 	QueueMediaDataArray::const_iterator it = media_array->cbegin() + index;
 	media_array->insert(it, entry);
@@ -135,13 +137,11 @@ void init_queue_media_data_from_path(QueueMediaData *new_entry, std::string path
 
 	new_entry->media_data = {path, filename, name, ext, index};
 
-	new_entry->media_widget = new MediaWidget(&new_entry->media_data, nullptr);
+	QFuture<MediaWidget *> future =
+		playlist_widget_data->playlist_widget->create_media_widget(&new_entry->media_data);
+	new_entry->media_widget = future.result();
 
-	// new_entry->media_widget->moveToThread(playlist_data->playlist_widget->thread());
-
-	// new_entry->media_widget->setParent(playlist_data->playlist_widget);
-
-	// playlist_data->playlist_widget->mediaLayout->addWidget(new_entry->media_widget);
+	playlist_widget_data->playlist_widget->add_media_widget(new_entry->media_widget);
 }
 
 void init_queue_media_data(QueueMediaData *new_entry, const std::string path, const std::string filename,
@@ -153,7 +153,7 @@ void init_queue_media_data(QueueMediaData *new_entry, const std::string path, co
 	if (media_widget == nullptr) {
 		new_entry->media_widget =
 			new MediaWidget(&new_entry->media_data, playlist_widget_data->playlist_widget);
-		playlist_widget_data->playlist_widget->mediaLayout->addWidget(media_widget);
+		playlist_widget_data->playlist_widget->add_media_widget(media_widget);
 	} else {
 		media_widget->media_data = nullptr;
 		media_widget->media_data = &new_entry->media_data;
@@ -170,7 +170,7 @@ void init_queue_media_data_from_media_data(QueueMediaData *new_entry, MediaData 
 	if (media_widget == nullptr) {
 		new_entry->media_widget =
 			new MediaWidget(&new_entry->media_data, playlist_widget_data->playlist_widget);
-		playlist_widget_data->playlist_widget->mediaLayout->addWidget(media_widget);
+		playlist_widget_data->playlist_widget->add_media_widget(media_widget);
 	} else {
 		media_widget->media_data = nullptr;
 		media_widget->media_data = &new_entry->media_data;
