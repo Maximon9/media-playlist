@@ -23,12 +23,17 @@ PlaylistQueueViewer::PlaylistQueueViewer(QWidget *parent) : QWidget(parent)
 
 	// Scroll area setup
 	scrollArea = new QScrollArea(this);
+	// scrollArea->setSizePolicy();
 	scrollArea->setWidgetResizable(true);
 
 	// Container inside scroll area
 	contentWidget = new QWidget();
 	contentLayout = new QVBoxLayout(contentWidget);
+
 	contentWidget->setLayout(contentLayout);
+
+	contentLayout->setAlignment(Qt::AlignTop);
+
 	scrollArea->setWidget(contentWidget);
 
 	layout->addWidget(scrollArea);

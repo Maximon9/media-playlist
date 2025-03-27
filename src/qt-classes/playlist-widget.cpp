@@ -9,12 +9,9 @@ PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *paren
 
 	// Main layout for the PlaylistWidget
 	layout = new QVBoxLayout(this);
-	layout->setSpacing(0);                  // Remove any default spacing between items
-	layout->setContentsMargins(0, 0, 0, 0); // Remove margins around the layout
 
 	// Create a layout for the toggleButton to make it expand horizontally
 	buttonLayout = new QHBoxLayout();
-	buttonLayout->setContentsMargins(0, 0, 0, 0); // Remove margins for the button layout
 
 	toggleButton = new QPushButton(QString::fromStdString(playlist_data->name), this);
 	toggleButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed); // Make button expand horizontally
@@ -24,8 +21,6 @@ PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *paren
 
 	mediaContainer = new QWidget(this);
 	mediaLayout = new QVBoxLayout(mediaContainer);
-	mediaLayout->setSpacing(0);                  // No spacing between items in the container
-	mediaLayout->setContentsMargins(0, 0, 0, 0); // Remove margins
 
 	// Shrink the mediaContainer horizontally
 	mediaContainer->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum); // Fixed size for vertical
@@ -57,8 +52,6 @@ void PlaylistWidget::toggleMediaVisibility()
 	expanded = !expanded;
 
 	mediaContainer->setVisible(expanded);
-
-	mediaContainer->adjustSize();
 }
 
 void PlaylistWidget::update_playlist_name()

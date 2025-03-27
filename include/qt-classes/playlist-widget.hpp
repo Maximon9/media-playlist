@@ -15,8 +15,8 @@ private:
 	QVBoxLayout *layout;
 	QPushButton *toggleButton;
 	QWidget *mediaContainer;
-	QWidget *topContainer;
-	QVBoxLayout *topLayout;
+	// QWidget *topContainer;
+	// QVBoxLayout *topLayout;
 	QVBoxLayout *mediaLayout;
 	QHBoxLayout *buttonLayout;
 	bool expanded;
