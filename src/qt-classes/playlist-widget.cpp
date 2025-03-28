@@ -10,37 +10,38 @@ PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *paren
 {
 	this->playlist_data = playlist_data;
 
-	QWidget *root = nullptr;
+	QWidget *root = this;
+	// QWidget *root = nullptr;
 
-	if (is_main_widget == true) {
-		layout = new QVBoxLayout(this);
+	// if (is_main_widget == true) {
+	// 	layout = new QVBoxLayout(this);
 
-		// Scroll area setup
-		scrollArea = new QScrollArea(this);
-		// scrollArea->setSizePolicy();
-		scrollArea->setWidgetResizable(true);
+	// 	// Scroll area setup
+	// 	scrollArea = new QScrollArea(this);
+	// 	// scrollArea->setSizePolicy();
+	// 	scrollArea->setWidgetResizable(true);
 
-		// Container inside scroll area
-		contentWidget = new QWidget();
-		contentLayout = new QVBoxLayout(contentWidget);
+	// 	// Container inside scroll area
+	// 	contentWidget = new QWidget();
+	// 	contentLayout = new QVBoxLayout(contentWidget);
 
-		contentWidget->setLayout(contentLayout);
+	// 	contentWidget->setLayout(contentLayout);
 
-		contentLayout->setAlignment(Qt::AlignTop);
+	// 	contentLayout->setAlignment(Qt::AlignTop);
 
-		scrollArea->setWidget(contentWidget);
+	// 	scrollArea->setWidget(contentWidget);
 
-		layout->addWidget(scrollArea);
-		setLayout(layout);
+	// 	layout->addWidget(scrollArea);
+	// 	setLayout(layout);
 
-		root = contentWidget;
-	} else {
-		root = this;
-	}
+	// 	root = contentWidget;
+	// } else {
+	// 	root = this;
+	// }
 
-	if (root == nullptr) {
-		return;
-	}
+	// if (root == nullptr) {
+	// 	return;
+	// }
 
 	// Main layout for the PlaylistWidget
 	playlist_layout = new QVBoxLayout(root);
