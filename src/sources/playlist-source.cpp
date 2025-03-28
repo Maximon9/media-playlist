@@ -611,18 +611,13 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	update_playlist_data(playlist_widget_data, settings);
 
+	playlist_widget_data->param_playlist_widget =
+		new PlaylistWidget(playlist_widget_data->playlist_data, obs_main_window, true);
+
 	playlist_widget_data->playlist_widget =
-		new MultiPlaylistQueueViewer(playlist_widget_data->playlist_data, obs_main_window);
-	playlist_widget_data->playlist_queue_widget =
-		new PlaylistWidget(playlist_widget_data->playlist_data, playlist_queue_viewer);
-	playlist_queue_viewer->addPlaylistWidget(playlist_widget_data->playlist_widget);
-
-	// obs_log(LOG_INFO, "Layout 1: %s", playlist_queue_viewer->contentLayout->objectName().toStdString().c_str());
-
-	// QWidget *parent_widget = qobject_cast<QWidget *>(playlist_widget_data->playlist_data->playlist_widget->parent());
-	// obs_log(LOG_INFO, "Layout 2: %s", parent_widget->layout()->objectName().toStdString().c_str());
-
-	playlist_queue_viewer->playlist_datas.push_back(playlist_widget_data);
+		new PlaylistWidget(playlist_widget_data->playlist_data, multi_playlist_queue_viewer);
+	multi_playlist_queue_viewer->addPlaylistWidget(playlist_widget_data->param_playlist_widget);
+	multi_playlist_queue_viewer->playlist_datas.push_back(playlist_widget_data);
 
 	obs_log(LOG_INFO, "Playlist Name: %s", playlist_widget_data->playlist_data->name.c_str());
 	obs_log(LOG_INFO, "Channels: %d", playlist_widget_data->playlist_data->num_channels);
@@ -652,8 +647,8 @@ void playlist_source_destroy(void *data)
 	pthread_mutex_destroy(&playlist_widget_data->playlist_data->mutex);
 	pthread_mutex_destroy(&playlist_widget_data->playlist_data->audio_mutex);
 
-	if (playlist_widget_data->playlist_widget != nullptr) {
-		playlist_widget_data->playlist_widget->remove_widget();
+	if (playlist_widget_data->param_playlist_widget != nullptr) {
+		playlist_widget_data->param_playlist_widget->remove_widget();
 	}
 
 	// free_media_array(&playlist_widget_data->playlist_data->queue);
@@ -910,7 +905,7 @@ void playlist_save(void *data, obs_data_t *settings)
 	obs_log(LOG_INFO, "playlist_save");
 
 	playlist_widget_data->playlist_data->name = obs_source_get_name(playlist_widget_data->playlist_data->source);
-	playlist_widget_data->playlist_widget->update_playlist_name();
+	playlist_widget_data->param_playlist_widget->update_playlist_name();
 	// PlaylistSource *playlist_widget_data->playlist_data = (PlaylistSource *)data;
 	// obs_data_set_int(settings, S_CURRENT_MEDIA_INDEX, playlist_widget_data->playlist_data->current_media_index);
 	// update_current_filename_setting(playlist_widget_data->playlist_data, settings);

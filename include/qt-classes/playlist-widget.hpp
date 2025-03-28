@@ -19,10 +19,11 @@ private:
 	QVBoxLayout *mediaLayout;
 	QHBoxLayout *buttonLayout;
 	bool expanded;
+	bool is_main_widget;
 
 public:
 	const PlaylistData *playlist_data;
-	explicit PlaylistWidget(const PlaylistData *playlist, QWidget *parent = nullptr);
+	explicit PlaylistWidget(const PlaylistData *playlist, QWidget *parent = nullptr, bool is_main_widget = false);
 	void toggleMediaVisibility();
 	void update_playlist_name();
 	void update_playlist_data();

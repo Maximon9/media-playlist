@@ -40,9 +40,9 @@ MultiPlaylistQueueViewer::MultiPlaylistQueueViewer(QWidget *parent) : QWidget(pa
 	setLayout(layout);
 }
 
-void MultiPlaylistQueueViewer::addPlaylistWidget(PlaylistWidget *playlist_widget)
+void MultiPlaylistQueueViewer::addPlaylistWidget(PlaylistWidget *param_playlist_widget)
 {
-	playlist_queue_viewer->contentLayout->addWidget(playlist_widget);
+	multi_playlist_queue_viewer->contentLayout->addWidget(param_playlist_widget);
 }
 
 void MultiPlaylistQueueViewer::updatePlaylists()
@@ -53,10 +53,10 @@ void MultiPlaylistQueueViewer::updatePlaylists()
 		if (playlist_widget_data == nullptr) {
 			continue;
 		}
-		playlist_widget_data->playlist_widget->update_playlist_data();
+		playlist_widget_data->param_playlist_widget->update_playlist_data();
 	}
 }
 
-MultiPlaylistQueueViewer *playlist_queue_viewer = nullptr;
+MultiPlaylistQueueViewer *multi_playlist_queue_viewer = nullptr;
 
 #pragma endregion

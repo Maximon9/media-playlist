@@ -43,8 +43,8 @@ typedef struct PlaylistData {
 } PlaylistData;
 
 typedef struct PlaylistWidgetData {
-	PlaylistWidget *playlist_queue_widget;
 	PlaylistWidget *playlist_widget;
+	PlaylistWidget *param_playlist_widget;
 	PlaylistData *playlist_data;
 } PlaylistWidgetData;
 

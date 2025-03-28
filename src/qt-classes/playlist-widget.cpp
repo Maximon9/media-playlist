@@ -3,7 +3,10 @@
 #include "../../include/qt-classes/playlist-widget.hpp"
 #include "../../include/qt-classes/media-widget.hpp"
 
-PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *parent) : QWidget(parent), expanded(false)
+PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *parent, bool is_main_widget)
+	: QWidget(parent),
+	  expanded(false),
+	  is_main_widget(is_main_widget)
 {
 	this->playlist_data = playlist_data;
 
@@ -58,6 +61,14 @@ PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *paren
 	// Toggle playlist expansion
 	connect(toggleButton, &QPushButton::clicked, this, &PlaylistWidget::toggleMediaVisibility);
 }
+
+// PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *parent)
+// 	: PlaylistWidget(playlist_data, parent, false)
+// // : QWidget(parent),
+// //   is_main_widget(false),
+// //   expanded(false)
+// {
+// }
 
 void PlaylistWidget::toggleMediaVisibility()
 {

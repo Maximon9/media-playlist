@@ -94,11 +94,11 @@ bool obs_module_load(void)
 	// obs_log(LOG_INFO, "Loading Playlists");
 
 	QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
-	playlist_queue_viewer = new MultiPlaylistQueueViewer(obs_main_window);
+	multi_playlist_queue_viewer = new MultiPlaylistQueueViewer(obs_main_window);
 
 	if (obs_frontend_add_dock_by_id("playlist_queue_viewer_maximon9", "Playlist Queue Viewer",
-					playlist_queue_viewer) == false) {
-		delete playlist_queue_viewer;
+					multi_playlist_queue_viewer) == false) {
+		delete multi_playlist_queue_viewer;
 	}
 
 	struct obs_source_info playlist_source_template{};
@@ -161,9 +161,9 @@ void obs_module_unload(void)
 	// 	obs_log(LOG_INFO, "Media source released successfully");
 	// }
 	// da_free(test_array);
-	// if (playlist_queue_viewer != nullptr) {
-	// 	delete playlist_queue_viewer;
-	// 	playlist_queue_viewer = nullptr;
+	// if (multi_playlist_queue_viewer != nullptr) {
+	// 	delete multi_playlist_queue_viewer;
+	// 	multi_playlist_queue_viewer = nullptr;
 	// }
 	obs_log(LOG_INFO, "%s plugin unloaded %s", PLUGIN_NAME, PLUGIN_VERSION);
 }
