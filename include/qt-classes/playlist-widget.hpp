@@ -2,6 +2,7 @@
 #define PLAYLIST_WIDGET_HPP
 
 #include <QEventLoop>
+#include <QScrollArea>
 #include <QWidget>
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -11,15 +12,20 @@ typedef struct PlaylistData PlaylistData;
 
 class PlaylistWidget : public QWidget {
 private:
-	QVBoxLayout *layout;
+	QVBoxLayout *playlist_layout;
 	QPushButton *toggleButton;
 	QWidget *mediaContainer;
-	// QWidget *topContainer;
-	// QVBoxLayout *topLayout;
 	QVBoxLayout *mediaLayout;
 	QHBoxLayout *buttonLayout;
 	bool expanded;
+
+#pragma region Main Widget Params
 	bool is_main_widget;
+	QVBoxLayout *layout;
+	QScrollArea *scrollArea;
+	QWidget *contentWidget;
+	QVBoxLayout *contentLayout;
+#pragma endregion
 
 public:
 	const PlaylistData *playlist_data;
