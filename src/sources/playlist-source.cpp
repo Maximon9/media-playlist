@@ -599,6 +599,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	// playlist_widget_data->playlist_data->properties_ui = new CustomProperties(settings, properties_window);
 
 	// pthread_mutex_init_value(&playlist_widget_data->playlist_data->mutex);
+	QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
 	if (pthread_mutex_init(&playlist_widget_data->playlist_data->mutex, NULL) != 0) {
 		goto error;
 	}
@@ -611,6 +612,8 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	update_playlist_data(playlist_widget_data, settings);
 
 	playlist_widget_data->playlist_widget =
+		new MultiPlaylistQueueViewer(playlist_widget_data->playlist_data, obs_main_window);
+	playlist_widget_data->playlist_queue_widget =
 		new PlaylistWidget(playlist_widget_data->playlist_data, playlist_queue_viewer);
 	playlist_queue_viewer->contentLayout->addWidget(playlist_widget_data->playlist_widget);
 

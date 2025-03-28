@@ -6,7 +6,7 @@
 #include <plugin-support.h>
 #include "../include/utils/media-file-array-utils.hpp"
 #include "../include/utils/utils.hpp"
-#include "../include/qt-classes/playlist-queue-viewer.hpp"
+#include "../include/qt-classes/multi-playlist-queue-viewer.hpp"
 
 #pragma region Media Functions
 void playlist_global_signal_callback(void *data, const char *signal, calldata_t *callback_data);

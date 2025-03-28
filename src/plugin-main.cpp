@@ -94,7 +94,7 @@ bool obs_module_load(void)
 	// obs_log(LOG_INFO, "Loading Playlists");
 
 	QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
-	playlist_queue_viewer = new PlaylistQueueViewer(obs_main_window);
+	playlist_queue_viewer = new MultiPlaylistQueueViewer(obs_main_window);
 
 	if (obs_frontend_add_dock_by_id("playlist_queue_viewer_maximon9", "Playlist Queue Viewer",
 					playlist_queue_viewer) == false) {
