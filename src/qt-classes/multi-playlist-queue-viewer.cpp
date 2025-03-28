@@ -40,6 +40,11 @@ MultiPlaylistQueueViewer::MultiPlaylistQueueViewer(QWidget *parent) : QWidget(pa
 	setLayout(layout);
 }
 
+void MultiPlaylistQueueViewer::addPlaylistWidget(PlaylistWidget *playlist_widget)
+{
+	playlist_queue_viewer->contentLayout->addWidget(playlist_widget);
+}
+
 void MultiPlaylistQueueViewer::updatePlaylists()
 {
 	// Add new playlists

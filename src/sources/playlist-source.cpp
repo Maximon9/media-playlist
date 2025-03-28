@@ -615,7 +615,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 		new MultiPlaylistQueueViewer(playlist_widget_data->playlist_data, obs_main_window);
 	playlist_widget_data->playlist_queue_widget =
 		new PlaylistWidget(playlist_widget_data->playlist_data, playlist_queue_viewer);
-	playlist_queue_viewer->contentLayout->addWidget(playlist_widget_data->playlist_widget);
+	playlist_queue_viewer->addPlaylistWidget(playlist_widget_data->playlist_widget);
 
 	// obs_log(LOG_INFO, "Layout 1: %s", playlist_queue_viewer->contentLayout->objectName().toStdString().c_str());
 

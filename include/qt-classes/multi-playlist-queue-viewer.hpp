@@ -22,6 +22,7 @@ private:
 public:
 	PlaylistWidgetDatas playlist_datas;
 	explicit MultiPlaylistQueueViewer(QWidget *parent = nullptr);
+	void addPlaylistWidget(PlaylistWidget *playlist_widget);
 	void updatePlaylists();
 };
 
