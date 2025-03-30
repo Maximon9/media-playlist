@@ -3,51 +3,52 @@
 #include "../../include/qt-classes/playlist-widget.hpp"
 #include "../../include/qt-classes/media-widget.hpp"
 
-// PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *parent, bool is_main_widget)
-PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *parent) : QWidget(parent), expanded(false)
+PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *parent, bool is_main_widget)
+	: QWidget(parent),
+	  expanded(false)
 // , is_main_widget(is_main_widget)
 {
 	this->playlist_data = playlist_data;
 
-	// QWidget *root = this;
+	QWidget *root = this;
 
-	// if (is_main_widget == true) {
-	// 	layout = new QVBoxLayout(this);
+	if (is_main_widget == true) {
+		layout = new QVBoxLayout(this);
 
-	// 	// Scroll area setup
-	// 	scrollArea = new QScrollArea(this);
-	// 	// scrollArea->setSizePolicy();
-	// 	scrollArea->setWidgetResizable(true);
+		// Scroll area setup
+		scrollArea = new QScrollArea(this);
+		// scrollArea->setSizePolicy();
+		scrollArea->setWidgetResizable(true);
 
-	// 	// Container inside scroll area
-	// 	contentWidget = new QWidget();
-	// 	contentLayout = new QVBoxLayout(contentWidget);
+		// Container inside scroll area
+		contentWidget = new QWidget();
+		contentLayout = new QVBoxLayout(contentWidget);
 
-	// 	contentWidget->setLayout(contentLayout);
+		contentWidget->setLayout(contentLayout);
 
-	// 	contentLayout->setAlignment(Qt::AlignTop);
+		contentLayout->setAlignment(Qt::AlignTop);
 
-	// 	scrollArea->setWidget(contentWidget);
+		scrollArea->setWidget(contentWidget);
 
-	// 	layout->addWidget(scrollArea);
-	// 	setLayout(layout);
+		layout->addWidget(scrollArea);
+		setLayout(layout);
 
-	// 	root = contentWidget;
-	// } else {
-	// 	root = this;
-	// }
+		root = contentWidget;
+	} else {
+		root = this;
+	}
 
-	// if (root == nullptr) {
-	// 	return;
-	// }
+	if (root == nullptr) {
+		return;
+	}
 
 	// Main layout for the PlaylistWidget
-	playlist_layout = new QVBoxLayout(this);
+	playlist_layout = new QVBoxLayout(root);
 
 	// Create a layout for the toggleButton to make it expand horizontally
 	buttonLayout = new QHBoxLayout();
 
-	toggleButton = new QPushButton(QString::fromStdString(playlist_data->name), this);
+	toggleButton = new QPushButton(QString::fromStdString(playlist_data->name), root);
 	toggleButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed); // Make button expand horizontally
 
 	toggleButton->setStyleSheet("QPushButton {"
@@ -65,7 +66,7 @@ PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *paren
 	buttonLayout->addWidget(toggleButton);
 	buttonLayout->setAlignment(Qt::AlignTop);
 
-	mediaContainer = new QWidget(this);
+	mediaContainer = new QWidget(root);
 	mediaLayout = new QVBoxLayout(mediaContainer);
 
 	// Shrink the mediaContainer horizontally
@@ -82,7 +83,7 @@ PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *paren
 	playlist_layout->addLayout(buttonLayout); // This ensures the button takes up full width
 	playlist_layout->addWidget(mediaContainer);
 
-	setLayout(playlist_layout);
+	root->setLayout(playlist_layout);
 
 	mediaContainer->setLayout(mediaLayout);
 	mediaContainer->adjustSize(); // Shrink the container to fit its content
@@ -129,35 +130,6 @@ void PlaylistWidget::remove_widget()
 	deleteLater();
 }
 
-// QFuture<MediaWidget *> PlaylistWidget::create_media_widget(MediaData *media_data)
-// {
-// 	QPromise<MediaWidget *> promise;
-// 	QFuture<MediaWidget *> future = promise.future();
-
-// 	QMetaObject::invokeMethod(
-// 		this,
-// 		[=, p = std::move(promise)]() mutable {
-// 			MediaWidget *widget = new MediaWidget(media_data, this);
-// 			p.addResult(widget);
-// 			p.finish();
-// 		},
-// 		Qt::QueuedConnection);
-
-// 	return future;
-// }
-
-/* void PlaylistWidget::create_media_widget(MediaData *media_data, std::function<void(MediaWidget *)> callback)
-{
-	QMetaObject::invokeMethod(
-		this,
-		[=]() {
-			MediaWidget *widget = new MediaWidget(media_data, this);
-			if (callback) {
-				callback(widget);
-			}
-		},
-		Qt::QueuedConnection);
-} */
 MediaWidget *PlaylistWidget::create_media_widget(MediaData *media_data)
 {
 	// Create an event loop to ensure synchronous execution
@@ -183,7 +155,6 @@ MediaWidget *PlaylistWidget::create_media_widget(MediaData *media_data)
 
 void PlaylistWidget::add_media_widget(MediaWidget *mediaWidget)
 {
-	// Add the MediaWidget to this PlaylistWidget's layout
 	QMetaObject::invokeMethod(this, [=]() { mediaLayout->addWidget(mediaWidget); }, Qt::QueuedConnection);
 }
 

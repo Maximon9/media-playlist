@@ -614,11 +614,9 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	// playlist_widget_data->param_playlist_widget =
 	// 	new PlaylistWidget(playlist_widget_data->playlist_data, obs_main_window, true);
 
-	// playlist_widget_data->playlist_widget =
-	// 	new PlaylistWidget(playlist_widget_data->playlist_data, multi_playlist_queue_viewer, false);
 	playlist_widget_data->playlist_widget =
-		new PlaylistWidget(playlist_widget_data->playlist_data, multi_playlist_queue_viewer);
-	multi_playlist_queue_viewer->addPlaylistWidget(playlist_widget_data->param_playlist_widget);
+		new PlaylistWidget(playlist_widget_data->playlist_data, multi_playlist_queue_viewer, false);
+	multi_playlist_queue_viewer->addPlaylistWidget(playlist_widget_data->playlist_widget);
 	multi_playlist_queue_viewer->playlist_datas.push_back(playlist_widget_data);
 
 	return playlist_widget_data;
@@ -647,6 +645,9 @@ void playlist_source_destroy(void *data)
 	pthread_mutex_destroy(&playlist_widget_data->playlist_data->mutex);
 	pthread_mutex_destroy(&playlist_widget_data->playlist_data->audio_mutex);
 
+	if (playlist_widget_data->playlist_widget != nullptr) {
+		playlist_widget_data->playlist_widget->remove_widget();
+	}
 	if (playlist_widget_data->param_playlist_widget != nullptr) {
 		playlist_widget_data->param_playlist_widget->remove_widget();
 	}
@@ -905,6 +906,9 @@ void playlist_save(void *data, obs_data_t *settings)
 	obs_log(LOG_INFO, "playlist_save");
 
 	playlist_widget_data->playlist_data->name = obs_source_get_name(playlist_widget_data->playlist_data->source);
+	if (playlist_widget_data->playlist_widget != nullptr) {
+		playlist_widget_data->playlist_widget->update_playlist_name();
+	}
 	if (playlist_widget_data->param_playlist_widget != nullptr) {
 		playlist_widget_data->param_playlist_widget->update_playlist_name();
 	}

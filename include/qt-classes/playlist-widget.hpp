@@ -19,18 +19,17 @@ private:
 	QVBoxLayout *mediaLayout;
 	bool expanded;
 
-	// #pragma region Main Widget Params
-	// 	bool is_main_widget;
-	// 	QVBoxLayout *layout;
-	// 	QScrollArea *scrollArea;
-	// 	QWidget *contentWidget;
-	// 	QVBoxLayout *contentLayout;
-	// #pragma endregion
+#pragma region Main Widget Params
+	bool is_main_widget;
+	QVBoxLayout *layout;
+	QScrollArea *scrollArea;
+	QWidget *contentWidget;
+	QVBoxLayout *contentLayout;
+#pragma endregion
 
 public:
 	const PlaylistData *playlist_data;
-	// explicit PlaylistWidget(const PlaylistData *playlist, QWidget *parent = nullptr, bool is_main_widget = false);
-	explicit PlaylistWidget(const PlaylistData *playlist, QWidget *parent = nullptr);
+	explicit PlaylistWidget(const PlaylistData *playlist, QWidget *parent = nullptr, bool is_main_widget = false);
 	void toggleMediaVisibility();
 	void update_playlist_name();
 	void update_playlist_data();
