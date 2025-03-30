@@ -1,5 +1,5 @@
-#ifndef PLAYLIST_WIDGET_HPP
-#define PLAYLIST_WIDGET_HPP
+#ifndef PLAYLIST_QUEUE_VIEWER_HPP
+#define PLAYLIST_QUEUE_VIEWER_HPP
 
 #include <QEventLoop>
 #include <QScrollArea>
@@ -10,9 +10,9 @@
 
 typedef struct PlaylistData PlaylistData;
 
-class PlaylistWidget : public QWidget {
+class PlaylisQueuetWidget : public QWidget {
 private:
-	QVBoxLayout *playlist_layout;
+	QVBoxLayout *layout;
 	QPushButton *toggleButton;
 	QHBoxLayout *buttonLayout;
 	QWidget *mediaContainer;
@@ -21,7 +21,6 @@ private:
 
 #pragma region Main Widget Params
 	bool is_main_widget;
-	QVBoxLayout *layout;
 	QScrollArea *scrollArea;
 	QWidget *contentWidget;
 	QVBoxLayout *contentLayout;
@@ -29,7 +28,8 @@ private:
 
 public:
 	const PlaylistData *playlist_data;
-	explicit PlaylistWidget(const PlaylistData *playlist, QWidget *parent = nullptr, bool is_main_widget = false);
+	explicit PlaylisQueuetWidget(const PlaylistData *playlist, QWidget *parent = nullptr,
+				     bool is_main_widget = false);
 	void toggleMediaVisibility();
 	void update_playlist_name();
 	void update_playlist_data();
@@ -38,4 +38,4 @@ public:
 	MediaWidget *create_media_widget(MediaData *media_data);
 	void add_media_widget(MediaWidget *mediaWidget);
 };
-#endif // PLAYLIST_WIDGET_HPP
+#endif // PLAYLIST_QUEUE_VIEWER_HPP

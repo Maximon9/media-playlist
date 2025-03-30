@@ -1,20 +1,24 @@
 #pragma region Main
 
-#include "../../include/qt-classes/playlist-widget.hpp"
+#include "../../include/qt-classes/playlist-queue-widget.hpp"
 #include "../../include/qt-classes/media-widget.hpp"
 
-PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *parent, bool is_main_widget)
+PlaylisQueuetWidget::PlaylisQueuetWidget(const PlaylistData *playlist_data, QWidget *parent, bool is_main_widget)
 	: QWidget(parent),
-	  expanded(false),
+	  expanded(is_main_widget),
 	  is_main_widget(is_main_widget)
 {
 	this->playlist_data = playlist_data;
 
-	// QWidget *root = this;
+	QWidget *media_container_root = this;
+
+	// Main layout for the PlaylisQueuetWidget
+	layout = new QVBoxLayout(this);
+
+	QBoxLayout *media_container_root_layout = layout;
 
 	if (is_main_widget == true) {
 		setWindowTitle(QString::fromStdString(playlist_data->name + " Queue"));
-		layout = new QVBoxLayout(this);
 
 		// Scroll area setup
 		scrollArea = new QScrollArea(this);
@@ -27,39 +31,13 @@ PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *paren
 
 		contentWidget->setLayout(contentLayout);
 
-		contentLayout->setAlignment(Qt::AlignTop);
-
-		mediaContainer = new QWidget(contentWidget);
-		mediaLayout = new QVBoxLayout(mediaContainer);
-
-		// Shrink the mediaContainer horizontally
-		mediaContainer->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum); // Fixed size for vertical
-
-		// Set the mediaLayout properties to shrink to the content
-		mediaLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
-		mediaLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter); // Align to top and center
-
-		// Initially hide media items
-		mediaContainer->setVisible(true);
-
-		// Add the button layout and media container to the main layout
-		contentLayout->addWidget(mediaContainer);
-
-		mediaContainer->setLayout(mediaLayout);
-		mediaContainer->adjustSize(); // Shrink the container to fit its content
-
 		scrollArea->setWidget(contentWidget);
 
 		layout->addWidget(scrollArea);
-		setLayout(layout);
 
-		resize(500, 500);
-		setVisible(false);
-
+		media_container_root = contentWidget;
+		media_container_root_layout = contentLayout;
 	} else {
-		// Main layout for the PlaylistWidget
-		playlist_layout = new QVBoxLayout(this);
-
 		// Create a layout for the toggleButton to make it expand horizontally
 		buttonLayout = new QHBoxLayout();
 
@@ -82,40 +60,46 @@ PlaylistWidget::PlaylistWidget(const PlaylistData *playlist_data, QWidget *paren
 		buttonLayout->addWidget(toggleButton);
 		buttonLayout->setAlignment(Qt::AlignTop);
 
-		mediaContainer = new QWidget(this);
-		mediaLayout = new QVBoxLayout(mediaContainer);
-
-		// Shrink the mediaContainer horizontally
-		mediaContainer->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum); // Fixed size for vertical
-
-		// Set the mediaLayout properties to shrink to the content
-		mediaLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
-		mediaLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter); // Align to top and center
-
-		// Initially hide media items
-		mediaContainer->setVisible(expanded);
-
-		// Add the button layout and media container to the main layout
-		playlist_layout->addLayout(buttonLayout); // This ensures the button takes up full width
-		playlist_layout->addWidget(mediaContainer);
-
-		setLayout(playlist_layout);
-
-		mediaContainer->setLayout(mediaLayout);
-		mediaContainer->adjustSize(); // Shrink the container to fit its content
-
-		// Ensure that the container is aligned at the top
-		playlist_layout->setAlignment(mediaContainer,
-					      Qt::AlignTop); // Align mediaContainer to the top when collapsed
-
-		// setVisible(false);
-
-		// Toggle playlist expansion
-		connect(toggleButton, &QPushButton::clicked, this, &PlaylistWidget::toggleMediaVisibility);
+		layout->addLayout(buttonLayout); // This ensures the button takes up full width
 	}
+
+	mediaContainer = new QWidget(media_container_root);
+	mediaLayout = new QVBoxLayout(mediaContainer);
+
+	// Shrink the mediaContainer horizontally
+	mediaContainer->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum); // Fixed size for vertical
+
+	// Set the mediaLayout properties to shrink to the content
+	mediaLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+	mediaLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter); // Align to top and center
+
+	// Initially hide media items
+	mediaContainer->setVisible(expanded);
+
+	// Add the button layout and media container to the main layout
+	media_container_root_layout->addWidget(mediaContainer);
+
+	mediaContainer->setLayout(mediaLayout);
+	mediaContainer->adjustSize(); // Shrink the container to fit its content
+
+	// Ensure that the container is aligned at the top
+	media_container_root_layout->setAlignment(mediaContainer,
+						  Qt::AlignTop); // Align mediaContainer to the top when collapsed
+
+	if (is_main_widget == true) {
+		resize(600, 500);
+		setVisible(false);
+		setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint); // Ensure it stays above others
+		setAttribute(Qt::WA_ShowWithoutActivating);
+	} else {
+		// Toggle playlist expansion
+		connect(toggleButton, &QPushButton::clicked, this, &PlaylisQueuetWidget::toggleMediaVisibility);
+	}
+
+	setLayout(layout);
 }
 
-void PlaylistWidget::toggleMediaVisibility()
+void PlaylisQueuetWidget::toggleMediaVisibility()
 {
 	if (mediaContainer == nullptr)
 		return;
@@ -124,7 +108,7 @@ void PlaylistWidget::toggleMediaVisibility()
 	mediaContainer->setVisible(expanded);
 }
 
-void PlaylistWidget::update_playlist_name()
+void PlaylisQueuetWidget::update_playlist_name()
 {
 	if (toggleButton == nullptr)
 		return;
@@ -135,15 +119,15 @@ void PlaylistWidget::update_playlist_name()
 	}
 }
 
-void PlaylistWidget::update_playlist_data()
+void PlaylisQueuetWidget::update_playlist_data()
 {
-	PlaylistWidget::update_playlist_name();
+	PlaylisQueuetWidget::update_playlist_name();
 	for (size_t i = 0; i < playlist_data->queue.size(); i++) {
 		playlist_data->queue[i]->media_widget->update_media_data();
 	}
 }
 
-void PlaylistWidget::remove_widget()
+void PlaylisQueuetWidget::remove_widget()
 {
 	QWidget *parent_widget = parentWidget();
 	if (parent_widget) {
@@ -155,7 +139,7 @@ void PlaylistWidget::remove_widget()
 	deleteLater();
 }
 
-MediaWidget *PlaylistWidget::create_media_widget(MediaData *media_data)
+MediaWidget *PlaylisQueuetWidget::create_media_widget(MediaData *media_data)
 {
 	// Create an event loop to ensure synchronous execution
 	QEventLoop loop;
@@ -178,7 +162,7 @@ MediaWidget *PlaylistWidget::create_media_widget(MediaData *media_data)
 	// Store or handle the widget as necessary
 }
 
-void PlaylistWidget::add_media_widget(MediaWidget *mediaWidget)
+void PlaylisQueuetWidget::add_media_widget(MediaWidget *mediaWidget)
 {
 	QMetaObject::invokeMethod(this, [=]() { mediaLayout->addWidget(mediaWidget); }, Qt::QueuedConnection);
 }

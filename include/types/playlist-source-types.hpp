@@ -7,9 +7,9 @@
 #include <util/deque.h>
 #include "./media-file-data-types.hpp"
 #include "../include/utils/enum-utils.hpp"
-#include "../include/qt-classes/playlist-widget.hpp"
+#include "../include/qt-classes/playlist-queue-widget.hpp"
 
-class PlaylistWidget;
+class PlaylisQueuetWidget;
 
 typedef struct PlaylistData {
 #pragma region Public
@@ -44,8 +44,8 @@ typedef struct PlaylistData {
 
 typedef struct PlaylistWidgetData {
 	QWidget *test_widget;
-	PlaylistWidget *playlist_widget;
-	PlaylistWidget *param_playlist_widget;
+	PlaylisQueuetWidget *playlist_widget;
+	PlaylisQueuetWidget *param_playlist_widget;
 	PlaylistData *playlist_data;
 } PlaylistWidgetData;
 

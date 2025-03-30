@@ -1,7 +1,7 @@
 #pragma region Main
 
 #include "../../include/qt-classes/multi-playlist-queue-viewer.hpp"
-#include "../../include/qt-classes/playlist-widget.hpp"
+#include "../../include/qt-classes/playlist-queue-widget.hpp"
 
 /* MultiPlaylistQueueViewer::MultiPlaylistQueueViewer(QWidget *parent) : QWidget(parent)
 {
@@ -40,7 +40,7 @@ MultiPlaylistQueueViewer::MultiPlaylistQueueViewer(QWidget *parent) : QWidget(pa
 	setLayout(layout);
 }
 
-void MultiPlaylistQueueViewer::addPlaylistWidget(PlaylistWidget *playlist_widget)
+void MultiPlaylistQueueViewer::addPlaylistWidget(PlaylisQueuetWidget *playlist_widget)
 {
 	multi_playlist_queue_viewer->contentLayout->addWidget(playlist_widget);
 }

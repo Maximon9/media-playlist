@@ -1,5 +1,5 @@
-#ifndef PLAYLIST_QUEUE_VIEWER_HPP
-#define PLAYLIST_QUEUE_VIEWER_HPP
+#ifndef MULTI_PLAYLIST_QUEUE_VIEWER_HPP
+#define MULTI_PLAYLIST_QUEUE_VIEWER_HPP
 
 #include <obs-module.h>
 #include <plugin-support.h>
@@ -22,10 +22,10 @@ private:
 public:
 	PlaylistWidgetDatas playlist_datas;
 	explicit MultiPlaylistQueueViewer(QWidget *parent = nullptr);
-	void addPlaylistWidget(PlaylistWidget *param_playlist_widget);
+	void addPlaylistWidget(PlaylisQueuetWidget *param_playlist_widget);
 	void updatePlaylists();
 };
 
 extern MultiPlaylistQueueViewer *multi_playlist_queue_viewer;
 
-#endif // PLAYLIST_QUEUE_VIEWER_HPP
+#endif // MULTI_PLAYLIST_QUEUE_VIEWER_HPP

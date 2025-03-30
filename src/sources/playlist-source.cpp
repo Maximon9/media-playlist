@@ -612,10 +612,10 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	update_playlist_data(playlist_widget_data, settings);
 
 	playlist_widget_data->param_playlist_widget =
-		new PlaylistWidget(playlist_widget_data->playlist_data, nullptr, true);
+		new PlaylisQueuetWidget(playlist_widget_data->playlist_data, nullptr, true);
 
 	playlist_widget_data->playlist_widget =
-		new PlaylistWidget(playlist_widget_data->playlist_data, multi_playlist_queue_viewer, false);
+		new PlaylisQueuetWidget(playlist_widget_data->playlist_data, multi_playlist_queue_viewer, false);
 	multi_playlist_queue_viewer->addPlaylistWidget(playlist_widget_data->playlist_widget);
 	multi_playlist_queue_viewer->playlist_datas.push_back(playlist_widget_data);
 
@@ -696,25 +696,25 @@ obs_properties_t *playlist_get_properties(void *data)
 	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	if (playlist_widget_data->param_playlist_widget) { // Create the widget only if it doesn't exist
-		QWidget *parent = nullptr;
+		// QWidget *parent = nullptr;
 
-		QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
+		// QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
 
-		for (QObject *child : obs_main_window->children()) {
-			QWidget *widget = qobject_cast<QWidget *>(child);
-			if (widget) {
-				if (widget->objectName().compare("OBSBasicProperties") == 0) {
-					if (widget->windowTitle().compare(QString::fromStdString(
-						    "Properties for '" + playlist_widget_data->playlist_data->name +
-						    "'")) == 0) {
-						parent = widget;
-						break;
-					}
-				}
-			}
-		}
+		// for (QObject *child : obs_main_window->children()) {
+		// 	QWidget *widget = qobject_cast<QWidget *>(child);
+		// 	if (widget) {
+		// 		if (widget->objectName().compare("OBSBasicProperties") == 0) {
+		// 			if (widget->windowTitle().compare(QString::fromStdString(
+		// 				    "Properties for '" + playlist_widget_data->playlist_data->name +
+		// 				    "'")) == 0) {
+		// 				parent = widget;
+		// 				break;
+		// 			}
+		// 		}
+		// 	}
+		// }
 
-		playlist_widget_data->param_playlist_widget->setParent(nullptr);
+		// playlist_widget_data->param_playlist_widget->setParent(parent);
 		playlist_widget_data->param_playlist_widget->show();
 	}
 
@@ -938,7 +938,7 @@ void playlist_save(void *data, obs_data_t *settings)
 
 	if (playlist_widget_data->param_playlist_widget) {
 		playlist_widget_data->param_playlist_widget->hide();
-		playlist_widget_data->param_playlist_widget->setParent(nullptr);
+		// playlist_widget_data->param_playlist_widget->setParent(nullptr);
 	}
 	// PlaylistSource *playlist_widget_data->playlist_data = (PlaylistSource *)data;
 	// obs_data_set_int(settings, S_CURRENT_MEDIA_INDEX, playlist_widget_data->playlist_data->current_media_index);
