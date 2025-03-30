@@ -611,16 +611,16 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	update_playlist_data(playlist_widget_data, settings);
 
-	playlist_widget_data->param_playlist_widget =
-		new PlaylistWidget(playlist_widget_data->playlist_data, obs_main_window, true);
+	// playlist_widget_data->param_playlist_widget =
+	// 	new PlaylistWidget(playlist_widget_data->playlist_data, obs_main_window, true);
 
+	// playlist_widget_data->playlist_widget =
+	// 	new PlaylistWidget(playlist_widget_data->playlist_data, multi_playlist_queue_viewer, false);
 	playlist_widget_data->playlist_widget =
 		new PlaylistWidget(playlist_widget_data->playlist_data, multi_playlist_queue_viewer);
 	multi_playlist_queue_viewer->addPlaylistWidget(playlist_widget_data->param_playlist_widget);
 	multi_playlist_queue_viewer->playlist_datas.push_back(playlist_widget_data);
 
-	obs_log(LOG_INFO, "Playlist Name: %s", playlist_widget_data->playlist_data->name.c_str());
-	obs_log(LOG_INFO, "Channels: %d", playlist_widget_data->playlist_data->num_channels);
 	return playlist_widget_data;
 error:
 	playlist_source_destroy(playlist_widget_data);
@@ -905,7 +905,9 @@ void playlist_save(void *data, obs_data_t *settings)
 	obs_log(LOG_INFO, "playlist_save");
 
 	playlist_widget_data->playlist_data->name = obs_source_get_name(playlist_widget_data->playlist_data->source);
-	playlist_widget_data->param_playlist_widget->update_playlist_name();
+	if (playlist_widget_data->param_playlist_widget != nullptr) {
+		playlist_widget_data->param_playlist_widget->update_playlist_name();
+	}
 	// PlaylistSource *playlist_widget_data->playlist_data = (PlaylistSource *)data;
 	// obs_data_set_int(settings, S_CURRENT_MEDIA_INDEX, playlist_widget_data->playlist_data->current_media_index);
 	// update_current_filename_setting(playlist_widget_data->playlist_data, settings);

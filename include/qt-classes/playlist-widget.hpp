@@ -14,22 +14,23 @@ class PlaylistWidget : public QWidget {
 private:
 	QVBoxLayout *playlist_layout;
 	QPushButton *toggleButton;
+	QHBoxLayout *buttonLayout;
 	QWidget *mediaContainer;
 	QVBoxLayout *mediaLayout;
-	QHBoxLayout *buttonLayout;
 	bool expanded;
 
-#pragma region Main Widget Params
-	bool is_main_widget;
-	QVBoxLayout *layout;
-	QScrollArea *scrollArea;
-	QWidget *contentWidget;
-	QVBoxLayout *contentLayout;
-#pragma endregion
+	// #pragma region Main Widget Params
+	// 	bool is_main_widget;
+	// 	QVBoxLayout *layout;
+	// 	QScrollArea *scrollArea;
+	// 	QWidget *contentWidget;
+	// 	QVBoxLayout *contentLayout;
+	// #pragma endregion
 
 public:
 	const PlaylistData *playlist_data;
-	explicit PlaylistWidget(const PlaylistData *playlist, QWidget *parent = nullptr, bool is_main_widget = false);
+	// explicit PlaylistWidget(const PlaylistData *playlist, QWidget *parent = nullptr, bool is_main_widget = false);
+	explicit PlaylistWidget(const PlaylistData *playlist, QWidget *parent = nullptr);
 	void toggleMediaVisibility();
 	void update_playlist_name();
 	void update_playlist_data();
