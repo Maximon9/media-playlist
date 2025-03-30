@@ -611,8 +611,8 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 
 	update_playlist_data(playlist_widget_data, settings);
 
-	// playlist_widget_data->param_playlist_widget =
-	// 	new PlaylistWidget(playlist_widget_data->playlist_data, obs_main_window, true);
+	playlist_widget_data->param_playlist_widget =
+		new PlaylistWidget(playlist_widget_data->playlist_data, obs_main_window, true);
 
 	playlist_widget_data->playlist_widget =
 		new PlaylistWidget(playlist_widget_data->playlist_data, multi_playlist_queue_viewer, false);
@@ -694,6 +694,8 @@ void playlist_get_defaults(obs_data_t *settings)
 obs_properties_t *playlist_get_properties(void *data)
 {
 	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+
+	playlist_widget_data->param_playlist_widget->show();
 
 	return make_playlist_properties(playlist_widget_data->playlist_data);
 }
