@@ -18,6 +18,7 @@ typedef struct MediaData {
 typedef struct QueueMediaData {
 	MediaData media_data;
 	MediaWidget *media_widget;
+	MediaWidget *param_media_widget;
 	// std::string path;
 	// std::string filename;
 	// std::string name;

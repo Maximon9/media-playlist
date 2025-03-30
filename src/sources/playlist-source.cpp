@@ -58,7 +58,7 @@ void refresh_queue_list(PlaylistWidgetData *playlist_widget_data)
 void playlist_media_source_ended(void *data, calldata_t *callback)
 {
 	UNUSED_PARAMETER(callback);
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	// obs_log_queue_media_array(LOG_INFO, "IMPORTANT!!!!: ", &playlist_widget_data->playlist_data->queue, 1000000,
 	// 			  "    ", MEDIA_STRINGIFY_TYPE_FILENAME);
@@ -181,7 +181,7 @@ void playlist_audio_callback(void *data, obs_source_t *source, const struct audi
 	UNUSED_PARAMETER(muted);
 	UNUSED_PARAMETER(source);
 
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	pthread_mutex_lock(&playlist_widget_data->playlist_data->audio_mutex);
 
@@ -547,8 +547,8 @@ const char *playlist_source_name(void *data)
 
 void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)bzalloc(sizeof(*playlist_widget_data));
-	playlist_widget_data->playlist_data = (PlaylistData *)bzalloc(sizeof(*playlist_widget_data->playlist_data));
+	PlaylistWidgetData *playlist_widget_data = new PlaylistWidgetData();
+	playlist_widget_data->playlist_data = new PlaylistData();
 
 	std::stringstream ss;
 	ss << obs_source_get_name(source);
@@ -599,7 +599,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	// playlist_widget_data->playlist_data->properties_ui = new CustomProperties(settings, properties_window);
 
 	// pthread_mutex_init_value(&playlist_widget_data->playlist_data->mutex);
-	QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
+	// QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
 	if (pthread_mutex_init(&playlist_widget_data->playlist_data->mutex, NULL) != 0) {
 		goto error;
 	}
@@ -612,7 +612,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	update_playlist_data(playlist_widget_data, settings);
 
 	playlist_widget_data->param_playlist_widget =
-		new PlaylistWidget(playlist_widget_data->playlist_data, obs_main_window, true);
+		new PlaylistWidget(playlist_widget_data->playlist_data, nullptr, true);
 
 	playlist_widget_data->playlist_widget =
 		new PlaylistWidget(playlist_widget_data->playlist_data, multi_playlist_queue_viewer, false);
@@ -628,7 +628,7 @@ error:
 void playlist_source_destroy(void *data)
 {
 	// obs_log(LOG_INFO, "Destroying Playlist");
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	if (playlist_widget_data->playlist_data->media_source != NULL) {
 		obs_source_release(playlist_widget_data->playlist_data->media_source);
@@ -659,21 +659,21 @@ void playlist_source_destroy(void *data)
 	// 	free(playlist_widget_data->playlist_data->current_media);
 	// }
 
-	bfree(playlist_widget_data);
-	bfree(playlist_widget_data->playlist_data);
+	delete playlist_widget_data;
+	delete playlist_widget_data->playlist_data;
 	obs_source_release(playlist_widget_data->playlist_data->source);
 }
 
 uint32_t playlist_source_width(void *data)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	return obs_source_get_width(playlist_widget_data->playlist_data->media_source);
 }
 
 uint32_t playlist_source_height(void *data)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	return obs_source_get_height(playlist_widget_data->playlist_data->media_source);
 }
@@ -693,16 +693,37 @@ void playlist_get_defaults(obs_data_t *settings)
 
 obs_properties_t *playlist_get_properties(void *data)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
-	playlist_widget_data->param_playlist_widget->show();
+	if (playlist_widget_data->param_playlist_widget) { // Create the widget only if it doesn't exist
+		QWidget *parent = nullptr;
+
+		QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
+
+		for (QObject *child : obs_main_window->children()) {
+			QWidget *widget = qobject_cast<QWidget *>(child);
+			if (widget) {
+				if (widget->objectName().compare("OBSBasicProperties") == 0) {
+					if (widget->windowTitle().compare(QString::fromStdString(
+						    "Properties for '" + playlist_widget_data->playlist_data->name +
+						    "'")) == 0) {
+						parent = widget;
+						break;
+					}
+				}
+			}
+		}
+
+		playlist_widget_data->param_playlist_widget->setParent(nullptr);
+		playlist_widget_data->param_playlist_widget->show();
+	}
 
 	return make_playlist_properties(playlist_widget_data->playlist_data);
 }
 
 void playlist_update(void *data, obs_data_t *settings)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	update_playlist_data(playlist_widget_data, settings);
 
@@ -715,7 +736,7 @@ void playlist_update(void *data, obs_data_t *settings)
 void playlist_activate(void *data)
 {
 	obs_log(LOG_INFO, "playlist_activate");
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	// MediaData test_media_data{};
 	// test_media_data.path =
@@ -767,7 +788,7 @@ void playlist_activate(void *data)
 void playlist_deactivate(void *data)
 {
 	obs_log(LOG_INFO, "playlist_deactivate");
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	switch (playlist_widget_data->playlist_data->start_behavior) {
 	case START_BEHAVIOR_RESTART_ENTIRE_PLAYLIST:
@@ -789,7 +810,7 @@ void playlist_deactivate(void *data)
 
 void playlist_video_tick(void *data, float seconds)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	//UNUSED_PARAMETER(data);
 	UNUSED_PARAMETER(seconds);
@@ -824,7 +845,7 @@ void playlist_video_tick(void *data, float seconds)
 
 void playlist_video_render(void *data, gs_effect_t *effect)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	if (playlist_widget_data->playlist_data->media_source != NULL) {
 		obs_source_video_render(playlist_widget_data->playlist_data->media_source);
@@ -839,7 +860,7 @@ void playlist_video_render(void *data, gs_effect_t *effect)
 bool playlist_audio_render(void *data, uint64_t *ts_out, struct obs_source_audio_mix *audio_output, uint32_t mixers,
 			   size_t channels, size_t sample_rate)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	if (!playlist_widget_data->playlist_data->media_source)
 		return false;
@@ -893,7 +914,7 @@ bool playlist_audio_render(void *data, uint64_t *ts_out, struct obs_source_audio
 
 void playlist_enum_active_sources(void *data, obs_source_enum_proc_t enum_callback, void *param)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	pthread_mutex_lock(&playlist_widget_data->playlist_data->mutex);
 	enum_callback(playlist_widget_data->playlist_data->source, playlist_widget_data->playlist_data->media_source,
@@ -903,7 +924,7 @@ void playlist_enum_active_sources(void *data, obs_source_enum_proc_t enum_callba
 
 void playlist_save(void *data, obs_data_t *settings)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	obs_log(LOG_INFO, "playlist_save");
 
@@ -913,6 +934,11 @@ void playlist_save(void *data, obs_data_t *settings)
 	}
 	if (playlist_widget_data->param_playlist_widget != nullptr) {
 		playlist_widget_data->param_playlist_widget->update_playlist_name();
+	}
+
+	if (playlist_widget_data->param_playlist_widget) {
+		playlist_widget_data->param_playlist_widget->hide();
+		playlist_widget_data->param_playlist_widget->setParent(nullptr);
 	}
 	// PlaylistSource *playlist_widget_data->playlist_data = (PlaylistSource *)data;
 	// obs_data_set_int(settings, S_CURRENT_MEDIA_INDEX, playlist_widget_data->playlist_data->current_media_index);
@@ -926,7 +952,7 @@ void playlist_load(void *data, obs_data_t *settings)
 
 void media_play_pause(void *data, bool pause)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	if (playlist_widget_data->playlist_data->media_source != NULL) {
 		obs_log(LOG_INFO, "We be playing the video");
@@ -936,7 +962,7 @@ void media_play_pause(void *data, bool pause)
 
 void media_restart(void *data)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	if (playlist_widget_data->playlist_data->media_source != NULL) {
 		obs_source_media_restart(playlist_widget_data->playlist_data->media_source);
@@ -945,7 +971,7 @@ void media_restart(void *data)
 
 void media_stop(void *data)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	if (playlist_widget_data->playlist_data->media_source != NULL) {
 		obs_source_media_stop(playlist_widget_data->playlist_data->media_source);
@@ -954,7 +980,7 @@ void media_stop(void *data)
 
 void media_next(void *data)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	pthread_mutex_lock(&playlist_widget_data->playlist_data->mutex);
 
@@ -993,7 +1019,7 @@ void media_next(void *data)
 
 void media_previous(void *data)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	pthread_mutex_lock(&playlist_widget_data->playlist_data->mutex);
 
@@ -1027,7 +1053,7 @@ void media_previous(void *data)
 
 int64_t media_get_duration(void *data)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	if (playlist_widget_data->playlist_data->media_source != NULL) {
 		return obs_source_media_get_duration(playlist_widget_data->playlist_data->media_source);
@@ -1037,7 +1063,7 @@ int64_t media_get_duration(void *data)
 
 int64_t media_get_time(void *data)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	if (playlist_widget_data->playlist_data->media_source != NULL) {
 		return obs_source_media_get_time(playlist_widget_data->playlist_data->media_source);
@@ -1047,7 +1073,7 @@ int64_t media_get_time(void *data)
 
 void media_set_time(void *data, int64_t miliseconds)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	if (playlist_widget_data->playlist_data->media_source != NULL) {
 		obs_source_media_set_time(playlist_widget_data->playlist_data->media_source, miliseconds);
@@ -1056,7 +1082,7 @@ void media_set_time(void *data, int64_t miliseconds)
 
 enum obs_media_state media_get_state(void *data)
 {
-	PlaylistWidgetData *playlist_widget_data = (PlaylistWidgetData *)data;
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
 	if (playlist_widget_data->playlist_data->all_media.size() > 0 &&
 	    playlist_widget_data->playlist_data->media_source != NULL) {
