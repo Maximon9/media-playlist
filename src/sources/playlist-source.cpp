@@ -112,8 +112,11 @@ void playlist_queue(PlaylistData *playlist_data)
 	    !playlist_data->media_source_settings)
 		return;
 
-	if (playlist_data->queue.size() <= 0)
+	if (playlist_data->queue.size() <= 0) {
+		obs_data_set_string(playlist_data->media_source_settings, S_FFMPEG_LOCAL_FILE, "");
+		obs_source_update(playlist_data->media_source, playlist_data->media_source_settings);
 		return;
+	}
 
 	// Get video file path from the array
 	MediaData *media_data = &playlist_data->queue[0]->media_data;
@@ -301,6 +304,7 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 		obs_data_array_release(obs_playlist);
 	} else {
 		size_t entry_index = 0;
+		MediaDataArray removed_medias{};
 		MediaDataArray added_medias{};
 		for (size_t i = 0; i < array_size; ++i) {
 			obs_data_t *data = obs_data_array_item(obs_playlist, i);
@@ -371,6 +375,8 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 		}
 
 		for (size_t i = playlist_widget_data->playlist_data->all_media.size(); i-- > entry_index;) {
+			MediaData new_entry = playlist_widget_data->playlist_data->all_media[i];
+			removed_medias.push_front(new_entry);
 			pop_media_at(&playlist_widget_data->playlist_data->all_media, i);
 		}
 
