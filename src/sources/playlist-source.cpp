@@ -1185,7 +1185,8 @@ void media_previous(void *data)
 				playlist_context->queue_history.pop_front();
 
 				push_queue_media_data_front(&playlist_context->queue, media_data, playlist_data);
-
+			}
+			if (playlist_context->queue.size() > 0) {
 				bool restart = playlist_context->queue[0]->media_data.path ==
 					       get_current_media_input(playlist_context->media_source_settings);
 
