@@ -10,7 +10,7 @@
 
 typedef struct PlaylistData PlaylistData;
 
-class PlaylisQueuetWidget : public QWidget {
+class PlaylisQueueWidget : public QWidget {
 private:
 	QVBoxLayout *layout;
 	QPushButton *toggleButton;
@@ -29,8 +29,8 @@ private:
 
 public:
 	const PlaylistData *playlist_data;
-	explicit PlaylisQueuetWidget(const PlaylistData *playlist, QWidget *parent = nullptr,
-				     bool is_main_widget = false);
+	explicit PlaylisQueueWidget(const PlaylistData *playlist, QWidget *parent = nullptr,
+				    bool is_main_widget = false);
 	void toggleMediaVisibility();
 	void update_playlist_name();
 	void update_playlist_data(e_MediaStringifyTYPE media_stringify_type = MEDIA_STRINGIFY_TYPE_FILENAME);

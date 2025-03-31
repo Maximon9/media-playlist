@@ -9,10 +9,11 @@
 #include "../include/utils/enum-utils.hpp"
 #include "../include/qt-classes/playlist-queue-widget.hpp"
 
-class PlaylisQueuetWidget;
+class PlaylisQueueWidget;
 
 typedef struct PlaylistData {
 #pragma region Public
+	bool show_queue_when_properties_open;
 	MediaDataArray all_media;
 	obs_source_t *source;
 	obs_source_t *media_source;
@@ -43,8 +44,8 @@ typedef struct PlaylistData {
 
 typedef struct PlaylistWidgetData {
 	QWidget *test_widget;
-	PlaylisQueuetWidget *playlist_widget;
-	PlaylisQueuetWidget *param_playlist_widget;
+	PlaylisQueueWidget *playlist_widget;
+	PlaylisQueueWidget *param_playlist_widget;
 	PlaylistData *playlist_data;
 } PlaylistWidgetData;
 

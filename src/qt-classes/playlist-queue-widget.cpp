@@ -3,7 +3,7 @@
 #include "../../include/qt-classes/playlist-queue-widget.hpp"
 #include "../../include/qt-classes/media-widget.hpp"
 
-PlaylisQueuetWidget::PlaylisQueuetWidget(const PlaylistData *playlist_data, QWidget *parent, bool is_main_widget)
+PlaylisQueueWidget::PlaylisQueueWidget(const PlaylistData *playlist_data, QWidget *parent, bool is_main_widget)
 	: QWidget(parent),
 	  expanded(is_main_widget),
 	  is_main_widget(is_main_widget)
@@ -93,13 +93,13 @@ PlaylisQueuetWidget::PlaylisQueuetWidget(const PlaylistData *playlist_data, QWid
 		setAttribute(Qt::WA_ShowWithoutActivating);
 	} else {
 		// Toggle playlist expansion
-		connect(toggleButton, &QPushButton::clicked, this, &PlaylisQueuetWidget::toggleMediaVisibility);
+		connect(toggleButton, &QPushButton::clicked, this, &PlaylisQueueWidget::toggleMediaVisibility);
 	}
 
 	setLayout(layout);
 }
 
-void PlaylisQueuetWidget::toggleMediaVisibility()
+void PlaylisQueueWidget::toggleMediaVisibility()
 {
 	if (mediaContainer == nullptr)
 		return;
@@ -108,7 +108,7 @@ void PlaylisQueuetWidget::toggleMediaVisibility()
 	mediaContainer->setVisible(expanded);
 }
 
-void PlaylisQueuetWidget::update_playlist_name()
+void PlaylisQueueWidget::update_playlist_name()
 {
 	if (toggleButton == nullptr)
 		return;
@@ -119,15 +119,15 @@ void PlaylisQueuetWidget::update_playlist_name()
 	}
 }
 
-void PlaylisQueuetWidget::update_playlist_data(e_MediaStringifyTYPE media_stringify_type)
+void PlaylisQueueWidget::update_playlist_data(e_MediaStringifyTYPE media_stringify_type)
 {
-	PlaylisQueuetWidget::update_playlist_name();
+	PlaylisQueueWidget::update_playlist_name();
 	for (size_t i = 0; i < playlist_data->queue.size(); i++) {
 		playlist_data->queue[i]->media_widget->update_media_data(&media_stringify_type);
 	}
 }
 
-void PlaylisQueuetWidget::remove_widget()
+void PlaylisQueueWidget::remove_widget()
 {
 	QWidget *parent_widget = parentWidget();
 	if (parent_widget) {
@@ -139,7 +139,7 @@ void PlaylisQueuetWidget::remove_widget()
 	deleteLater();
 }
 
-MediaWidget *PlaylisQueuetWidget::create_media_widget(MediaData *media_data, e_MediaStringifyTYPE media_stringify_type)
+MediaWidget *PlaylisQueueWidget::create_media_widget(MediaData *media_data, e_MediaStringifyTYPE media_stringify_type)
 {
 	// Create an event loop to ensure synchronous execution
 	QEventLoop loop;
@@ -162,7 +162,7 @@ MediaWidget *PlaylisQueuetWidget::create_media_widget(MediaData *media_data, e_M
 	// Store or handle the widget as necessary
 }
 
-void PlaylisQueuetWidget::add_media_widget(MediaWidget *mediaWidget)
+void PlaylisQueueWidget::add_media_widget(MediaWidget *mediaWidget)
 {
 	QMetaObject::invokeMethod(this, [=]() { mediaLayout->addWidget(mediaWidget); }, Qt::QueuedConnection);
 }

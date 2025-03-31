@@ -208,17 +208,28 @@ bool uses_song_history_limit(PlaylistData *playlist_data)
 
 #pragma region Property Managment
 
-obs_properties_t *make_playlist_properties(PlaylistData *playlist_data)
+void show_queue(PlaylistWidgetData *playlist_widget_data)
+{
+	if (playlist_widget_data->param_playlist_widget) {
+		playlist_widget_data->param_playlist_widget->show();
+	}
+}
+
+bool show_queue_button(obs_properties_t *props, obs_property_t *property, void *data)
+{
+	UNUSED_PARAMETER(props);
+	UNUSED_PARAMETER(property);
+	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
+	show_queue(playlist_widget_data);
+	return true;
+}
+
+obs_properties_t *make_playlist_properties(PlaylistWidgetData *playlist_widget_data)
 {
 	obs_properties_t *props = obs_properties_create();
 
-	int all_media_size = (int)playlist_data->all_media.size();
-
-	int last_index = all_media_size - 1;
-
-	if (last_index < 0) {
-		last_index += 1;
-	}
+	obs_properties_add_bool(props, "show_queue_when_properties_open", "Show Queue When Properties Open");
+	obs_properties_add_button(props, "shuffle_queue", "Show Queue", show_queue_button);
 
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
 					 media_filter, "");
@@ -235,13 +246,21 @@ obs_properties_t *make_playlist_properties(PlaylistData *playlist_data)
 
 	add_enums_to_property_list(peb_property, EndBehavior, 2);
 
-	if (playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_INDEX) {
+	if (playlist_widget_data->playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_INDEX) {
+		int all_media_size = (int)playlist_widget_data->playlist_data->all_media.size();
+
+		int last_index = all_media_size - 1;
+
+		if (last_index < 0) {
+			last_index += 1;
+		}
+
 		obs_properties_add_int_slider(props, "loop_index", "Loop Index", 0, last_index, 1);
 	}
-	if (playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
-	    playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_END) {
+	if (playlist_widget_data->playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
+	    playlist_widget_data->playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_END) {
 		obs_properties_add_bool(props, "infinite", "Infinite");
-		if (playlist_data->infinite == false) {
+		if (playlist_widget_data->playlist_data->infinite == false) {
 			obs_properties_add_int(props, "loop_count", "Loop Count", 0, INT_MAX, 1);
 
 			obs_property_t *leb_property = obs_properties_add_list(props, "loop_end_behavior",
@@ -264,6 +283,9 @@ obs_properties_t *make_playlist_properties(PlaylistData *playlist_data)
  */
 void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *settings)
 {
+	playlist_widget_data->playlist_data->show_queue_when_properties_open =
+		obs_data_get_bool(settings, "show_queue_when_properties_open");
+
 	bool update_properties = false;
 
 	pthread_mutex_lock(&playlist_widget_data->playlist_data->mutex);
@@ -555,6 +577,8 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 		obs_source_get_signal_handler(playlist_widget_data->playlist_data->media_source);
 	signal_handler_connect(sh_media_source, "media_ended", playlist_media_source_ended, playlist_widget_data);
 
+	playlist_widget_data->playlist_data->show_queue_when_properties_open = true;
+
 	playlist_widget_data->playlist_data->all_media_initialized = false;
 
 	playlist_widget_data->playlist_data->all_media = {};
@@ -590,10 +614,10 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	update_playlist_data(playlist_widget_data, settings);
 
 	playlist_widget_data->param_playlist_widget =
-		new PlaylisQueuetWidget(playlist_widget_data->playlist_data, nullptr, true);
+		new PlaylisQueueWidget(playlist_widget_data->playlist_data, nullptr, true);
 
 	playlist_widget_data->playlist_widget =
-		new PlaylisQueuetWidget(playlist_widget_data->playlist_data, multi_playlist_queue_viewer, false);
+		new PlaylisQueueWidget(playlist_widget_data->playlist_data, multi_playlist_queue_viewer, false);
 	multi_playlist_queue_viewer->addPlaylistWidget(playlist_widget_data->playlist_widget);
 	multi_playlist_queue_viewer->playlist_datas.push_back(playlist_widget_data);
 
@@ -661,6 +685,7 @@ void playlist_get_defaults(obs_data_t *settings)
 	// obs_data_set_default_int(settings, "start_behavior", 0);
 	// obs_data_set_default_int(settings, "end_behavior", 0);
 	// obs_data_set_default_int(settings, "loop_index", 0);
+	obs_data_set_default_bool(settings, "show_queue_when_properties_open", true);
 	obs_data_set_default_bool(settings, "shuffle_queue", false);
 	obs_data_set_default_bool(settings, "infinite", true);
 	// obs_data_set_default_int(settings, "loop_count", 0);
@@ -672,30 +697,11 @@ obs_properties_t *playlist_get_properties(void *data)
 {
 	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 
-	if (playlist_widget_data->param_playlist_widget) { // Create the widget only if it doesn't exist
-		// QWidget *parent = nullptr;
-
-		// QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
-
-		// for (QObject *child : obs_main_window->children()) {
-		// 	QWidget *widget = qobject_cast<QWidget *>(child);
-		// 	if (widget) {
-		// 		if (widget->objectName().compare("OBSBasicProperties") == 0) {
-		// 			if (widget->windowTitle().compare(QString::fromStdString(
-		// 				    "Properties for '" + playlist_widget_data->playlist_data->name +
-		// 				    "'")) == 0) {
-		// 				parent = widget;
-		// 				break;
-		// 			}
-		// 		}
-		// 	}
-		// }
-
-		// playlist_widget_data->param_playlist_widget->setParent(parent);
-		playlist_widget_data->param_playlist_widget->show();
+	if (playlist_widget_data->playlist_data->show_queue_when_properties_open == true) {
+		show_queue(playlist_widget_data);
 	}
 
-	return make_playlist_properties(playlist_widget_data->playlist_data);
+	return make_playlist_properties(playlist_widget_data);
 }
 
 void playlist_update(void *data, obs_data_t *settings)
