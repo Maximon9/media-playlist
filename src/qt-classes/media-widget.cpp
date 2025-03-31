@@ -8,6 +8,7 @@ MediaWidget::MediaWidget(const MediaData *media_data, e_MediaStringifyTYPE media
 	: QWidget(parent),
 	  media_stringify_type(media_stringify_type)
 {
+	obs_log(LOG_INFO, "Enum: %s", MediaStringifyTYPE[media_stringify_type]);
 	this->media_data = media_data;
 	QVBoxLayout *layout = new QVBoxLayout(this);
 
@@ -18,7 +19,23 @@ MediaWidget::MediaWidget(const MediaData *media_data, e_MediaStringifyTYPE media
 			    "background-color: rgb(52, 51, 61);"  // Light background
 			    "}");
 
-	label = new QLabel(QString::fromStdString(media_data->name), this);
+	switch (this->media_stringify_type) {
+	case MEDIA_STRINGIFY_TYPE_PATH:
+		label = new QLabel(QString::fromStdString(media_data->path), this);
+		break;
+	case MEDIA_STRINGIFY_TYPE_FILENAME:
+		/* code */
+		label = new QLabel(QString::fromStdString(media_data->filename), this);
+		break;
+	case MEDIA_STRINGIFY_TYPE_NAME:
+		label = new QLabel(QString::fromStdString(media_data->name), this);
+		break;
+	case MEDIA_STRINGIFY_TYPE_EXTENSION:
+		label = new QLabel(QString::fromStdString(media_data->ext), this);
+		break;
+	default:
+		break;
+	}
 
 	label->setStyleSheet("QLabel {"
 			     "border: 2px solid transparent;" // Gray border

@@ -148,7 +148,7 @@ MediaWidget *PlaylisQueuetWidget::create_media_widget(MediaData *media_data, e_M
 	// Create the MediaWidget on the main thread
 	QMetaObject::invokeMethod(
 		this,
-		[=, &widget, &loop]() {
+		[=, &widget, &loop, &media_stringify_type]() {
 			widget = new MediaWidget(media_data, media_stringify_type, this);
 			loop.quit(); // Exit the event loop once widget is created
 		},
