@@ -82,6 +82,7 @@ void MediaWidget::remove_widget()
 		QLayout *layout = parent_widget->layout();
 		if (layout) {
 			layout->removeWidget(this);
+			deleteLater();
 		}
 	}
 }

@@ -130,7 +130,8 @@ bool uses_song_history_limit(PlaylistData *playlist_data)
 {
 	return (playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
 		playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_END ||
-		(playlist_data->end_behavior == END_BEHAVIOR_LOOP && playlist_data->shuffle_queue == true));
+		(playlist_data->end_behavior == END_BEHAVIOR_LOOP && playlist_data->shuffle_queue == true) ||
+		(playlist_data->end_behavior == END_BEHAVIOR_STOP && playlist_data->shuffle_queue == true));
 }
 #pragma endregion
 
