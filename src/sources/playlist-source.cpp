@@ -1035,6 +1035,9 @@ void media_next(void *data)
 					pop_queue_media_front(&playlist_context->queue);
 					break;
 				}
+				if (playlist_context->infinite == false && playlist_context->queue.size() == 1) {
+					playlist_context->loop_count++;
+				}
 			default:
 				pop_queue_media_front(&playlist_context->queue);
 				break;
@@ -1051,7 +1054,7 @@ void media_next(void *data)
 			if (playlist_context->queue.size() > 1) {
 				pop_queue_media_front(&playlist_context->queue);
 			}
-			if (playlist_context->queue.size() == 1) {
+			if (playlist_context->infinite == false && playlist_context->queue.size() == 1) {
 				playlist_context->loop_count++;
 			}
 		} else {
@@ -1094,7 +1097,7 @@ void media_previous(void *data)
 		if (playlist_context->queue_history.size() > 0) {
 			bool at_start_of_loop_count = false;
 			if (playlist_context->end_behavior == END_BEHAVIOR_LOOP_AT_END) {
-				if (playlist_context->loop_count > 0) {
+				if (playlist_context->infinite == false && playlist_context->loop_count > 0) {
 					playlist_context->loop_count--;
 				} else {
 					at_start_of_loop_count = true;
@@ -1142,7 +1145,7 @@ void media_previous(void *data)
 	} else if (playlist_context->end_behavior == END_BEHAVIOR_LOOP_AT_END) {
 		bool at_start_of_loop_count = false;
 		if (playlist_context->end_behavior == END_BEHAVIOR_LOOP_AT_END) {
-			if (playlist_context->loop_count > 0) {
+			if (playlist_context->infinite == false && playlist_context->loop_count > 0) {
 				playlist_context->loop_count--;
 			} else {
 				at_start_of_loop_count = true;
