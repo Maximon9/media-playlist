@@ -48,6 +48,8 @@ void pop_queue_media_front(QueueMediaDataArray *media_array, bool erase_widget);
 
 void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool erase_widget);
 
+void clear_queue(QueueMediaDataArray *media_array);
+
 void init_queue_media_data_from_path(std::shared_ptr<QueueMediaData> new_entry, std::string path, size_t index,
 				     PlaylistWidgetData *playlist_data);
 

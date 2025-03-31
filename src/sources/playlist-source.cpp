@@ -301,6 +301,7 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 
 	if (array_size <= 0) {
 		playlist_widget_data->playlist_data->all_media.clear();
+		clear_queue(&playlist_widget_data->playlist_data->queue);
 	} else {
 		size_t entry_index = 0;
 		MediaDataArray removed_medias{};
@@ -422,8 +423,6 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 				// obs_log(LOG_INFO, "Queue Index: %d", i);
 				MediaData added_media_data = added_medias[i];
 				if (added_media_data.index > queue_last_index || found_queue == false) {
-					obs_log(LOG_INFO, "Its a me!");
-
 					std::shared_ptr<QueueMediaData> new_entry = std::make_shared<QueueMediaData>();
 
 					init_queue_media_data_from_media_data(new_entry, added_media_data, nullptr,

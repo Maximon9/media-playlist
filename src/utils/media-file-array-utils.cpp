@@ -131,6 +131,16 @@ void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool era
 	media_array->erase(it);
 }
 
+void clear_queue(QueueMediaDataArray *media_array)
+{
+	for (size_t i = 0; i < media_array->size(); i++) {
+		std::shared_ptr<QueueMediaData> queue_media_data = media_array->at(i);
+		queue_media_data->media_widget->remove_widget();
+		queue_media_data->param_media_widget->remove_widget();
+	}
+	media_array->clear();
+}
+
 void init_queue_media_data_from_path(std::shared_ptr<QueueMediaData> new_entry, std::string path, size_t index,
 				     PlaylistWidgetData *playlist_widget_data)
 {
