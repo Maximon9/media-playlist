@@ -38,8 +38,9 @@ void refresh_queue_list(PlaylistWidgetData *playlist_widget_data)
 		} else if (media_exist == true) {
 			if (media_widget == nullptr) {
 				std::shared_ptr<QueueMediaData> new_entry = std::make_shared<QueueMediaData>();
-				init_queue_media_data_from_media_data(new_entry, media_data, media_widget,
-								      playlist_widget_data);
+				init_queue_media_data_from_media_data(new_entry, media_data,
+								      playlist_widget_data->playlist_data->queue.size(),
+								      media_widget, playlist_widget_data);
 				playlist_widget_data->playlist_data->queue.push_back(new_entry);
 			} else {
 				playlist_widget_data->playlist_data->queue[i]->media_data = media_data;
@@ -377,7 +378,7 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 								       ->all_media[queue_media_data->media_data.index];
 
 					std::shared_ptr<QueueMediaData> new_entry = std::make_shared<QueueMediaData>();
-					init_queue_media_data_from_media_data(new_entry, media_data,
+					init_queue_media_data_from_media_data(new_entry, media_data, i,
 									      queue_media_data->media_widget,
 									      playlist_widget_data);
 
@@ -410,8 +411,10 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 				if (added_media_data.index > queue_last_index || found_queue == false) {
 					std::shared_ptr<QueueMediaData> new_entry = std::make_shared<QueueMediaData>();
 
-					init_queue_media_data_from_media_data(new_entry, added_media_data, nullptr,
-									      playlist_widget_data);
+					init_queue_media_data_from_media_data(
+						new_entry, added_media_data,
+						playlist_widget_data->playlist_data->queue.size(), nullptr,
+						playlist_widget_data);
 
 					playlist_widget_data->playlist_data->queue.push_back(new_entry);
 					if (changed_queue == false)
@@ -1010,7 +1013,7 @@ void media_previous(void *data)
 
 			std::shared_ptr<QueueMediaData> new_entry = std::make_shared<QueueMediaData>();
 
-			init_queue_media_data_from_media_data(new_entry, media_data, nullptr, playlist_widget_data);
+			init_queue_media_data_from_media_data(new_entry, media_data, 0, nullptr, playlist_widget_data);
 
 			playlist_data->previous_queue.erase(playlist_data->previous_queue.begin());
 
@@ -1036,7 +1039,7 @@ void media_previous(void *data)
 
 		std::shared_ptr<QueueMediaData> new_entry = std::make_shared<QueueMediaData>();
 
-		init_queue_media_data_from_media_data(new_entry, media_data, nullptr, playlist_widget_data);
+		init_queue_media_data_from_media_data(new_entry, media_data, 0, nullptr, playlist_widget_data);
 
 		playlist_data->queue.push_front(new_entry);
 

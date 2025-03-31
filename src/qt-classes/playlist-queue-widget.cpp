@@ -162,9 +162,10 @@ MediaWidget *PlaylisQueueWidget::create_media_widget(MediaData *media_data, e_Me
 	// Store or handle the widget as necessary
 }
 
-void PlaylisQueueWidget::add_media_widget(MediaWidget *mediaWidget)
+void PlaylisQueueWidget::insert_media_widget(MediaWidget *mediaWidget, size_t index)
 {
-	QMetaObject::invokeMethod(this, [=]() { mediaLayout->addWidget(mediaWidget); }, Qt::QueuedConnection);
+	QMetaObject::invokeMethod(
+		this, [=, &index]() { mediaLayout->insertWidget((int)index, mediaWidget); }, Qt::QueuedConnection);
 }
 
 #pragma endregion

@@ -50,15 +50,17 @@ void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool era
 
 void clear_queue(QueueMediaDataArray *media_array);
 
-void init_queue_media_data_from_path(std::shared_ptr<QueueMediaData> new_entry, std::string path, size_t index,
-				     PlaylistWidgetData *playlist_data);
+void init_queue_media_data_from_path(std::shared_ptr<QueueMediaData> new_entry, std::string path, size_t widget_idnex,
+				     size_t index, PlaylistWidgetData *playlist_widget_data);
 
 void init_queue_media_data(std::shared_ptr<QueueMediaData> new_entry, const std::string path,
-			   const std::string filename, const std::string name, const std::string ext, size_t index,
-			   MediaWidget *media_widget, PlaylistWidgetData *playlist_data);
+			   const std::string filename, const std::string name, const std::string ext,
+			   size_t widget_idnex, size_t index, MediaWidget *media_widget,
+			   PlaylistWidgetData *playlist_widget_data);
 
 void init_queue_media_data_from_media_data(std::shared_ptr<QueueMediaData> new_entry, MediaData media_data,
-					   MediaWidget *media_widget, PlaylistWidgetData *playlist_widget_data);
+					   size_t widget_idnex, MediaWidget *media_widget,
+					   PlaylistWidgetData *playlist_widget_data);
 
 std::string obs_array_to_string(obs_data_array_t *array);
 
