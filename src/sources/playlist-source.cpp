@@ -195,6 +195,25 @@ bool uses_song_history_limit(PlaylistData *playlist_data)
 void show_param_queue(PlaylistWidgetData *playlist_widget_data)
 {
 	if (playlist_widget_data->param_playlist_widget) {
+		QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
+		QWidget *properties_window = nullptr;
+
+		for (QObject *child : obs_main_window->children()) {
+			QWidget *widget = qobject_cast<QWidget *>(child);
+			if (widget && widget->objectName() == "OBSBasicProperties") {
+				properties_window = widget;
+				break;
+			}
+		}
+
+		if (properties_window) {
+			playlist_widget_data->param_playlist_widget->setParent(properties_window, Qt::Window);
+		} else {
+			playlist_widget_data->param_playlist_widget->setParent(obs_main_window, Qt::Window);
+		}
+
+		playlist_widget_data->param_playlist_widget->setWindowFlags(Qt::Tool);
+
 		playlist_widget_data->param_playlist_widget->show();
 	}
 }
@@ -571,6 +590,8 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	// QWidget *properties_window = (QWidget *)obs_frontend_get_main_window();
 	// playlist_data->properties_ui = new CustomProperties(settings, properties_window);
 
+	QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
+
 	// pthread_mutex_init_value(&playlist_data->mutex);
 	// QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
 	if (pthread_mutex_init(&playlist_data->mutex, NULL) != 0) {
@@ -585,6 +606,9 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	update_playlist_data(playlist_widget_data, settings);
 
 	playlist_widget_data->param_playlist_widget = new PlaylisQueueWidget(playlist_data, nullptr, true);
+
+	playlist_widget_data->param_playlist_widget->setWindowFlags(Qt::Tool);
+	playlist_widget_data->param_playlist_widget->setParent(obs_main_window, Qt::Window);
 
 	playlist_widget_data->playlist_widget =
 		new PlaylisQueueWidget(playlist_data, multi_playlist_queue_viewer, false);
@@ -984,19 +1008,21 @@ void media_previous(void *data)
 		set_queue(playlist_data);
 		obs_source_media_restart(playlist_data->media_source);
 	} else {
-		const SharedQueueMediaData queue_media_data = playlist_data->queue[0];
+		if (playlist_data->queue.size() < playlist_data->all_media.size()) {
+			const SharedQueueMediaData queue_media_data = playlist_data->queue[0];
 
-		size_t previous_index = playlist_data->all_media.size() - 1;
-		if (queue_media_data->media_data.index > 0) {
-			previous_index = (queue_media_data->media_data.index - 1);
+			size_t previous_index = playlist_data->all_media.size() - 1;
+			if (queue_media_data->media_data.index > 0) {
+				previous_index = (queue_media_data->media_data.index - 1);
+			}
+
+			const MediaData media_data = playlist_data->all_media[previous_index];
+
+			push_queue_media_data_front(&playlist_data->queue, media_data, playlist_widget_data);
+
+			set_queue(playlist_data);
+			obs_source_media_restart(playlist_data->media_source);
 		}
-
-		const MediaData media_data = playlist_data->all_media[previous_index];
-
-		push_queue_media_data_front(&playlist_data->queue, media_data, playlist_widget_data);
-
-		set_queue(playlist_data);
-		obs_source_media_restart(playlist_data->media_source);
 	}
 
 	// obs_source_update_properties(playlist_data->source);
