@@ -24,8 +24,6 @@ void set_queue(PlaylistData *playlist_data);
 
 void clear_any_media_playing(PlaylistData *playlist_data);
 
-const char *get_current_media(obs_data_t *media_source_settings);
-
 void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted);
 
 bool uses_song_history_limit(PlaylistData *playlist_data);
