@@ -345,11 +345,11 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 					MediaData media_data =
 						playlist_data->all_media[queue_media_data->media_data.index];
 
-					SharedQueueMediaData new_entry = init_queue_media_data_from_media_data(
-						media_data, i, playlist_widget_data, queue_media_data->media_widget,
-						queue_media_data->param_media_widget);
-
-					if (queue_media_data->media_data.path != new_entry->media_data.path) {
+					if (queue_media_data->media_data.path != media_data.path) {
+						SharedQueueMediaData new_entry = init_queue_media_data_from_media_data(
+							media_data, i, playlist_widget_data,
+							queue_media_data->media_widget,
+							queue_media_data->param_media_widget);
 
 						playlist_data->queue[i] = new_entry;
 
@@ -435,24 +435,73 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 
 	pthread_mutex_lock(&playlist_data->mutex);
 
-	SharedQueueMediaData queue_media = nullptr;
 	switch (playlist_data->end_behavior) {
 	case END_BEHAVIOR_STOP:
+		if (playlist_data->queue.size() > 0) {
+			SharedQueueMediaData first_queue_media = playlist_data->queue[0];
+			for (size_t i = playlist_data->queue.size(); i-- > 0;) {
+				SharedQueueMediaData queue_media_data = playlist_data->queue[i];
+				if (queue_media_data->media_data.index < first_queue_media->media_data.index) {
+					pop_queue_media_at(&playlist_data->queue, i);
+				}
+			}
+		}
 		break;
 	case END_BEHAVIOR_LOOP:
 		if (playlist_data->queue.size() < playlist_data->all_media.size()) {
 			if (playlist_data->queue.size() > 0) {
-				queue_media = playlist_data->queue[playlist_data->queue.size() - 1];
-				for (size_t i = queue_media->media_data.index + 1; i < playlist_data->all_media.size();
-				     i++) {
+				SharedQueueMediaData first_queue_media_data = playlist_data->queue[0];
+
+				size_t queue_index = 1;
+
+				for (size_t i = first_queue_media_data->media_data.index + 1;
+				     i < playlist_data->all_media.size(); i++) {
 					MediaData media_data = playlist_data->all_media[i];
-					push_queue_media_data_back(&playlist_data->queue, media_data,
-								   playlist_widget_data);
+					if (queue_index < playlist_data->queue.size()) {
+						SharedQueueMediaData queue_media_data =
+							playlist_data->queue[queue_index];
+
+						if (queue_media_data->media_data.path != media_data.path) {
+							SharedQueueMediaData new_entry =
+								init_queue_media_data_from_media_data(
+									media_data, i, playlist_widget_data,
+									queue_media_data->media_widget,
+									queue_media_data->param_media_widget);
+
+							playlist_data->queue[queue_index] = new_entry;
+
+							new_entry->media_widget->update_media_data();
+							new_entry->param_media_widget->update_media_data();
+						}
+					} else {
+						push_queue_media_data_at(&playlist_data->queue, media_data, queue_index,
+									 playlist_widget_data);
+					}
+					queue_index++;
 				}
-				for (size_t i = 0; i < queue_media->media_data.index; i++) {
+				for (size_t i = 0; i < first_queue_media_data->media_data.index; i++) {
 					MediaData media_data = playlist_data->all_media[i];
-					push_queue_media_data_back(&playlist_data->queue, media_data,
-								   playlist_widget_data);
+					if (queue_index < playlist_data->queue.size()) {
+						SharedQueueMediaData queue_media_data =
+							playlist_data->queue[queue_index];
+
+						if (queue_media_data->media_data.path != media_data.path) {
+							SharedQueueMediaData new_entry =
+								init_queue_media_data_from_media_data(
+									media_data, i, playlist_widget_data,
+									queue_media_data->media_widget,
+									queue_media_data->param_media_widget);
+
+							playlist_data->queue[queue_index] = new_entry;
+
+							new_entry->media_widget->update_media_data();
+							new_entry->param_media_widget->update_media_data();
+						}
+					} else {
+						push_queue_media_data_at(&playlist_data->queue, media_data, queue_index,
+									 playlist_widget_data);
+					}
+					queue_index++;
 				}
 			}
 		}
@@ -1006,14 +1055,14 @@ void media_next(void *data)
 			obs_source_media_stop(playlist_data->media_source);
 			obs_source_media_ended(playlist_data->source);
 		} else {
-			// bool restart = playlist_data->queue[0]->media_data.path ==
-			// 	       get_current_media_input(playlist_data->media_source_settings);
+			bool restart = playlist_data->queue[0]->media_data.path ==
+				       get_current_media_input(playlist_data->media_source_settings);
 
 			set_queue(playlist_data);
 
-			// if (restart) {
-			// 	obs_source_media_restart(playlist_data->media_source);
-			// }
+			if (restart) {
+				obs_source_media_restart(playlist_data->media_source);
+			}
 		}
 	} else {
 		obs_source_media_stop(playlist_data->media_source);
