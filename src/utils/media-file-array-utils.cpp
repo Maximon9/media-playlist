@@ -350,19 +350,20 @@ const char *stringify_media_array(const MediaDataArray *media_array, size_t thre
 	for (size_t i = 0; i < media_array->size(); i++) {
 		result += "\"";
 
-		const MediaData *media_file_data = &((*media_array)[i]);
+		const MediaData *media_data = &((*media_array)[i]);
 
 		switch (media_stringify_type) {
 		case MEDIA_STRINGIFY_TYPE_PATH:
-			result += media_file_data->path;
+			result += media_data->path;
 			break;
 		case MEDIA_STRINGIFY_TYPE_FILENAME:
-			// obs_log(LOG_INFO, "Media File Name: %s", media_file_data->filename.c_str());
-			result += media_file_data->filename;
+			result += media_data->filename;
 			break;
 		case MEDIA_STRINGIFY_TYPE_NAME:
-			// obs_log(LOG_INFO, "Media Name: %s", media_file_data->name.c_str());
-			result += media_file_data->name;
+			result += media_data->name;
+			break;
+		case MEDIA_STRINGIFY_TYPE_EXTENSION:
+			result += media_data->ext;
 			break;
 		default:
 			break;
@@ -384,17 +385,20 @@ const char *stringify_media_array(const MediaDataArray *media_array, size_t thre
 			prettified_result += indent; // Add indentation before each element
 			prettified_result += "\"";
 
-			const MediaData *media_file_data = &media_array->at(i);
+			const MediaData *media_data = &media_array->at(i);
 
 			switch (media_stringify_type) {
 			case MEDIA_STRINGIFY_TYPE_PATH:
-				prettified_result += media_file_data->path;
+				prettified_result += media_data->path;
 				break;
 			case MEDIA_STRINGIFY_TYPE_FILENAME:
-				prettified_result += media_file_data->filename;
+				prettified_result += media_data->filename;
 				break;
 			case MEDIA_STRINGIFY_TYPE_NAME:
-				prettified_result += media_file_data->name;
+				prettified_result += media_data->name;
+				break;
+			case MEDIA_STRINGIFY_TYPE_EXTENSION:
+				prettified_result += media_data->ext;
 				break;
 			default:
 				break;
@@ -461,6 +465,9 @@ const char *stringify_queue_media_array(const QueueMediaDataArray *media_array, 
 			break;
 		case MEDIA_STRINGIFY_TYPE_NAME:
 			prettified_result += media_data->name;
+			break;
+		case MEDIA_STRINGIFY_TYPE_EXTENSION:
+			prettified_result += media_data->ext;
 			break;
 		default:
 			break;

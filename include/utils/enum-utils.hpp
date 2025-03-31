@@ -22,7 +22,8 @@
 #define ENUM_MEDIA_STRINGIFY_TYPE        \
 	X(MEDIA_STRINGIFY_TYPE_PATH)     \
 	X(MEDIA_STRINGIFY_TYPE_FILENAME) \
-	X(MEDIA_STRINGIFY_TYPE_NAME)
+	X(MEDIA_STRINGIFY_TYPE_NAME)     \
+	X(MEDIA_STRINGIFY_TYPE_EXTENSION)
 
 // Define the enum values for StartBehavior and EndBehavior
 #define X(name) name,

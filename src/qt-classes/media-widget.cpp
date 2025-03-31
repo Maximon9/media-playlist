@@ -4,7 +4,9 @@
 #include <obs-module.h>
 #include <plugin-support.h>
 
-MediaWidget::MediaWidget(const MediaData *media_data, QWidget *parent) : QWidget(parent)
+MediaWidget::MediaWidget(const MediaData *media_data, e_MediaStringifyTYPE media_stringify_type, QWidget *parent)
+	: QWidget(parent),
+	  media_stringify_type(media_stringify_type)
 {
 	this->media_data = media_data;
 	QVBoxLayout *layout = new QVBoxLayout(this);
@@ -30,9 +32,31 @@ MediaWidget::MediaWidget(const MediaData *media_data, QWidget *parent) : QWidget
 	setLayout(layout);
 }
 
-void MediaWidget::update_media_data()
+void MediaWidget::update_media_data(e_MediaStringifyTYPE *media_stringify_type)
 {
-	label->setText(QString::fromStdString(media_data->name));
+	if (media_stringify_type != nullptr) {
+		if (this->media_stringify_type != *media_stringify_type) {
+			this->media_stringify_type = *media_stringify_type;
+		}
+	}
+
+	switch (this->media_stringify_type) {
+	case MEDIA_STRINGIFY_TYPE_PATH:
+		label->setText(QString::fromStdString(media_data->path));
+		break;
+	case MEDIA_STRINGIFY_TYPE_FILENAME:
+		/* code */
+		label->setText(QString::fromStdString(media_data->filename));
+		break;
+	case MEDIA_STRINGIFY_TYPE_NAME:
+		label->setText(QString::fromStdString(media_data->name));
+		break;
+	case MEDIA_STRINGIFY_TYPE_EXTENSION:
+		label->setText(QString::fromStdString(media_data->ext));
+		break;
+	default:
+		break;
+	}
 }
 
 void MediaWidget::remove_widget()

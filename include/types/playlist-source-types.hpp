@@ -13,7 +13,6 @@ class PlaylisQueuetWidget;
 
 typedef struct PlaylistData {
 #pragma region Public
-	int queue_list_size;
 	MediaDataArray all_media;
 	obs_source_t *source;
 	obs_source_t *media_source;

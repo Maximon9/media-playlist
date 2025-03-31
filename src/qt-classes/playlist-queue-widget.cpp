@@ -119,11 +119,11 @@ void PlaylisQueuetWidget::update_playlist_name()
 	}
 }
 
-void PlaylisQueuetWidget::update_playlist_data()
+void PlaylisQueuetWidget::update_playlist_data(e_MediaStringifyTYPE media_stringify_type)
 {
 	PlaylisQueuetWidget::update_playlist_name();
 	for (size_t i = 0; i < playlist_data->queue.size(); i++) {
-		playlist_data->queue[i]->media_widget->update_media_data();
+		playlist_data->queue[i]->media_widget->update_media_data(&media_stringify_type);
 	}
 }
 
@@ -139,7 +139,7 @@ void PlaylisQueuetWidget::remove_widget()
 	deleteLater();
 }
 
-MediaWidget *PlaylisQueuetWidget::create_media_widget(MediaData *media_data)
+MediaWidget *PlaylisQueuetWidget::create_media_widget(MediaData *media_data, e_MediaStringifyTYPE media_stringify_type)
 {
 	// Create an event loop to ensure synchronous execution
 	QEventLoop loop;
@@ -149,7 +149,7 @@ MediaWidget *PlaylisQueuetWidget::create_media_widget(MediaData *media_data)
 	QMetaObject::invokeMethod(
 		this,
 		[=, &widget, &loop]() {
-			widget = new MediaWidget(media_data, this);
+			widget = new MediaWidget(media_data, media_stringify_type, this);
 			loop.quit(); // Exit the event loop once widget is created
 		},
 		Qt::QueuedConnection);

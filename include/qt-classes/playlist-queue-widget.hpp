@@ -17,6 +17,7 @@ private:
 	QHBoxLayout *buttonLayout;
 	QWidget *mediaContainer;
 	QVBoxLayout *mediaLayout;
+	e_MediaStringifyTYPE media_stringify_type;
 	bool expanded;
 
 #pragma region Main Widget Params
@@ -32,10 +33,11 @@ public:
 				     bool is_main_widget = false);
 	void toggleMediaVisibility();
 	void update_playlist_name();
-	void update_playlist_data();
+	void update_playlist_data(e_MediaStringifyTYPE media_stringify_type = MEDIA_STRINGIFY_TYPE_FILENAME);
 	void remove_widget();
 	// void create_media_widget(MediaData *media_data, std::function<void(MediaWidget *)> callback);
-	MediaWidget *create_media_widget(MediaData *media_data);
+	MediaWidget *create_media_widget(MediaData *media_data,
+					 e_MediaStringifyTYPE media_stringify_type = MEDIA_STRINGIFY_TYPE_FILENAME);
 	void add_media_widget(MediaWidget *mediaWidget);
 };
 #endif // PLAYLIST_QUEUE_VIEWER_HPP

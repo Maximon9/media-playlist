@@ -220,16 +220,6 @@ obs_properties_t *make_playlist_properties(PlaylistData *playlist_data)
 		last_index += 1;
 	}
 
-	obs_properties_add_int(props, "queue_list_size", "Queue List Size", 5, 20, 1);
-
-	// pthread_mutex_lock(&playlist_data->mutex);
-
-	// std::string result = stringify_media_queue_array(&playlist_data->queue, playlist_data->queue_list_size, "    ",
-	// 						 MEDIA_STRINGIFY_TYPE_NAME);
-	// obs_property_t *queue = obs_properties_add_text(props, "queue", ("Queue" + result).c_str(), OBS_TEXT_INFO);
-
-	// pthread_mutex_unlock(&playlist_data->mutex);
-
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
 					 media_filter, "");
 
@@ -275,17 +265,6 @@ obs_properties_t *make_playlist_properties(PlaylistData *playlist_data)
 void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *settings)
 {
 	bool update_properties = false;
-
-	int queue_list_size = (int)obs_data_get_int(settings, "queue_list_size");
-	if (playlist_widget_data->playlist_data->queue_list_size != queue_list_size) {
-		update_properties = true;
-	}
-
-	playlist_widget_data->playlist_data->queue_list_size = queue_list_size;
-
-	if (playlist_widget_data->playlist_data->debug == true) {
-		obs_log(LOG_INFO, "Queue List Size: %d", playlist_widget_data->playlist_data->queue_list_size);
-	}
 
 	pthread_mutex_lock(&playlist_widget_data->playlist_data->mutex);
 
@@ -591,7 +570,6 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	playlist_widget_data->playlist_data->infinite = true;
 	playlist_widget_data->playlist_data->loop_count = 0;
 	playlist_widget_data->playlist_data->song_history_limit = 100;
-	playlist_widget_data->playlist_data->queue_list_size = 5;
 
 	// playlist_widget_data->playlist_data->properties = make_playlist_properties(playlist_widget_data->playlist_data);
 
@@ -688,7 +666,6 @@ void playlist_get_defaults(obs_data_t *settings)
 	// obs_data_set_default_int(settings, "loop_count", 0);
 	obs_data_set_default_bool(settings, "debug", false);
 	obs_data_set_default_int(settings, "song_history_limit", 100);
-	obs_data_set_default_int(settings, "queue_list_size", 5);
 }
 
 obs_properties_t *playlist_get_properties(void *data)
