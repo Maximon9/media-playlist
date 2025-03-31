@@ -191,7 +191,7 @@ obs_properties_t *make_playlist_properties(PlaylistData *playlist_data)
 	if (playlist_context->end_behavior == END_BEHAVIOR_LOOP_AT_END) {
 		obs_properties_add_bool(props, "infinite", "Infinite");
 		if (playlist_context->infinite == false) {
-			obs_properties_add_int(props, "max_loop_count", "Loop Count", 0, INT_MAX, 1);
+			obs_properties_add_int(props, "max_loop_count", "Max Loop Count", 0, INT_MAX, 1);
 
 			obs_property_t *leb_property = obs_properties_add_list(props, "loop_end_behavior",
 									       "Loop End Behavior", OBS_COMBO_TYPE_LIST,
@@ -438,7 +438,7 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 		if (playlist_data->playlist_context->debug == true) {
 			obs_log(LOG_INFO, "Infinite: %s", playlist_context->infinite == true ? "true" : "false");
 			if (playlist_context->infinite == false && playlist_context->debug == true) {
-				obs_log(LOG_INFO, "Loop Count: %d", playlist_context->max_loop_count);
+				obs_log(LOG_INFO, "Max Loop Count: %d", playlist_context->max_loop_count);
 			}
 		}
 	}
