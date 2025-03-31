@@ -113,7 +113,7 @@ void playlist_audio_callback(void *data, obs_source_t *source, const struct audi
 	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 	PlaylistData *playlist_data = playlist_widget_data->playlist_data;
 
-	pthread_mutex_lock(&playlist_data->audio_mutex);
+	// pthread_mutex_lock(&playlist_data->audio_mutex);
 
 	size_t size = audio_data->frames * sizeof(float);
 	for (size_t i = 0; i < playlist_data->num_channels; i++) {
@@ -122,7 +122,7 @@ void playlist_audio_callback(void *data, obs_source_t *source, const struct audi
 	deque_push_back(&playlist_data->audio_frames, &audio_data->frames, sizeof(audio_data->frames));
 	deque_push_back(&playlist_data->audio_timestamps, &audio_data->timestamp, sizeof(audio_data->timestamp));
 
-	pthread_mutex_unlock(&playlist_data->audio_mutex);
+	// pthread_mutex_unlock(&playlist_data->audio_mutex);
 }
 
 bool uses_song_history_limit(PlaylistData *playlist_data)
@@ -298,8 +298,7 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 							playlist_data->all_media[entry_index] = new_entry;
 						}
 					} else {
-						push_media_media_file_at(&playlist_data->all_media, &new_entry,
-									 entry_index);
+						push_media_data_at(&playlist_data->all_media, new_entry, entry_index);
 						added_medias.push_back(new_entry);
 					}
 					entry_index++;
@@ -313,7 +312,7 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 						// added_medias.push_back(new_entry);
 					}
 				} else {
-					push_media_media_file_at(&playlist_data->all_media, &new_entry, entry_index);
+					push_media_data_at(&playlist_data->all_media, new_entry, entry_index);
 					// obs_log(LOG_INFO, "Media Entry: %s, %d", new_entry.path.c_str(),
 					// 	new_entry.index);
 					added_medias.push_back(new_entry);
@@ -722,7 +721,7 @@ void playlist_video_tick(void *data, float seconds)
 
 	const audio_t *a = obs_get_audio();
 	const struct audio_output_info *aoi = audio_output_get_info(a);
-	pthread_mutex_lock(&playlist_data->audio_mutex);
+	// pthread_mutex_lock(&playlist_data->audio_mutex);
 	while (playlist_data->audio_frames.size > 0) {
 		struct obs_source_audio audio = {0};
 		audio.format = aoi->format;
@@ -742,7 +741,7 @@ void playlist_video_tick(void *data, float seconds)
 		}
 	}
 	playlist_data->num_channels = audio_output_get_channels(a);
-	pthread_mutex_unlock(&playlist_data->audio_mutex);
+	// pthread_mutex_unlock(&playlist_data->audio_mutex);
 }
 
 void playlist_video_render(void *data, gs_effect_t *effect)
@@ -901,15 +900,13 @@ void media_next(void *data)
 	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 	PlaylistData *playlist_data = playlist_widget_data->playlist_data;
 
-	pthread_mutex_lock(&playlist_data->mutex);
+	// pthread_mutex_lock(&playlist_data->mutex);
 
 	if (playlist_data->queue.size() > 0) {
 		if (uses_song_history_limit(playlist_data) == true) {
 			const MediaData media_data = playlist_data->queue[0]->media_data;
 
-			const MediaData new_entry = init_media_data_from_media_data(media_data);
-
-			playlist_data->previous_queue.push_back(new_entry);
+			push_media_data_front(&playlist_data->previous_queue, media_data);
 
 			if (playlist_data->previous_queue.size() > playlist_data->song_history_limit) {
 				playlist_data->previous_queue.pop_back();
@@ -925,17 +922,17 @@ void media_next(void *data)
 
 		if (playlist_data->queue.size() <= 0) {
 			obs_source_media_stop(playlist_data->media_source);
-			obs_source_media_ended(playlist_data->media_source);
+			obs_source_media_ended(playlist_data->source);
 		} else {
 			set_queue(playlist_data);
 			obs_source_media_restart(playlist_data->media_source);
 		}
 	} else {
 		obs_source_media_stop(playlist_data->media_source);
-		obs_source_media_ended(playlist_data->media_source);
+		obs_source_media_ended(playlist_data->source);
 	}
 
-	pthread_mutex_unlock(&playlist_data->mutex);
+	// pthread_mutex_unlock(&playlist_data->mutex);
 }
 
 void media_previous(void *data)
@@ -943,7 +940,7 @@ void media_previous(void *data)
 	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 	PlaylistData *playlist_data = playlist_widget_data->playlist_data;
 
-	pthread_mutex_lock(&playlist_data->mutex);
+	// pthread_mutex_lock(&playlist_data->mutex);
 
 	if (uses_song_history_limit(playlist_data) == true) {
 		if (playlist_data->previous_queue.size() > 0) {
@@ -984,7 +981,7 @@ void media_previous(void *data)
 
 	// obs_source_update_properties(playlist_data->source);
 
-	pthread_mutex_unlock(&playlist_data->mutex);
+	// pthread_mutex_unlock(&playlist_data->mutex);
 }
 
 int64_t media_get_duration(void *data)

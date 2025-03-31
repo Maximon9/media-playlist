@@ -18,11 +18,16 @@ static const char *video_filter = " (*.mp4 *.mpg *.m4v *.ts *.mov *.mxf *.flv *.
 static const char *audio_filter = " (*.mp3 *.m4a *.mka *.ogg *.aac *.wav *.opus *.flac);;";
 
 void push_media_back(MediaDataArray *media_array, const std::string path);
+
 void push_media_front(MediaDataArray *media_array, const std::string path);
 
 void push_media_at(MediaDataArray *media_array, const std::string path, size_t index);
 
-void push_media_media_file_at(MediaDataArray *media_array, MediaData *entry, size_t index);
+void push_media_data_back(MediaDataArray *media_array, MediaData media_data);
+
+void push_media_data_front(MediaDataArray *media_array, MediaData media_data);
+
+void push_media_data_at(MediaDataArray *media_array, MediaData media_data, size_t index);
 
 void pop_media_at(MediaDataArray *media_array, size_t index);
 

@@ -14,6 +14,18 @@ void push_media_front(MediaDataArray *media_array, const std::string path)
 	media_array->push_front(entry);
 }
 
+void push_media_data_back(MediaDataArray *media_array, MediaData media_data)
+{
+	const MediaData new_entry = init_media_data_from_media_data(media_data);
+	media_array->push_back(new_entry);
+}
+
+void push_media_data_front(MediaDataArray *media_array, MediaData media_data)
+{
+	const MediaData new_entry = init_media_data_from_media_data(media_data);
+	media_array->push_front(new_entry);
+}
+
 void push_media_at(MediaDataArray *media_array, const std::string path, size_t index)
 {
 	MediaDataArray::const_iterator it = media_array->cbegin() + index;
@@ -21,10 +33,11 @@ void push_media_at(MediaDataArray *media_array, const std::string path, size_t i
 	media_array->insert(it, entry);
 }
 
-void push_media_media_file_at(MediaDataArray *media_array, MediaData *entry, size_t index)
+void push_media_data_at(MediaDataArray *media_array, MediaData media_data, size_t index)
 {
 	MediaDataArray::const_iterator it = media_array->cbegin() + index;
-	media_array->insert(it, *entry);
+	const MediaData new_entry = init_media_data_from_media_data(media_data);
+	media_array->insert(it, new_entry);
 }
 
 void pop_media_at(MediaDataArray *media_array, size_t index)
