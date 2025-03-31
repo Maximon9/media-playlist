@@ -8,7 +8,7 @@
 #include <QVBoxLayout>
 #include "../include/types/playlist-source-types.hpp"
 
-typedef struct PlaylistData PlaylistData;
+typedef struct PlaylistContext PlaylistContext;
 
 class PlaylisQueueWidget : public QWidget {
 private:
@@ -28,8 +28,8 @@ private:
 #pragma endregion
 
 public:
-	const PlaylistData *playlist_data;
-	explicit PlaylisQueueWidget(const PlaylistData *playlist, QWidget *parent = nullptr,
+	const PlaylistContext *playlist_context;
+	explicit PlaylisQueueWidget(const PlaylistContext *playlist, QWidget *parent = nullptr,
 				    bool is_main_widget = false);
 	void toggleMediaVisibility();
 	void update_playlist_name();

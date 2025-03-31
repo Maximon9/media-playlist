@@ -80,48 +80,44 @@ MediaData init_media_data_from_media_data(const MediaData media_data)
 	return new_entry;
 }
 
-void push_queue_media_path_back(QueueMediaDataArray *media_array, const std::string path,
-				PlaylistWidgetData *playlist_widget_data)
+void push_queue_media_path_back(QueueMediaDataArray *media_array, const std::string path, PlaylistData *playlist_data)
 {
 	SharedQueueMediaData new_entry =
-		init_queue_media_data_from_path(path, media_array->size(), media_array->size(), playlist_widget_data);
+		init_queue_media_data_from_path(path, media_array->size(), media_array->size(), playlist_data);
 	media_array->push_back(new_entry);
 }
 
-void push_queue_media_path_front(QueueMediaDataArray *media_array, const std::string path,
-				 PlaylistWidgetData *playlist_widget_data)
+void push_queue_media_path_front(QueueMediaDataArray *media_array, const std::string path, PlaylistData *playlist_data)
 {
-	SharedQueueMediaData new_entry = init_queue_media_data_from_path(path, 0, 0, playlist_widget_data);
+	SharedQueueMediaData new_entry = init_queue_media_data_from_path(path, 0, 0, playlist_data);
 	media_array->push_front(new_entry);
 }
 
 void push_queue_media_path_at(QueueMediaDataArray *media_array, const std::string path, size_t index,
-			      PlaylistWidgetData *playlist_widget_data)
+			      PlaylistData *playlist_data)
 {
-	SharedQueueMediaData new_entry = init_queue_media_data_from_path(path, index, index, playlist_widget_data);
+	SharedQueueMediaData new_entry = init_queue_media_data_from_path(path, index, index, playlist_data);
 	QueueMediaDataArray::const_iterator it = media_array->cbegin() + index;
 	media_array->insert(it, new_entry);
 }
 
-void push_queue_media_data_back(QueueMediaDataArray *media_array, MediaData media_data,
-				PlaylistWidgetData *playlist_widget_data)
+void push_queue_media_data_back(QueueMediaDataArray *media_array, MediaData media_data, PlaylistData *playlist_data)
 {
 	SharedQueueMediaData new_entry =
-		init_queue_media_data_from_media_data(media_data, media_array->size(), playlist_widget_data);
+		init_queue_media_data_from_media_data(media_data, media_array->size(), playlist_data);
 	media_array->push_back(new_entry);
 }
 
-void push_queue_media_data_front(QueueMediaDataArray *media_array, MediaData media_data,
-				 PlaylistWidgetData *playlist_widget_data)
+void push_queue_media_data_front(QueueMediaDataArray *media_array, MediaData media_data, PlaylistData *playlist_data)
 {
-	SharedQueueMediaData new_entry = init_queue_media_data_from_media_data(media_data, 0, playlist_widget_data);
+	SharedQueueMediaData new_entry = init_queue_media_data_from_media_data(media_data, 0, playlist_data);
 	media_array->push_front(new_entry);
 }
 
 void push_queue_media_data_at(QueueMediaDataArray *media_array, MediaData media_data, size_t index,
-			      PlaylistWidgetData *playlist_widget_data)
+			      PlaylistData *playlist_data)
 {
-	SharedQueueMediaData new_entry = init_queue_media_data_from_media_data(media_data, index, playlist_widget_data);
+	SharedQueueMediaData new_entry = init_queue_media_data_from_media_data(media_data, index, playlist_data);
 	QueueMediaDataArray::const_iterator it = media_array->cbegin() + index;
 	media_array->insert(it, new_entry);
 }
@@ -196,14 +192,13 @@ void clear_queue(QueueMediaDataArray *media_array)
 	}
 }
 
-void init_widgets(SharedQueueMediaData entry, size_t index, PlaylistWidgetData *playlist_widget_data,
-		  MediaWidget *media_widget, MediaWidget *param_media_widget)
+void init_widgets(SharedQueueMediaData entry, size_t index, PlaylistData *playlist_data, MediaWidget *media_widget,
+		  MediaWidget *param_media_widget)
 {
 	if (media_widget == nullptr) {
-		if (playlist_widget_data->playlist_widget != nullptr) {
-			entry->media_widget =
-				playlist_widget_data->playlist_widget->create_media_widget(&entry->media_data);
-			playlist_widget_data->playlist_widget->push_media_widget_at(entry->media_widget, index);
+		if (playlist_data->playlist_widget != nullptr) {
+			entry->media_widget = playlist_data->playlist_widget->create_media_widget(&entry->media_data);
+			playlist_data->playlist_widget->push_media_widget_at(entry->media_widget, index);
 		}
 	} else {
 		media_widget->media_data = nullptr;
@@ -212,11 +207,10 @@ void init_widgets(SharedQueueMediaData entry, size_t index, PlaylistWidgetData *
 	}
 
 	if (param_media_widget == nullptr) {
-		if (playlist_widget_data->param_playlist_widget != nullptr) {
+		if (playlist_data->param_playlist_widget != nullptr) {
 			entry->param_media_widget =
-				playlist_widget_data->param_playlist_widget->create_media_widget(&entry->media_data);
-			playlist_widget_data->param_playlist_widget->push_media_widget_at(entry->param_media_widget,
-											  index);
+				playlist_data->param_playlist_widget->create_media_widget(&entry->media_data);
+			playlist_data->param_playlist_widget->push_media_widget_at(entry->param_media_widget, index);
 		}
 	} else {
 		param_media_widget->media_data = nullptr;
@@ -226,8 +220,8 @@ void init_widgets(SharedQueueMediaData entry, size_t index, PlaylistWidgetData *
 }
 
 SharedQueueMediaData init_queue_media_data_from_path(std::string path, size_t widget_index, size_t index,
-						     PlaylistWidgetData *playlist_widget_data,
-						     MediaWidget *media_widget, MediaWidget *param_media_widget)
+						     PlaylistData *playlist_data, MediaWidget *media_widget,
+						     MediaWidget *param_media_widget)
 {
 	SharedQueueMediaData new_entry = std::make_shared<QueueMediaData>();
 	// Create and insert new MediaData
@@ -244,33 +238,33 @@ SharedQueueMediaData init_queue_media_data_from_path(std::string path, size_t wi
 
 	new_entry->media_data = {path, filename, name, ext, index};
 
-	init_widgets(new_entry, widget_index, playlist_widget_data, media_widget, param_media_widget);
+	init_widgets(new_entry, widget_index, playlist_data, media_widget, param_media_widget);
 
 	return new_entry;
 }
 
 SharedQueueMediaData init_queue_media_data(const std::string path, const std::string filename, const std::string name,
 					   const std::string ext, size_t widget_index, size_t index,
-					   PlaylistWidgetData *playlist_widget_data, MediaWidget *media_widget,
+					   PlaylistData *playlist_data, MediaWidget *media_widget,
 					   MediaWidget *param_media_widget)
 {
 	SharedQueueMediaData new_entry = std::make_shared<QueueMediaData>();
 	// Create and insert new MediaData
 	new_entry->media_data = {path, filename, name, ext, index};
-	init_widgets(new_entry, widget_index, playlist_widget_data, media_widget, param_media_widget);
+	init_widgets(new_entry, widget_index, playlist_data, media_widget, param_media_widget);
 
 	return new_entry;
 }
 
 SharedQueueMediaData init_queue_media_data_from_media_data(MediaData media_data, size_t widget_index,
-							   PlaylistWidgetData *playlist_widget_data,
-							   MediaWidget *media_widget, MediaWidget *param_media_widget)
+							   PlaylistData *playlist_data, MediaWidget *media_widget,
+							   MediaWidget *param_media_widget)
 
 {
 	SharedQueueMediaData new_entry = std::make_shared<QueueMediaData>();
 	// Create and insert new MediaData
 	new_entry->media_data = media_data;
-	init_widgets(new_entry, widget_index, playlist_widget_data, media_widget, param_media_widget);
+	init_widgets(new_entry, widget_index, playlist_data, media_widget, param_media_widget);
 
 	return new_entry;
 }

@@ -11,7 +11,7 @@
 
 class PlaylisQueueWidget;
 
-typedef struct PlaylistData {
+typedef struct PlaylistContext {
 #pragma region Public
 	bool show_queue_when_properties_open;
 	MediaDataArray all_media;
@@ -41,12 +41,24 @@ typedef struct PlaylistData {
 	size_t num_channels;
 	pthread_mutex_t audio_mutex;
 #pragma endregion
-} PlaylistData;
+} PlaylistContext;
 
-typedef struct PlaylistWidgetData {
+// class PlaylistData {
+// 	public:
+// 		QLabel *label;
+// 		e_MediaStringifyTYPE media_stringify_type;
+// 		const MediaData *media_data;
+// 		explicit MediaWidget(const MediaData *media_data,
+// 					 e_MediaStringifyTYPE media_stringify_type = MEDIA_STRINGIFY_TYPE_FILENAME,
+// 					 QWidget *parent = nullptr);
+// 		void update_media_data(e_MediaStringifyTYPE *media_stringify_type = nullptr);
+// 		void remove_widget(bool delete_later = true);
+// 	};
+
+typedef struct PlaylistData {
 	PlaylisQueueWidget *playlist_widget;
 	PlaylisQueueWidget *param_playlist_widget;
-	PlaylistData *playlist_data;
-} PlaylistWidgetData;
+	PlaylistContext *playlist_context;
+} PlaylistData;
 
 #endif // PLAYLIST_SOURCE_TYPES_HPP

@@ -13,20 +13,20 @@ void playlist_global_signal_callback(void *data, const char *signal, calldata_t 
 
 const char *get_current_media_input(obs_data_t *settings);
 
-void refresh_queue_list(PlaylistWidgetData *playlist_data);
+void refresh_queue_list(PlaylistData *playlist_context);
 
 void playlist_media_source_ended(void *data, const char *signal, calldata_t *callback);
 
-void set_queue(PlaylistData *playlist_data);
-// void playlist_queue(PlaylistData *playlist_data);
+void set_queue(PlaylistContext *playlist_context);
+// void playlist_queue(PlaylistContext *playlist_context);
 
-// void playlist_queue_restart(PlaylistData *playlist_data);
+// void playlist_queue_restart(PlaylistContext *playlist_context);
 
-void clear_any_media_playing(PlaylistData *playlist_data);
+void clear_any_media_playing(PlaylistContext *playlist_context);
 
 void playlist_audio_callback(void *data, obs_source_t *source, const struct audio_data *audio_data, bool muted);
 
-bool uses_song_history_limit(PlaylistData *playlist_data);
+bool uses_song_history_limit(PlaylistContext *playlist_context);
 
 #pragma endregion
 
@@ -36,7 +36,7 @@ bool playlist_queue_modified(obs_properties_t *props, obs_property_t *property, 
 
 obs_properties_t *update_playlist_properties();
 
-void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *settings);
+void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings);
 
 #pragma endregion
 

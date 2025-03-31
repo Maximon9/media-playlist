@@ -3,12 +3,12 @@
 #include "../../include/qt-classes/playlist-queue-widget.hpp"
 #include "../../include/qt-classes/media-widget.hpp"
 
-PlaylisQueueWidget::PlaylisQueueWidget(const PlaylistData *playlist_data, QWidget *parent, bool is_main_widget)
+PlaylisQueueWidget::PlaylisQueueWidget(const PlaylistContext *playlist_context, QWidget *parent, bool is_main_widget)
 	: QWidget(parent),
 	  expanded(is_main_widget),
 	  is_main_widget(is_main_widget)
 {
-	this->playlist_data = playlist_data;
+	this->playlist_context = playlist_context;
 
 	QWidget *media_container_root = this;
 
@@ -18,7 +18,7 @@ PlaylisQueueWidget::PlaylisQueueWidget(const PlaylistData *playlist_data, QWidge
 	QBoxLayout *media_container_root_layout = layout;
 
 	if (is_main_widget == true) {
-		setWindowTitle(QString::fromStdString(playlist_data->name + " Queue"));
+		setWindowTitle(QString::fromStdString(playlist_context->name + " Queue"));
 
 		// Scroll area setup
 		scrollArea = new QScrollArea(this);
@@ -41,7 +41,7 @@ PlaylisQueueWidget::PlaylisQueueWidget(const PlaylistData *playlist_data, QWidge
 		// Create a layout for the toggleButton to make it expand horizontally
 		buttonLayout = new QHBoxLayout();
 
-		toggleButton = new QPushButton(QString::fromStdString(playlist_data->name), this);
+		toggleButton = new QPushButton(QString::fromStdString(playlist_context->name), this);
 		toggleButton->setSizePolicy(QSizePolicy::Minimum,
 					    QSizePolicy::Fixed); // Make button expand horizontally
 
@@ -113,17 +113,17 @@ void PlaylisQueueWidget::update_playlist_name()
 	if (toggleButton == nullptr)
 		return;
 	if (is_main_widget == true) {
-		setWindowTitle(QString::fromStdString(playlist_data->name + " Queue"));
+		setWindowTitle(QString::fromStdString(playlist_context->name + " Queue"));
 	} else {
-		toggleButton->setText(QString::fromStdString(playlist_data->name));
+		toggleButton->setText(QString::fromStdString(playlist_context->name));
 	}
 }
 
 void PlaylisQueueWidget::update_playlist_data(e_MediaStringifyTYPE media_stringify_type)
 {
 	PlaylisQueueWidget::update_playlist_name();
-	for (size_t i = 0; i < playlist_data->queue.size(); i++) {
-		playlist_data->queue[i]->media_widget->update_media_data(&media_stringify_type);
+	for (size_t i = 0; i < playlist_context->queue.size(); i++) {
+		playlist_context->queue[i]->media_widget->update_media_data(&media_stringify_type);
 	}
 }
 

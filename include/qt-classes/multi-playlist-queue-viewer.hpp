@@ -10,7 +10,7 @@
 #include <QVBoxLayout>
 #include "../include/types/playlist-source-types.hpp"
 
-typedef std::deque<PlaylistWidgetData *> PlaylistWidgetDatas;
+typedef std::deque<PlaylistData *> PlaylistWidgetDatas;
 
 class MultiPlaylistQueueViewer : public QWidget {
 private:

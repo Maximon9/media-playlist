@@ -3,19 +3,6 @@
 #include "../../include/qt-classes/multi-playlist-queue-viewer.hpp"
 #include "../../include/qt-classes/playlist-queue-widget.hpp"
 
-/* MultiPlaylistQueueViewer::MultiPlaylistQueueViewer(QWidget *parent) : QWidget(parent)
-{
-	this->playlist_datas = {};
-
-	this->layout = new QVBoxLayout(this);
-
-	QLabel *label = new QLabel("Hi, this is my custom dock", this);
-
-	layout->addWidget(label);
-
-	setLayout(this->layout);
-} */
-
 MultiPlaylistQueueViewer::MultiPlaylistQueueViewer(QWidget *parent) : QWidget(parent)
 {
 	this->playlist_datas = {};
@@ -52,11 +39,11 @@ void MultiPlaylistQueueViewer::updatePlaylists()
 {
 	// Add new playlists
 	for (size_t i = 0; i < this->playlist_datas.size(); i++) {
-		const PlaylistWidgetData *playlist_widget_data = this->playlist_datas[i];
-		if (playlist_widget_data == nullptr) {
+		const PlaylistData *playlist_data = this->playlist_datas[i];
+		if (playlist_data == nullptr) {
 			continue;
 		}
-		playlist_widget_data->playlist_widget->update_playlist_data();
+		playlist_data->playlist_widget->update_playlist_data();
 	}
 }
 
