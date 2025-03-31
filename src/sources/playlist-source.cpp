@@ -46,34 +46,19 @@ void refresh_queue_list(PlaylistWidgetData *playlist_widget_data)
 	}
 }
 
-// void playlist_source_callbacks(void *data, const char *callback_name, calldata_t *callback)
-// {
-// 	UNUSED_PARAMETER(callback);
-// 	obs_log(LOG_INFO, "Source Callbacks: %s", callback_name);
-// }
-
-constexpr unsigned int hashStr(const char *str, unsigned int hash = 2166136261u)
-{
-	return (*str ? hashStr(str + 1, (hash ^ *str) * 16777619u) : hash);
-}
-
 void playlist_media_source_ended(void *data, const char *signal, calldata_t *callback)
 {
 	obs_log(LOG_INFO, "Signal: %s", *signal);
 
 	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 	PlaylistData *playlist_data = playlist_widget_data->playlist_data;
-	switch (hashStr(signal)) {
-	case hashStr("media_ended"):
+	if (strcmp(signal, "media_ended") == 0) {
 		obs_log(LOG_INFO, "What is happening");
 
 		UNUSED_PARAMETER(callback);
 		playlist_data->state = OBS_MEDIA_STATE_ENDED;
 
 		obs_source_media_next(playlist_data->source);
-		break;
-	default:
-		break;
 	}
 }
 

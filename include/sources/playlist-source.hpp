@@ -15,7 +15,7 @@ const char *get_current_media_input(obs_data_t *settings);
 
 void refresh_queue_list(PlaylistWidgetData *playlist_data);
 
-void playlist_media_source_ended(void *data, calldata_t *callback);
+void playlist_media_source_ended(void *data, const char *signal, calldata_t *callback);
 
 void set_queue(PlaylistData *playlist_data);
 // void playlist_queue(PlaylistData *playlist_data);
