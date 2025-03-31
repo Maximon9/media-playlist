@@ -113,8 +113,8 @@ void playlist_queue(PlaylistData *playlist_data)
 		return;
 
 	if (playlist_data->queue.size() <= 0) {
-		obs_data_set_string(playlist_data->media_source_settings, S_FFMPEG_LOCAL_FILE, "");
-		obs_source_update(playlist_data->media_source, playlist_data->media_source_settings);
+		// obs_data_set_string(playlist_data->media_source_settings, S_FFMPEG_LOCAL_FILE, "");
+		// obs_source_update(playlist_data->media_source, playlist_data->media_source_settings);
 		return;
 	}
 
@@ -301,7 +301,6 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 
 	if (array_size <= 0) {
 		playlist_widget_data->playlist_data->all_media.clear();
-		obs_data_array_release(obs_playlist);
 	} else {
 		size_t entry_index = 0;
 		MediaDataArray removed_medias{};
@@ -407,7 +406,7 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 					}
 				}
 			}
-			size_t queue_last_index = 0;
+			int queue_last_index = -1;
 
 			if (playlist_widget_data->playlist_data->queue.size() > 0) {
 				queue_last_index =
