@@ -158,14 +158,16 @@ void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool era
 
 void clear_queue(QueueMediaDataArray *media_array)
 {
-	for (size_t i = 0; i < media_array->size(); i++) {
-		SharedQueueMediaData queue_media_data = media_array->at(i);
-		queue_media_data->media_widget->remove_widget();
-		delete queue_media_data->media_widget;
-		queue_media_data->param_media_widget->remove_widget();
-		delete queue_media_data->param_media_widget;
+	if (media_array->size() > 0) {
+		for (size_t i = 0; i < media_array->size(); i++) {
+			SharedQueueMediaData queue_media_data = media_array->at(i);
+			queue_media_data->media_widget->remove_widget();
+			delete queue_media_data->media_widget;
+			queue_media_data->param_media_widget->remove_widget();
+			delete queue_media_data->param_media_widget;
+		}
+		media_array->clear();
 	}
-	media_array->clear();
 }
 
 SharedQueueMediaData init_queue_media_data_from_path(std::string path, size_t widget_index, size_t index,
