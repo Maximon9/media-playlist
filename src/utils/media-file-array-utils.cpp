@@ -97,12 +97,14 @@ void push_queue_media_data_back(QueueMediaDataArray *media_array, MediaData medi
 		init_queue_media_data_from_media_data(media_data, media_array->size(), playlist_widget_data);
 	media_array->push_back(new_entry);
 }
+
 void push_queue_media_data_front(QueueMediaDataArray *media_array, MediaData media_data,
 				 PlaylistWidgetData *playlist_widget_data)
 {
 	SharedQueueMediaData new_entry = init_queue_media_data_from_media_data(media_data, 0, playlist_widget_data);
 	media_array->push_front(new_entry);
 }
+
 void push_queue_media_data_at(QueueMediaDataArray *media_array, MediaData media_data, size_t index,
 			      PlaylistWidgetData *playlist_widget_data)
 {
@@ -248,6 +250,7 @@ SharedQueueMediaData init_queue_media_data_from_media_data(MediaData media_data,
 							   MediaWidget *media_widget, MediaWidget *param_media_widget)
 
 {
+	obs_log(LOG_INFO, "Wdiget Index: %d", widget_index);
 	SharedQueueMediaData new_entry = std::make_shared<QueueMediaData>();
 	// Create and insert new MediaData
 	new_entry->media_data = media_data;

@@ -164,8 +164,15 @@ MediaWidget *PlaylisQueueWidget::create_media_widget(MediaData *media_data, e_Me
 
 void PlaylisQueueWidget::insert_media_widget(MediaWidget *mediaWidget, size_t index)
 {
+	QEventLoop loop;
 	QMetaObject::invokeMethod(
-		this, [=, &index]() { mediaLayout->insertWidget((int)index, mediaWidget); }, Qt::QueuedConnection);
+		this,
+		[=, &loop, &index]() {
+			mediaLayout->insertWidget((int)index, mediaWidget);
+			loop.quit(); // Exit the event loop once widget is created
+		},
+		Qt::QueuedConnection);
+	loop.exec();
 }
 
 #pragma endregion

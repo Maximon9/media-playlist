@@ -192,19 +192,19 @@ bool uses_song_history_limit(PlaylistData *playlist_data)
 
 #pragma region Property Managment
 
-void show_queue(PlaylistWidgetData *playlist_widget_data)
+void show_param_queue(PlaylistWidgetData *playlist_widget_data)
 {
 	if (playlist_widget_data->param_playlist_widget) {
 		playlist_widget_data->param_playlist_widget->show();
 	}
 }
 
-bool show_queue_button(obs_properties_t *props, obs_property_t *property, void *data)
+bool show_param_queue_button(obs_properties_t *props, obs_property_t *property, void *data)
 {
 	UNUSED_PARAMETER(props);
 	UNUSED_PARAMETER(property);
 	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
-	show_queue(playlist_widget_data);
+	show_param_queue(playlist_widget_data);
 	return true;
 }
 
@@ -214,7 +214,7 @@ obs_properties_t *make_playlist_properties(PlaylistWidgetData *playlist_widget_d
 	obs_properties_t *props = obs_properties_create();
 
 	obs_properties_add_bool(props, "show_queue_when_properties_open", "Show Queue When Properties Open");
-	obs_properties_add_button(props, "show_queue", "Show Queue", show_queue_button);
+	obs_properties_add_button(props, "show_queue", "Show Queue", show_param_queue_button);
 
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
 					 media_filter, "");
@@ -672,7 +672,7 @@ obs_properties_t *playlist_get_properties(void *data)
 	PlaylistData *playlist_data = playlist_widget_data->playlist_data;
 
 	if (playlist_data->show_queue_when_properties_open == true) {
-		show_queue(playlist_widget_data);
+		show_param_queue(playlist_widget_data);
 	}
 
 	return make_playlist_properties(playlist_widget_data);
@@ -691,15 +691,6 @@ void playlist_activate(void *data)
 	obs_log(LOG_INFO, "playlist_activate");
 	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 	PlaylistData *playlist_data = playlist_widget_data->playlist_data;
-
-	// MediaData test_media_data{};
-	// test_media_data.path =
-	// 	"C:/Users/aamax/OneDrive/Documents/OBSSceneVids/Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4";
-	// test_media_data.filename = "Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen.mp4";
-	// test_media_data.name = "Start Of Purple Pink Orange Arcade Pixel Just Chatting Twitch Screen";
-	// test_media_data.ext = ".mp4";
-
-	// init_queue_media_data_from_media_data(&fake_entry, test_media_data, 0, playlist_widget_data);
 
 	switch (playlist_data->start_behavior) {
 	case START_BEHAVIOR_RESTART_ENTIRE_PLAYLIST:
