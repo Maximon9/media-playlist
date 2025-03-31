@@ -113,8 +113,8 @@ void playlist_queue(PlaylistData *playlist_data)
 		return;
 
 	if (playlist_data->queue.size() <= 0) {
-		// obs_data_set_string(playlist_data->media_source_settings, S_FFMPEG_LOCAL_FILE, "");
-		// obs_source_update(playlist_data->media_source, playlist_data->media_source_settings);
+		obs_data_set_string(playlist_data->media_source_settings, S_FFMPEG_LOCAL_FILE, "");
+		obs_source_update(playlist_data->media_source, playlist_data->media_source_settings);
 		return;
 	}
 
@@ -406,20 +406,23 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 					}
 				}
 			}
-			int queue_last_index = -1;
+			bool found_queue = false;
+			size_t queue_last_index = 0;
 
 			if (playlist_widget_data->playlist_data->queue.size() > 0) {
 				queue_last_index =
 					playlist_widget_data->playlist_data
 						->queue[playlist_widget_data->playlist_data->queue.size() - 1]
 						->media_data.index;
+				found_queue = true;
 			}
 
 			// to-do Only add songs that have actually been added to the all media list.
 			for (size_t i = 0; i < added_medias.size(); i++) {
 				// obs_log(LOG_INFO, "Queue Index: %d", i);
 				MediaData added_media_data = added_medias[i];
-				if (added_media_data.index > queue_last_index) {
+				if (added_media_data.index > queue_last_index || found_queue == false) {
+					obs_log(LOG_INFO, "Its a me!");
 
 					std::shared_ptr<QueueMediaData> new_entry = std::make_shared<QueueMediaData>();
 
