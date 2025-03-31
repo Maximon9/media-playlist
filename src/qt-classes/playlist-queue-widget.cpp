@@ -136,7 +136,6 @@ void PlaylisQueueWidget::remove_widget()
 			layout->removeWidget(this);
 		}
 	}
-	deleteLater();
 }
 
 MediaWidget *PlaylisQueueWidget::create_media_widget(MediaData *media_data, e_MediaStringifyTYPE media_stringify_type)

@@ -84,7 +84,6 @@ void MediaWidget::remove_widget()
 			layout->removeWidget(this);
 		}
 	}
-	deleteLater();
 }
 
 #pragma endregion

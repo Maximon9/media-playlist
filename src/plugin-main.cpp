@@ -96,7 +96,7 @@ bool obs_module_load(void)
 	QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
 	multi_playlist_queue_viewer = new MultiPlaylistQueueViewer(obs_main_window);
 
-	if (obs_frontend_add_dock_by_id("playlist_queue_viewer_maximon9", "Playlist Queue Viewer",
+	if (obs_frontend_add_dock_by_id("multi_playlist_queue_viewer_maximon9", "Multi Playlist Queue Viewer",
 					multi_playlist_queue_viewer) == false) {
 		delete multi_playlist_queue_viewer;
 	}

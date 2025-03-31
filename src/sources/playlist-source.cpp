@@ -200,7 +200,10 @@ void show_param_queue(PlaylistWidgetData *playlist_widget_data)
 
 		for (QObject *child : obs_main_window->children()) {
 			QWidget *widget = qobject_cast<QWidget *>(child);
-			if (widget && widget->objectName() == "OBSBasicProperties") {
+			if (widget && widget->objectName() == "OBSBasicProperties" &&
+			    widget->windowTitle() ==
+				    QString::fromStdString("Properties for '" +
+							   playlist_widget_data->playlist_data->name + "'")) {
 				properties_window = widget;
 				break;
 			}
@@ -208,6 +211,11 @@ void show_param_queue(PlaylistWidgetData *playlist_widget_data)
 
 		if (properties_window) {
 			playlist_widget_data->param_playlist_widget->setParent(properties_window, Qt::Window);
+			QObject::connect(properties_window, &QObject::destroyed,
+					 playlist_widget_data->param_playlist_widget, [playlist_widget_data]() {
+						 playlist_widget_data->param_playlist_widget->setParent(nullptr);
+						 playlist_widget_data->param_playlist_widget->hide();
+					 });
 		} else {
 			playlist_widget_data->param_playlist_widget->setParent(obs_main_window, Qt::Window);
 		}
@@ -590,8 +598,6 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	// QWidget *properties_window = (QWidget *)obs_frontend_get_main_window();
 	// playlist_data->properties_ui = new CustomProperties(settings, properties_window);
 
-	QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
-
 	// pthread_mutex_init_value(&playlist_data->mutex);
 	// QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
 	if (pthread_mutex_init(&playlist_data->mutex, NULL) != 0) {
@@ -606,9 +612,7 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	update_playlist_data(playlist_widget_data, settings);
 
 	playlist_widget_data->param_playlist_widget = new PlaylisQueueWidget(playlist_data, nullptr, true);
-
-	playlist_widget_data->param_playlist_widget->setWindowFlags(Qt::Tool);
-	playlist_widget_data->param_playlist_widget->setParent(obs_main_window, Qt::Window);
+	playlist_widget_data->param_playlist_widget->setObjectName("playlist_queue_viewer_maximon9");
 
 	playlist_widget_data->playlist_widget =
 		new PlaylisQueueWidget(playlist_data, multi_playlist_queue_viewer, false);
@@ -644,9 +648,11 @@ void playlist_source_destroy(void *data)
 
 	if (playlist_widget_data->playlist_widget != nullptr) {
 		playlist_widget_data->playlist_widget->remove_widget();
+		delete playlist_widget_data->playlist_widget;
 	}
 	if (playlist_widget_data->param_playlist_widget != nullptr) {
 		playlist_widget_data->param_playlist_widget->remove_widget();
+		delete playlist_widget_data->param_playlist_widget;
 	}
 
 	// free_media_array(&playlist_data->queue);
@@ -890,9 +896,9 @@ void playlist_save(void *data, obs_data_t *settings)
 		playlist_widget_data->param_playlist_widget->update_playlist_name();
 	}
 
-	if (playlist_widget_data->param_playlist_widget) {
-		playlist_widget_data->param_playlist_widget->hide();
-	}
+	// 	if (playlist_widget_data->param_playlist_widget) {
+	// 		playlist_widget_data->param_playlist_widget->hide();
+	// 	}
 }
 
 void playlist_load(void *data, obs_data_t *settings)
