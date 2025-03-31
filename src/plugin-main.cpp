@@ -42,57 +42,6 @@ typedef struct test_str_struct {
 // Called when the plugin is loaded
 bool obs_module_load(void)
 {
-	// test_str_struct test_string{};
-	// test_string.str = "wassup";
-
-	// test_str_struct test_string_1{};
-	// test_string_1.str = "boyo";
-
-	// obs_log(LOG_INFO, "Testing: %s, %s", test_string.str, test_string_1.str);
-
-	// test_string = test_string_1;
-
-	// obs_log(LOG_INFO, "Testing: %s, %s", test_string.str, test_string_1.str);
-
-	// test_string.str = "ok bruh";
-
-	// obs_log(LOG_INFO, "Testing: %s, %s", test_string.str, test_string_1.str);
-
-	// test_str_struct test_string_3 {};
-	// test_string_3.std = "boyo";
-
-	// BasicBruvArray basic_bruv_array_1{};
-
-	// BasicBruv basic_bruv_1{};
-
-	// int this_int_1 = 9;
-
-	// basic_bruv_1.not_ptr = 8;
-	// basic_bruv_1.ptr = &this_int_1;
-
-	// basic_bruv_array_1.push_back(basic_bruv_1);
-
-	// BasicBruvArray basic_bruv_array_2{};
-
-	// BasicBruv basic_bruv_2{};
-
-	// int this_int_2 = 19;
-
-	// basic_bruv_2.not_ptr = 18;
-	// basic_bruv_2.ptr = &this_int_2;
-
-	// basic_bruv_array_2.push_back(basic_bruv_2);
-
-	// obs_log(LOG_INFO, "Basic Bruv 1: %d, %d", *basic_bruv_array_1[0].ptr, basic_bruv_array_1[0].not_ptr);
-	// obs_log(LOG_INFO, "Basic Bruv 2: %d, %d", *basic_bruv_array_2[0].ptr, basic_bruv_array_2[0].not_ptr);
-
-	// std::swap(basic_bruv_array_1[0], basic_bruv_array_2[0]);
-
-	// obs_log(LOG_INFO, "Basic Bruv 1: %d, %d", *basic_bruv_array_1[0].ptr, basic_bruv_array_1[0].not_ptr);
-	// obs_log(LOG_INFO, "Basic Bruv 2: %d, %d", *basic_bruv_array_2[0].ptr, basic_bruv_array_2[0].not_ptr);
-
-	// obs_log(LOG_INFO, "Loading Playlists");
-
 	QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
 	multi_playlist_queue_viewer = new MultiPlaylistQueueViewer(obs_main_window);
 
