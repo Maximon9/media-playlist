@@ -22,18 +22,19 @@ typedef struct PlaylistContext {
 	e_EndBehavior end_behavior;
 	int loop_index;
 	bool infinite;
-	int loop_count;
+	int max_loop_count;
 	e_LoopEndBehavior loop_end_behavior;
 	int song_history_limit;
 	bool debug;
 #pragma endregion
 #pragma region Private
+	int loop_count;
 	obs_media_state state;
 	std::string name;
 	bool all_media_initialized;
 	obs_data_t *media_source_settings;
 	QueueMediaDataArray queue;
-	MediaDataArray previous_queue;
+	MediaDataArray queue_history;
 	pthread_mutex_t mutex;
 	struct deque audio_data[MAX_AUDIO_CHANNELS];
 	struct deque audio_frames;
