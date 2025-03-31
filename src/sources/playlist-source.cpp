@@ -3,6 +3,8 @@
 #include "../include/sources/playlist-source.hpp"
 
 #define S_FFMPEG_LOG_CHANGES "log_changes"
+#define S_FFMPEG_SPEED "speed"
+#define S_FFMPEG_IS_HW_DECODING "is_hw_decoding"
 #define S_FFMPEG_RESTART_PLAYBACK_ON_ACTIVE "restart_on_activate"
 #define S_FFMPEG_LOCAL_FILE "local_file"
 #define S_FFMPEG_IS_LOCAL_FILE "is_local_file"
@@ -123,7 +125,7 @@ void show_param_queue(PlaylistData *playlist_data)
 {
 	if (playlist_data->param_playlist_widget) {
 		QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
-		QWidget *properties_window = nullptr;
+		QWidget *parent = obs_main_window;
 
 		for (QObject *child : obs_main_window->children()) {
 			QWidget *widget = qobject_cast<QWidget *>(child);
@@ -131,25 +133,27 @@ void show_param_queue(PlaylistData *playlist_data)
 			    widget->windowTitle() ==
 				    QString::fromStdString("Properties for '" + playlist_data->playlist_context->name +
 							   "'")) {
-				properties_window = widget;
+				parent = widget;
 				break;
 			}
 		}
 
-		if (properties_window) {
-			playlist_data->param_playlist_widget->setParent(properties_window, Qt::Window);
-			QObject::connect(properties_window, &QObject::destroyed, playlist_data->param_playlist_widget,
-					 [playlist_data]() {
-						 playlist_data->param_playlist_widget->setParent(nullptr);
-						 playlist_data->param_playlist_widget->hide();
-					 });
-		} else {
-			playlist_data->param_playlist_widget->setParent(obs_main_window, Qt::Window);
+		if (parent != nullptr) {
+			QWidget *old_parent = playlist_data->param_playlist_widget->parentWidget();
+			if (parent != old_parent) {
+				playlist_data->param_playlist_widget->setParent(parent, Qt::Window);
+				QObject::connect(parent, &QObject::destroyed, playlist_data->param_playlist_widget,
+						 [playlist_data]() {
+							 playlist_data->param_playlist_widget->setParent(nullptr);
+							 if (playlist_data->param_playlist_widget->isVisible() == true)
+								 playlist_data->param_playlist_widget->hide();
+						 });
+				playlist_data->param_playlist_widget->setWindowFlags(Qt::Tool);
+			}
 		}
 
-		playlist_data->param_playlist_widget->setWindowFlags(Qt::Tool);
-
-		playlist_data->param_playlist_widget->show();
+		if (playlist_data->param_playlist_widget->isVisible() == false)
+			playlist_data->param_playlist_widget->show();
 	}
 }
 
@@ -167,7 +171,14 @@ obs_properties_t *make_playlist_properties(PlaylistData *playlist_data)
 	PlaylistContext *playlist_context = playlist_data->playlist_context;
 	obs_properties_t *props = obs_properties_create();
 
+	obs_properties_add_bool(props, "use_media_resolution", "Use Media Resolution");
+
+	if (playlist_context->use_media_resolution) {
+		obs_properties_add_int(props, "media_width", "Media Width", 0, INT_MAX, 1);
+		obs_properties_add_int(props, "media_height", "Media height", 0, INT_MAX, 1);
+	}
 	obs_properties_add_bool(props, "show_queue_when_properties_open", "Show Queue When Properties Open");
+
 	obs_properties_add_button(props, "show_queue", "Show Queue", show_param_queue_button);
 
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
@@ -215,6 +226,18 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 		obs_data_get_bool(settings, "show_queue_when_properties_open");
 
 	bool update_properties = false;
+
+	bool use_media_resolution = obs_data_get_bool(settings, "use_media_resolution");
+
+	if (use_media_resolution != playlist_context->use_media_resolution) {
+		playlist_context->use_media_resolution = use_media_resolution;
+		update_properties = true;
+	}
+
+	if (playlist_context->use_media_resolution) {
+		playlist_context->media_width = obs_data_get_int(settings, "media_width");
+		playlist_context->media_height = obs_data_get_int(settings, "media_height");
+	}
 
 	pthread_mutex_lock(&playlist_context->mutex);
 
@@ -638,6 +661,9 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	playlist_context->max_loop_count = -1;
 	playlist_context->loop_count = 0;
 	playlist_context->restarting_media_source = false;
+	playlist_context->use_media_resolution = false;
+	playlist_context->media_width = obs_source_get_base_width(playlist_context->media_source);
+	playlist_context->media_height = obs_source_get_base_height(playlist_context->media_source);
 
 	// playlist_context->properties = make_playlist_properties(playlist_context);
 
@@ -717,6 +743,8 @@ uint32_t playlist_source_width(void *data)
 	PlaylistData *playlist_data = static_cast<PlaylistData *>(data);
 	PlaylistContext *playlist_context = playlist_data->playlist_context;
 
+	// obs_sceneitem_set_scale();
+	// obs_source_update;
 	return obs_source_get_width(playlist_context->media_source);
 }
 
@@ -724,7 +752,6 @@ uint32_t playlist_source_height(void *data)
 {
 	PlaylistData *playlist_data = static_cast<PlaylistData *>(data);
 	PlaylistContext *playlist_context = playlist_data->playlist_context;
-
 	return obs_source_get_height(playlist_context->media_source);
 }
 
@@ -765,6 +792,9 @@ void playlist_activate(void *data)
 	obs_log(LOG_INFO, "playlist_activate");
 	PlaylistData *playlist_data = static_cast<PlaylistData *>(data);
 	PlaylistContext *playlist_context = playlist_data->playlist_context;
+
+	playlist_context->source_scene_item = obs_scene_find_source_recursive(
+		obs_scene_from_source(obs_frontend_get_current_scene()), playlist_context->name.c_str());
 
 	switch (playlist_context->start_behavior) {
 	case START_BEHAVIOR_RESTART_ENTIRE_PLAYLIST:

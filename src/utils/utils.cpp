@@ -2,6 +2,33 @@
 
 #include "../include/utils/utils.hpp"
 
+void scale_media_source_to_fit(PlaylistContext *playlist_context)
+{
+	if (!playlist_context || !playlist_context->media_source || !playlist_context->source_scene_item)
+		return;
+
+	// Get OBS base canvas size
+	video_t *video = obs_get_video();
+	uint32_t canvas_width = video_output_get_width(video);
+	uint32_t canvas_height = video_output_get_height(video);
+
+	// Get media source size
+	uint32_t media_width = obs_source_get_width(playlist_context->media_source);
+	uint32_t media_height = obs_source_get_height(playlist_context->media_source);
+
+	if (media_width == 0 || media_height == 0)
+		return; // Avoid division by zero
+
+	// Calculate scale factor to fit inside canvas while keeping aspect ratio
+	float scale_x = (float)canvas_width / media_width;
+	float scale_y = (float)canvas_height / media_height;
+	float scale_factor = fmin(scale_x, scale_y);
+
+	// Set the new scale
+	struct vec2 scale = {scale_factor, scale_factor};
+	obs_sceneitem_set_scale(playlist_context->source_scene_item, &scale);
+}
+
 size_t get_random_size_t(size_t min, size_t max)
 {
 	std::random_device rd;

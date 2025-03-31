@@ -28,6 +28,10 @@ typedef struct PlaylistContext {
 	bool debug;
 #pragma endregion
 #pragma region Private
+	obs_sceneitem_t *source_scene_item;
+	bool use_media_resolution;
+	int media_width;
+	int media_height;
 	bool restarting_media_source;
 	int loop_count;
 	obs_media_state state;
