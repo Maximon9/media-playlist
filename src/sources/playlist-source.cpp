@@ -503,6 +503,8 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 					}
 					queue_index++;
 				}
+			} else {
+				obs_source_media_restart(playlist_data->source);
 			}
 		}
 		break;
@@ -1028,18 +1030,6 @@ void media_next(void *data)
 
 			pop_queue_media_front(&playlist_data->queue);
 		} else if (playlist_data->end_behavior == END_BEHAVIOR_LOOP) {
-			/* if (playlist_data->queue.size() > 0) {
-				if (playlist_data->queue.size() != playlist_data->all_media.size()) {
-					SharedQueueMediaData queue_media =
-						playlist_data->queue[playlist_data->queue.size() - 1];
-					for (size_t i = queue_media->media_data.index;
-					     i < playlist_data->all_media.size(); i++) {
-						MediaData media_data = playlist_data->all_media[i];
-						push_queue_media_data_back(&playlist_data->queue, media_data,
-									   playlist_widget_data);
-					}
-				}
-			} */
 			if (playlist_data->queue.size() > 1) {
 				SharedQueueMediaData new_entry = pop_queue_media_front(&playlist_data->queue);
 				if (playlist_data->queue.size() > 0) {
@@ -1085,14 +1075,18 @@ void media_previous(void *data)
 		if (playlist_data->previous_queue.size() > 0) {
 			const MediaData media_data = playlist_data->previous_queue[0];
 
-			playlist_data->previous_queue.erase(playlist_data->previous_queue.begin());
+			playlist_data->previous_queue.pop_front();
 
 			push_queue_media_data_front(&playlist_data->queue, media_data, playlist_widget_data);
 
-			// if (playlist_data->queue[0]->media_data.path ==
-			//     get_current_media_input(playlist_data->media_source_settings)) {
-			// 	obs_source_media_restart(playlist_data->media_source);
-			// }
+			bool restart = playlist_data->queue[0]->media_data.path ==
+				       get_current_media_input(playlist_data->media_source_settings);
+
+			set_queue(playlist_data);
+
+			if (restart) {
+				obs_source_media_restart(playlist_data->media_source);
+			}
 		}
 	} else if (playlist_data->end_behavior == END_BEHAVIOR_LOOP) {
 		SharedQueueMediaData new_entry = pop_queue_media_back(&playlist_data->queue);
