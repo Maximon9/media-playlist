@@ -186,6 +186,35 @@ void clear_queue(QueueMediaDataArray *media_array)
 	}
 }
 
+void init_widgets(SharedQueueMediaData entry, size_t index, PlaylistWidgetData *playlist_widget_data,
+		  MediaWidget *media_widget, MediaWidget *param_media_widget)
+{
+	if (media_widget == nullptr) {
+		if (playlist_widget_data->playlist_widget != nullptr) {
+			entry->media_widget =
+				playlist_widget_data->playlist_widget->create_media_widget(&entry->media_data);
+			playlist_widget_data->playlist_widget->push_media_widget_at(entry->media_widget, index);
+		}
+	} else {
+		media_widget->media_data = nullptr;
+		media_widget->media_data = &entry->media_data;
+		entry->media_widget = media_widget;
+	}
+
+	if (param_media_widget == nullptr) {
+		if (playlist_widget_data->param_playlist_widget != nullptr) {
+			entry->param_media_widget =
+				playlist_widget_data->param_playlist_widget->create_media_widget(&entry->media_data);
+			playlist_widget_data->param_playlist_widget->push_media_widget_at(entry->param_media_widget,
+											  index);
+		}
+	} else {
+		param_media_widget->media_data = nullptr;
+		param_media_widget->media_data = &entry->media_data;
+		entry->param_media_widget = param_media_widget;
+	}
+}
+
 SharedQueueMediaData init_queue_media_data_from_path(std::string path, size_t widget_index, size_t index,
 						     PlaylistWidgetData *playlist_widget_data,
 						     MediaWidget *media_widget, MediaWidget *param_media_widget)
@@ -205,32 +234,8 @@ SharedQueueMediaData init_queue_media_data_from_path(std::string path, size_t wi
 
 	new_entry->media_data = {path, filename, name, ext, index};
 
-	if (media_widget == nullptr) {
-		if (playlist_widget_data->playlist_widget != nullptr) {
-			new_entry->media_widget =
-				playlist_widget_data->playlist_widget->create_media_widget(&new_entry->media_data);
-			playlist_widget_data->playlist_widget->push_media_widget_at(new_entry->media_widget,
-										    widget_index);
-		}
-	} else {
-		media_widget->media_data = nullptr;
-		media_widget->media_data = &new_entry->media_data;
-		new_entry->media_widget = media_widget;
-	}
+	init_widgets(new_entry, widget_index, playlist_widget_data, media_widget, param_media_widget);
 
-	if (param_media_widget == nullptr) {
-		if (playlist_widget_data->param_playlist_widget != nullptr) {
-			new_entry->param_media_widget =
-				playlist_widget_data->param_playlist_widget->create_media_widget(
-					&new_entry->media_data);
-			playlist_widget_data->param_playlist_widget->push_media_widget_at(new_entry->param_media_widget,
-											  widget_index);
-		}
-	} else {
-		param_media_widget->media_data = nullptr;
-		param_media_widget->media_data = &new_entry->media_data;
-		new_entry->param_media_widget = param_media_widget;
-	}
 	return new_entry;
 }
 
@@ -242,32 +247,8 @@ SharedQueueMediaData init_queue_media_data(const std::string path, const std::st
 	SharedQueueMediaData new_entry = std::make_shared<QueueMediaData>();
 	// Create and insert new MediaData
 	new_entry->media_data = {path, filename, name, ext, index};
-	if (media_widget == nullptr) {
-		if (playlist_widget_data->playlist_widget != nullptr) {
-			new_entry->media_widget =
-				playlist_widget_data->playlist_widget->create_media_widget(&new_entry->media_data);
-			playlist_widget_data->playlist_widget->push_media_widget_at(new_entry->media_widget,
-										    widget_index);
-		}
-	} else {
-		media_widget->media_data = nullptr;
-		media_widget->media_data = &new_entry->media_data;
-		new_entry->media_widget = media_widget;
-	}
+	init_widgets(new_entry, widget_index, playlist_widget_data, media_widget, param_media_widget);
 
-	if (param_media_widget == nullptr) {
-		if (playlist_widget_data->param_playlist_widget != nullptr) {
-			new_entry->param_media_widget =
-				playlist_widget_data->param_playlist_widget->create_media_widget(
-					&new_entry->media_data);
-			playlist_widget_data->param_playlist_widget->push_media_widget_at(new_entry->param_media_widget,
-											  widget_index);
-		}
-	} else {
-		param_media_widget->media_data = nullptr;
-		param_media_widget->media_data = &new_entry->media_data;
-		new_entry->param_media_widget = param_media_widget;
-	}
 	return new_entry;
 }
 
@@ -279,32 +260,8 @@ SharedQueueMediaData init_queue_media_data_from_media_data(MediaData media_data,
 	SharedQueueMediaData new_entry = std::make_shared<QueueMediaData>();
 	// Create and insert new MediaData
 	new_entry->media_data = media_data;
-	if (media_widget == nullptr) {
-		if (playlist_widget_data->playlist_widget != nullptr) {
-			new_entry->media_widget =
-				playlist_widget_data->playlist_widget->create_media_widget(&new_entry->media_data);
-			playlist_widget_data->playlist_widget->push_media_widget_at(new_entry->media_widget,
-										    widget_index);
-		}
-	} else {
-		media_widget->media_data = nullptr;
-		media_widget->media_data = &new_entry->media_data;
-		new_entry->media_widget = media_widget;
-	}
+	init_widgets(new_entry, widget_index, playlist_widget_data, media_widget, param_media_widget);
 
-	if (param_media_widget == nullptr) {
-		if (playlist_widget_data->param_playlist_widget != nullptr) {
-			new_entry->param_media_widget =
-				playlist_widget_data->param_playlist_widget->create_media_widget(
-					&new_entry->media_data);
-			playlist_widget_data->param_playlist_widget->push_media_widget_at(new_entry->param_media_widget,
-											  widget_index);
-		}
-	} else {
-		param_media_widget->media_data = nullptr;
-		param_media_widget->media_data = &new_entry->media_data;
-		new_entry->param_media_widget = param_media_widget;
-	}
 	return new_entry;
 }
 

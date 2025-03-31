@@ -925,33 +925,19 @@ void media_next(void *data)
 				playlist_data->previous_queue.pop_back();
 			}
 
-			pop_queue_media_front(&playlist_data->queue, true);
+			pop_queue_media_front(&playlist_data->queue);
 		} else if (playlist_data->end_behavior == END_BEHAVIOR_LOOP) {
 			if (playlist_data->queue.size() > 1) {
 				const MediaData media_data = playlist_data->queue[0]->media_data;
 
 				SharedQueueMediaData new_entry = pop_queue_media_front(&playlist_data->queue);
-				obs_log(LOG_INFO, "Queue Size: %d", playlist_data->queue.size());
 				if (playlist_data->queue.size() > 0) {
-					obs_log(LOG_INFO, "This should print");
-					if (playlist_widget_data->playlist_widget != nullptr &&
-					    new_entry->media_widget != nullptr) {
-						new_entry->media_widget->remove_widget(false);
-						playlist_widget_data->playlist_widget->push_media_widget_back(
-							new_entry->media_widget);
-					}
-
-					if (playlist_widget_data->param_playlist_widget != nullptr &&
-					    new_entry->param_media_widget != nullptr) {
-						new_entry->param_media_widget->remove_widget(false);
-						playlist_widget_data->param_playlist_widget->push_media_widget_back(
-							new_entry->param_media_widget);
-					}
+					init_widgets(new_entry, playlist_data->queue.size(), playlist_widget_data);
 				}
 				playlist_data->queue.push_back(new_entry);
 			}
 		} else {
-			pop_queue_media_front(&playlist_data->queue, true);
+			pop_queue_media_front(&playlist_data->queue);
 		}
 
 		if (playlist_data->queue.size() <= 0) {
@@ -992,17 +978,7 @@ void media_previous(void *data)
 		// obs_log(LOG_INFO, "Queue Size: %d", playlist_data->queue.size() - 1);
 		SharedQueueMediaData new_entry = pop_queue_media_back(&playlist_data->queue);
 		if (playlist_data->queue.size() > 0) {
-			if (playlist_widget_data->playlist_widget != nullptr && new_entry->media_widget != nullptr) {
-				new_entry->media_widget->remove_widget(false);
-				playlist_widget_data->playlist_widget->push_media_widget_front(new_entry->media_widget);
-			}
-
-			if (playlist_widget_data->param_playlist_widget != nullptr &&
-			    new_entry->param_media_widget != nullptr) {
-				new_entry->param_media_widget->remove_widget(false);
-				playlist_widget_data->param_playlist_widget->push_media_widget_front(
-					new_entry->param_media_widget);
-			}
+			init_widgets(new_entry, 0, playlist_widget_data);
 		}
 		playlist_data->queue.push_front(new_entry);
 		set_queue(playlist_data);

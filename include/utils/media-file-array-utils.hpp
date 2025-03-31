@@ -56,15 +56,18 @@ void push_queue_media_data_front(QueueMediaDataArray *media_array, MediaData med
 void push_queue_media_data_at(QueueMediaDataArray *media_array, MediaData media_data, size_t index,
 			      PlaylistWidgetData *playlist_widget_data);
 
-void push_queue_media_at(QueueMediaDataArray *media_array, std::shared_ptr<QueueMediaData> new_entry, size_t index);
+void push_queue_media_at(QueueMediaDataArray *media_array, SharedQueueMediaData new_entry, size_t index);
 
-SharedQueueMediaData pop_queue_media_back(QueueMediaDataArray *media_array, bool erase_widget = false);
+SharedQueueMediaData pop_queue_media_back(QueueMediaDataArray *media_array, bool erase_widget = true);
 
-SharedQueueMediaData pop_queue_media_front(QueueMediaDataArray *media_array, bool erase_widget = false);
+SharedQueueMediaData pop_queue_media_front(QueueMediaDataArray *media_array, bool erase_widget = true);
 
-SharedQueueMediaData pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool erase_widget = false);
+SharedQueueMediaData pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool erase_widget = true);
 
 void clear_queue(QueueMediaDataArray *media_array);
+
+void init_widgets(SharedQueueMediaData entry, size_t index, PlaylistWidgetData *playlist_widget_data,
+		  MediaWidget *media_widget = nullptr, MediaWidget *param_media_widget = nullptr);
 
 SharedQueueMediaData init_queue_media_data_from_path(std::string path, size_t widget_index, size_t index,
 						     PlaylistWidgetData *playlist_widget_data,
