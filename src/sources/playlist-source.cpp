@@ -432,14 +432,14 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 			infinite_changed = true;
 			update_properties = true;
 		}
-		if (playlist_context->infinite == false) {
+		if (infinite == false) {
 			playlist_context->max_loop_count = (int)obs_data_get_int(settings, "max_loop_count");
 			playlist_context->loop_end_behavior =
 				(e_LoopEndBehavior)obs_data_get_int(settings, "loop_end_behavior");
 		}
 		if (playlist_data->playlist_context->debug == true) {
-			obs_log(LOG_INFO, "Infinite: %s", playlist_context->infinite == true ? "true" : "false");
-			if (playlist_context->infinite == false && playlist_context->debug == true) {
+			obs_log(LOG_INFO, "Infinite: %s", infinite == true ? "true" : "false");
+			if (infinite == false && playlist_context->debug == true) {
 				obs_log(LOG_INFO, "Max Loop Count: %d", playlist_context->max_loop_count);
 			}
 		}
@@ -543,6 +543,11 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 	case END_BEHAVIOR_LOOP_AT_END:
 		if (infinite_changed == true) {
 			playlist_context->loop_count = 0;
+			if (playlist_context->infinite) {
+				if (playlist_context->queue.size() <= 0) {
+					obs_source_media_previous(playlist_context->source);
+				}
+			}
 		}
 		if (is_queue_shuffle == false) {
 			if (end_behavior_changed == true || shuffle_changed == true) {
@@ -1072,6 +1077,11 @@ void media_next(void *data)
 				if (playlist_context->infinite == false) {
 					if (queue_size <= 1 &&
 					    playlist_context->loop_count >= playlist_context->max_loop_count) {
+
+						const MediaData media_data = playlist_context->queue[0]->media_data;
+
+						push_media_data_front(&playlist_context->queue_history, media_data);
+
 						pop_queue_media_front(&playlist_context->queue);
 					}
 				}
@@ -1122,9 +1132,7 @@ void media_next(void *data)
 			} else {
 				set_this_queue = true;
 			}
-			obs_log(LOG_INFO, "Setting This Queue: %s", set_this_queue == true ? "true", "false")
-			if (set_this_queue == true)
-			{
+			if (set_this_queue == true) {
 				bool restart = playlist_context->queue[0]->media_data.path ==
 					       get_current_media_input(playlist_context->media_source_settings);
 
