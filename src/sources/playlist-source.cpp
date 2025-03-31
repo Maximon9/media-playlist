@@ -52,18 +52,29 @@ void refresh_queue_list(PlaylistWidgetData *playlist_widget_data)
 // 	obs_log(LOG_INFO, "Source Callbacks: %s", callback_name);
 // }
 
-void playlist_media_source_ended(void *data, calldata_t *callback)
+constexpr unsigned int hashStr(const char *str, unsigned int hash = 2166136261u)
 {
-	obs_log(LOG_INFO, "What is happening");
+	return (*str ? hashStr(str + 1, (hash ^ *str) * 16777619u) : hash);
+}
 
-	UNUSED_PARAMETER(callback);
+void playlist_media_source_ended(void *data, const char *signal, calldata_t *callback)
+{
+	obs_log(LOG_INFO, "Signal: %s", *signal);
+
 	PlaylistWidgetData *playlist_widget_data = static_cast<PlaylistWidgetData *>(data);
 	PlaylistData *playlist_data = playlist_widget_data->playlist_data;
-	playlist_data->state = OBS_MEDIA_STATE_ENDED;
+	switch (hashStr(signal)) {
+	case hashStr("media_ended"):
+		obs_log(LOG_INFO, "What is happening");
 
-	obs_source_media_next(playlist_data->source);
-	// obs_log_queue_media_array(LOG_INFO, "IMPORTANT!!!!: ", &playlist_widget_data->playlist_data->queue, 1000000,
-	// 			  "    ", MEDIA_STRINGIFY_TYPE_FILENAME);
+		UNUSED_PARAMETER(callback);
+		playlist_data->state = OBS_MEDIA_STATE_ENDED;
+
+		obs_source_media_next(playlist_data->source);
+		break;
+	default:
+		break;
+	}
 }
 
 void set_queue(PlaylistData *playlist_data)
@@ -576,7 +587,8 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	// signal_handler_connect_global(sh_source, playlist_source_callbacks, playlist_data);
 
 	signal_handler_t *sh_media_source = obs_source_get_signal_handler(playlist_data->media_source);
-	signal_handler_connect(sh_media_source, "media_ended", playlist_media_source_ended, playlist_widget_data);
+	// signal_handler_connect(sh_media_source, "media_ended", playlist_media_source_ended, playlist_widget_data);
+	signal_handler_connect_global(sh_media_source, playlist_media_source_ended, playlist_widget_data);
 
 	playlist_data->show_queue_when_properties_open = true;
 
