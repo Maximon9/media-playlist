@@ -37,6 +37,9 @@ MultiPlaylistQueueViewer::MultiPlaylistQueueViewer(QWidget *parent) : QWidget(pa
 	scrollArea->setWidget(contentWidget);
 
 	layout->addWidget(scrollArea);
+
+	resize(600, 600);
+
 	setLayout(layout);
 }
 
