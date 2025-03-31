@@ -258,7 +258,7 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 		}
 	} else {
 		size_t entry_index = 0;
-		// MediaDataArray removed_medias{};
+		MediaDataArray removed_medias{};
 		MediaDataArray added_medias{};
 		for (size_t i = 0; i < array_size; ++i) {
 			obs_data_t *data = obs_data_array_item(obs_playlist, i);
@@ -293,8 +293,9 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 					MediaData new_entry =
 						init_media_data_from_path(entry.path().string(), entry_index);
 					if (entry_index < playlist_data->all_media.size()) {
-						const MediaData *media_data = &playlist_data->all_media[i];
-						if (media_data->path != new_entry.path) {
+						const MediaData media_data = playlist_data->all_media[i];
+						if (media_data.path != new_entry.path) {
+							removed_medias.push_back(media_data);
 							playlist_data->all_media[entry_index] = new_entry;
 						}
 					} else {
@@ -306,10 +307,10 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 			} else {
 				MediaData new_entry = init_media_data_from_path(std::string(element), entry_index);
 				if (entry_index < playlist_data->all_media.size()) {
-					const MediaData *media_data = &playlist_data->all_media[i];
-					if (media_data->path != new_entry.path) {
+					const MediaData media_data = playlist_data->all_media[i];
+					if (media_data.path != new_entry.path) {
+						removed_medias.push_back(media_data);
 						playlist_data->all_media[entry_index] = new_entry;
-						// added_medias.push_back(new_entry);
 					}
 				} else {
 					push_media_data_at(&playlist_data->all_media, new_entry, entry_index);
@@ -324,7 +325,7 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 
 		for (size_t i = playlist_data->all_media.size(); i-- > entry_index;) {
 			MediaData new_entry = playlist_data->all_media[i];
-			// removed_medias.push_front(new_entry);
+			removed_medias.push_front(new_entry);
 			pop_media_at(&playlist_data->all_media, i);
 		}
 
@@ -341,14 +342,22 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 						queue_media_data->param_media_widget);
 
 					if (queue_media_data->media_data.path != new_entry->media_data.path) {
+
 						playlist_data->queue[i] = new_entry;
 						if (changed_queue == false)
 							changed_queue = true;
 					}
-				} else {
-					pop_queue_media_at(&playlist_data->queue, i, true);
-					if (changed_queue == false)
-						changed_queue = true;
+				}
+			}
+			for (size_t i = playlist_data->queue.size(); i-- > 0;) {
+				SharedQueueMediaData queue_media_data = playlist_data->queue[i];
+				for (size_t r_i = removed_medias.size(); i-- > 0;) {
+					MediaData removed_media_data = removed_medias[r_i];
+					if (queue_media_data->media_data.index == removed_media_data.index) {
+						pop_queue_media_at(&playlist_data->queue, i, true);
+						if (changed_queue == false)
+							changed_queue = true;
+					}
 				}
 			}
 			bool found_queue = false;
