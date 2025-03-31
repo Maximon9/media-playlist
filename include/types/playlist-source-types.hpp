@@ -28,6 +28,7 @@ typedef struct PlaylistContext {
 	bool debug;
 #pragma endregion
 #pragma region Private
+	bool restarting_media_source;
 	int loop_count;
 	obs_media_state state;
 	std::string name;
