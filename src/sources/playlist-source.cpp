@@ -431,8 +431,9 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 	if (shuffle_changed == true) {
 		if (end_behavior_changed == true) {
 			obs_source_media_restart(playlist_context->source);
+		} else {
+			shuffle_queue(&playlist_context->queue, playlist_data);
 		}
-		shuffle_queue(&playlist_context->queue, playlist_data);
 	}
 
 	switch (playlist_context->end_behavior) {
@@ -972,6 +973,7 @@ void media_restart(void *data)
 		if (playlist_context->queue.size() > 0) {
 			playlist_context->state = OBS_MEDIA_STATE_PLAYING;
 			obs_source_media_restart(playlist_context->media_source);
+			shuffle_queue(&playlist_context->queue, playlist_data);
 		}
 	}
 
@@ -1011,18 +1013,25 @@ void media_next(void *data)
 				playlist_context->previous_queue.pop_back();
 			}
 
-			pop_queue_media_front(&playlist_context->queue);
 			switch (playlist_context->end_behavior) {
-			// case END_BEHAVIOR_STOP:
-			// 	break;
 			case END_BEHAVIOR_LOOP:
+				pop_queue_media_front(&playlist_context->queue);
+				if (playlist_context->all_media.size() > 0) {
+					MediaData random_media_data = playlist_context->all_media[get_random_size_t(
+						0, playlist_context->all_media.size() - 1)];
+					push_queue_media_data_back(&playlist_context->queue, random_media_data,
+								   playlist_data);
+				}
 				break;
 			case END_BEHAVIOR_LOOP_AT_END:
-				break;
+				if (playlist_context->queue.size() > 1) {
+					pop_queue_media_front(&playlist_context->queue);
+					break;
+				}
 			default:
+				pop_queue_media_front(&playlist_context->queue);
 				break;
 			}
-
 		} else if (playlist_context->end_behavior == END_BEHAVIOR_LOOP) {
 			if (playlist_context->queue.size() > 1) {
 				SharedQueueMediaData new_entry = pop_queue_media_front(&playlist_context->queue);
@@ -1081,6 +1090,7 @@ void media_previous(void *data)
 			if (restart) {
 				obs_source_media_restart(playlist_context->media_source);
 			}
+			obs_source_media_started(playlist_context->source);
 		}
 	} else if (playlist_context->end_behavior == END_BEHAVIOR_LOOP) {
 		SharedQueueMediaData new_entry = pop_queue_media_back(&playlist_context->queue);
@@ -1098,6 +1108,7 @@ void media_previous(void *data)
 			if (restart) {
 				obs_source_media_restart(playlist_context->media_source);
 			}
+			obs_source_media_started(playlist_context->source);
 		}
 	} else {
 		if (playlist_context->queue.size() < playlist_context->all_media.size()) {

@@ -2,6 +2,14 @@
 
 #include "../include/utils/utils.hpp"
 
+size_t get_random_size_t(size_t min, size_t max)
+{
+	std::random_device rd;
+	std::mt19937 gen(rd()); // Mersenne Twister RNG
+	std::uniform_int_distribution<size_t> dist(min, max);
+	return dist(gen);
+}
+
 std::string screaming_snake_case_to_title_case(const std::string &input, size_t rem_word_count)
 {
 	std::stringstream ss(input);

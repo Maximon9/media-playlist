@@ -4,8 +4,13 @@
 #include <obs-module.h>
 #include <string>
 #include <sstream>
+#include <iostream>
+#include <algorithm>
+#include <random>
 
 // std::string  *concat_mem_string(std::string  *_Destination, const std::string  *_Source);
+
+size_t get_random_size_t(size_t min, size_t max);
 
 std::string screaming_snake_case_to_title_case(const std::string &input);
 
