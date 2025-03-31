@@ -419,16 +419,20 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 	case END_BEHAVIOR_STOP:
 		break;
 	case END_BEHAVIOR_LOOP:
-		if (playlist_data->queue.size() > 0) {
-			queue_media = playlist_data->queue[playlist_data->queue.size() - 1];
-			obs_log(LOG_INFO, "Queue Media Index: %d", queue_media->media_data.index);
-			for (size_t i = queue_media->media_data.index; i < playlist_data->all_media.size(); i++) {
-				MediaData media_data = playlist_data->all_media[i];
-				push_queue_media_data_back(&playlist_data->queue, media_data, playlist_widget_data);
-			}
-			for (size_t i = 0; i < queue_media->media_data.index; i++) {
-				MediaData media_data = playlist_data->all_media[i];
-				push_queue_media_data_back(&playlist_data->queue, media_data, playlist_widget_data);
+		if (playlist_data->queue.size() < playlist_data->all_media.size()) {
+			if (playlist_data->queue.size() > 0) {
+				queue_media = playlist_data->queue[playlist_data->queue.size() - 1];
+				for (size_t i = queue_media->media_data.index + 1; i < playlist_data->all_media.size();
+				     i++) {
+					MediaData media_data = playlist_data->all_media[i];
+					push_queue_media_data_back(&playlist_data->queue, media_data,
+								   playlist_widget_data);
+				}
+				for (size_t i = 0; i < queue_media->media_data.index; i++) {
+					MediaData media_data = playlist_data->all_media[i];
+					push_queue_media_data_back(&playlist_data->queue, media_data,
+								   playlist_widget_data);
+				}
 			}
 		}
 		break;
