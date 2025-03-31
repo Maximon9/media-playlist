@@ -26,6 +26,8 @@ typedef struct QueueMediaData {
 	// size_t index;
 } QueueMediaData;
 
+typedef std::shared_ptr<QueueMediaData> SharedQueueMediaData;
+
 typedef std::deque<MediaData> MediaDataArray;
 typedef std::deque<std::shared_ptr<QueueMediaData>> QueueMediaDataArray;
 
