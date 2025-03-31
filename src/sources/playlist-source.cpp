@@ -962,6 +962,7 @@ void media_restart(void *data)
 		if (playlist_context->queue.size() > 0) {
 			playlist_context->state = OBS_MEDIA_STATE_PLAYING;
 			obs_source_media_restart(playlist_context->media_source);
+			playlist_context->loop_count = 0;
 			if (playlist_context->shuffle_queue == true) {
 				shuffle_queue(&playlist_context->queue, playlist_data);
 				playlist_context->queue_history.clear();
