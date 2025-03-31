@@ -134,42 +134,52 @@ void push_queue_media_at(QueueMediaDataArray *media_array, SharedQueueMediaData 
 
 SharedQueueMediaData pop_queue_media_back(QueueMediaDataArray *media_array, bool erase_widget)
 {
-	SharedQueueMediaData new_entry = media_array->at(media_array->size() - 1);
-	if (erase_widget == true) {
-		new_entry->media_widget->remove_widget();
-		// delete new_entry->media_widget;
-		new_entry->param_media_widget->remove_widget();
-		// delete new_entry->param_media_widget;
+	if (media_array->size() > 0) {
+		size_t index = media_array->size() - 1;
+		SharedQueueMediaData new_entry = media_array->at(index);
+		if (erase_widget == true) {
+			new_entry->media_widget->remove_widget();
+			// delete new_entry->media_widget;
+			new_entry->param_media_widget->remove_widget();
+			// delete new_entry->param_media_widget;
+		}
+		media_array->pop_back();
+		return new_entry;
 	}
-	media_array->pop_front();
-	return new_entry;
+	return nullptr;
 }
 
 SharedQueueMediaData pop_queue_media_front(QueueMediaDataArray *media_array, bool erase_widget)
 {
-	SharedQueueMediaData new_entry = media_array->at(0);
-	if (erase_widget == true) {
-		new_entry->media_widget->remove_widget();
-		// delete new_entry->media_widget;
-		new_entry->param_media_widget->remove_widget();
-		// delete new_entry->param_media_widget;
+	if (media_array->size() > 0) {
+		SharedQueueMediaData new_entry = media_array->at(0);
+		if (erase_widget == true) {
+			new_entry->media_widget->remove_widget();
+			// delete new_entry->media_widget;
+			new_entry->param_media_widget->remove_widget();
+			// delete new_entry->param_media_widget;
+		}
+		media_array->pop_front();
+		return new_entry;
 	}
-	media_array->pop_front();
-	return new_entry;
+	return nullptr;
 }
 
 SharedQueueMediaData pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool erase_widget)
 {
-	SharedQueueMediaData new_entry = media_array->at(index);
-	if (erase_widget == true) {
-		new_entry->media_widget->remove_widget();
-		// delete new_entry->media_widget;
-		new_entry->param_media_widget->remove_widget();
-		// delete new_entry->param_media_widget;
+	if (media_array->size() > 0) {
+		SharedQueueMediaData new_entry = media_array->at(index);
+		if (erase_widget == true) {
+			new_entry->media_widget->remove_widget();
+			// delete new_entry->media_widget;
+			new_entry->param_media_widget->remove_widget();
+			// delete new_entry->param_media_widget;
+		}
+		QueueMediaDataArray::const_iterator it = media_array->cbegin() + index;
+		media_array->erase(it);
+		return new_entry;
 	}
-	QueueMediaDataArray::const_iterator it = media_array->cbegin() + index;
-	media_array->erase(it);
-	return new_entry;
+	return nullptr;
 }
 
 void clear_queue(QueueMediaDataArray *media_array)

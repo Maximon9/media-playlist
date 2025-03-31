@@ -973,14 +973,15 @@ void media_previous(void *data)
 			obs_source_media_restart(playlist_data->media_source);
 		}
 	} else if (playlist_data->end_behavior == END_BEHAVIOR_LOOP) {
-		// obs_log(LOG_INFO, "Queue Size: %d", playlist_data->queue.size() - 1);
 		SharedQueueMediaData new_entry = pop_queue_media_back(&playlist_data->queue);
-		if (playlist_data->queue.size() > 0) {
-			init_widgets(new_entry, 0, playlist_widget_data);
+		if (new_entry != nullptr) {
+			if (playlist_data->queue.size() > 0) {
+				init_widgets(new_entry, 0, playlist_widget_data);
+			}
+			playlist_data->queue.push_front(new_entry);
+			set_queue(playlist_data);
+			obs_source_media_restart(playlist_data->media_source);
 		}
-		playlist_data->queue.push_front(new_entry);
-		set_queue(playlist_data);
-		obs_source_media_restart(playlist_data->media_source);
 	} else {
 		if (playlist_data->queue.size() < playlist_data->all_media.size()) {
 
