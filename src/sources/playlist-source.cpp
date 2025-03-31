@@ -126,7 +126,6 @@ void playlist_audio_callback(void *data, obs_source_t *source, const struct audi
 }
 
 bool uses_song_history_limit(PlaylistData *playlist_data)
-
 {
 	return (playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_INDEX ||
 		playlist_data->end_behavior == END_BEHAVIOR_LOOP_AT_END ||
@@ -669,10 +668,12 @@ void playlist_activate(void *data)
 	switch (playlist_data->start_behavior) {
 	case START_BEHAVIOR_RESTART_ENTIRE_PLAYLIST:
 		obs_source_media_restart(playlist_data->source);
+		obs_source_media_started(playlist_data->source);
 		break;
 	case START_BEHAVIOR_RESTART_AT_CURRENT_INDEX:
 		set_queue(playlist_data);
 		obs_source_media_restart(playlist_data->media_source);
+		obs_source_media_started(playlist_data->source);
 		break;
 	case START_BEHAVIOR_UNPAUSE:
 		set_queue(playlist_data);
@@ -924,12 +925,14 @@ void media_next(void *data)
 
 		if (playlist_data->queue.size() <= 0) {
 			obs_source_media_stop(playlist_data->media_source);
+			obs_source_media_ended(playlist_data->media_source);
 		} else {
 			set_queue(playlist_data);
 			obs_source_media_restart(playlist_data->media_source);
 		}
 	} else {
 		obs_source_media_stop(playlist_data->media_source);
+		obs_source_media_ended(playlist_data->media_source);
 	}
 
 	pthread_mutex_unlock(&playlist_data->mutex);
