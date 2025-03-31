@@ -8,7 +8,6 @@ MediaWidget::MediaWidget(const MediaData *media_data, e_MediaStringifyTYPE media
 	: QWidget(parent),
 	  media_stringify_type(media_stringify_type)
 {
-	obs_log(LOG_INFO, "Enum: %s", MediaStringifyTYPE[media_stringify_type]);
 	this->media_data = media_data;
 	QVBoxLayout *layout = new QVBoxLayout(this);
 

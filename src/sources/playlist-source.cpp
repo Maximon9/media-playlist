@@ -108,13 +108,16 @@ void playlist_media_source_ended(void *data, calldata_t *callback)
 
 void playlist_queue(PlaylistData *playlist_data)
 {
-	if (!playlist_data || playlist_data->all_media.size() <= 0 || !playlist_data->media_source ||
-	    !playlist_data->media_source_settings)
+	if (!playlist_data || !playlist_data->media_source || !playlist_data->media_source_settings)
 		return;
 
-	if (playlist_data->queue.size() <= 0) {
+	if (playlist_data->all_media.size() <= 0 && playlist_data->queue.size() <= 0) {
 		obs_data_set_string(playlist_data->media_source_settings, S_FFMPEG_LOCAL_FILE, "");
 		obs_source_update(playlist_data->media_source, playlist_data->media_source_settings);
+		obs_source_media_stop(playlist_data->source);
+		obs_source_media_restart(playlist_data->source);
+		return;
+	} else if (playlist_data->all_media.size() <= 0) {
 		return;
 	}
 
@@ -123,6 +126,8 @@ void playlist_queue(PlaylistData *playlist_data)
 
 	if (!media_data)
 		return;
+
+	obs_log(LOG_INFO, "This should work");
 
 	// Set file path in ffmpeg_source
 	obs_data_set_string(playlist_data->media_source_settings, S_FFMPEG_LOCAL_FILE, media_data->path.c_str());
@@ -232,7 +237,7 @@ obs_properties_t *make_playlist_properties(PlaylistWidgetData *playlist_widget_d
 	obs_properties_t *props = obs_properties_create();
 
 	obs_properties_add_bool(props, "show_queue_when_properties_open", "Show Queue When Properties Open");
-	obs_properties_add_button(props, "shuffle_queue", "Show Queue", show_queue_button);
+	obs_properties_add_button(props, "show_queue", "Show Queue", show_queue_button);
 
 	obs_properties_add_editable_list(props, "playlist", "Playlist", OBS_EDITABLE_LIST_TYPE_FILES_AND_URLS,
 					 media_filter, "");
@@ -301,7 +306,9 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 
 	if (array_size <= 0) {
 		playlist_widget_data->playlist_data->all_media.clear();
-		clear_queue(&playlist_widget_data->playlist_data->queue);
+		if (playlist_widget_data->playlist_data->queue.size() > 0) {
+			clear_queue(&playlist_widget_data->playlist_data->queue);
+		}
 	} else {
 		size_t entry_index = 0;
 		MediaDataArray removed_medias{};
@@ -380,7 +387,7 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 			pop_media_at(&playlist_widget_data->playlist_data->all_media, i);
 		}
 
-		if (playlist_widget_data->playlist_data->all_media_initialized == true) {
+		if (playlist_widget_data->playlist_data->all_media_initialized == true && changed_queue == false) {
 			for (size_t i = playlist_widget_data->playlist_data->queue.size(); i-- > 0;) {
 				std::shared_ptr<QueueMediaData> queue_media_data =
 					playlist_widget_data->playlist_data->queue[i];
@@ -396,15 +403,13 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 
 					if (queue_media_data->media_data.path != new_entry->media_data.path) {
 						playlist_widget_data->playlist_data->queue[i] = new_entry;
-						if (changed_queue == false) {
+						if (changed_queue == false)
 							changed_queue = true;
-						}
 					}
 				} else {
 					pop_queue_media_at(&playlist_widget_data->playlist_data->queue, i, true);
-					if (changed_queue == false) {
+					if (changed_queue == false)
 						changed_queue = true;
-					}
 				}
 			}
 			bool found_queue = false;
@@ -429,12 +434,16 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 									      playlist_widget_data);
 
 					playlist_widget_data->playlist_data->queue.push_back(new_entry);
-					if (changed_queue == false) {
+					if (changed_queue == false)
 						changed_queue = true;
-					}
 				}
 			}
 		}
+	}
+
+	if (changed_queue == false) {
+		if (playlist_widget_data->playlist_data->queue.size() <= 0)
+			changed_queue = true;
 	}
 
 	if (playlist_widget_data->playlist_data->all_media_initialized == true && changed_queue == true) {
