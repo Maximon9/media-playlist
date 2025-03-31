@@ -58,11 +58,11 @@ void push_queue_media_data_at(QueueMediaDataArray *media_array, MediaData media_
 
 void push_queue_media_at(QueueMediaDataArray *media_array, std::shared_ptr<QueueMediaData> new_entry, size_t index);
 
-void pop_queue_media_back(QueueMediaDataArray *media_array, bool erase_widget);
+SharedQueueMediaData pop_queue_media_back(QueueMediaDataArray *media_array, bool erase_widget = false);
 
-void pop_queue_media_front(QueueMediaDataArray *media_array, bool erase_widget);
+SharedQueueMediaData pop_queue_media_front(QueueMediaDataArray *media_array, bool erase_widget = false);
 
-void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool erase_widget);
+SharedQueueMediaData pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool erase_widget = false);
 
 void clear_queue(QueueMediaDataArray *media_array);
 

@@ -44,7 +44,6 @@ typedef struct PlaylistData {
 } PlaylistData;
 
 typedef struct PlaylistWidgetData {
-	QWidget *test_widget;
 	PlaylisQueueWidget *playlist_widget;
 	PlaylisQueueWidget *param_playlist_widget;
 	PlaylistData *playlist_data;

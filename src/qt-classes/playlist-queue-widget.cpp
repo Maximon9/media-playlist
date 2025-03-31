@@ -161,7 +161,19 @@ MediaWidget *PlaylisQueueWidget::create_media_widget(MediaData *media_data, e_Me
 	// Store or handle the widget as necessary
 }
 
-void PlaylisQueueWidget::insert_media_widget(MediaWidget *mediaWidget, size_t index)
+void PlaylisQueueWidget::push_media_widget_front(MediaWidget *mediaWidget)
+{
+	push_media_widget_at(mediaWidget, 0);
+}
+void PlaylisQueueWidget::push_media_widget_back(MediaWidget *mediaWidget)
+{
+	QWidget *parent_widget = parentWidget();
+	if (parent_widget) {
+		push_media_widget_at(mediaWidget, parent_widget->children().size());
+	}
+}
+
+void PlaylisQueueWidget::push_media_widget_at(MediaWidget *mediaWidget, size_t index)
 {
 	QEventLoop loop;
 	QMetaObject::invokeMethod(

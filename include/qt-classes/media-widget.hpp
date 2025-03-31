@@ -18,7 +18,7 @@ public:
 			     e_MediaStringifyTYPE media_stringify_type = MEDIA_STRINGIFY_TYPE_FILENAME,
 			     QWidget *parent = nullptr);
 	void update_media_data(e_MediaStringifyTYPE *media_stringify_type = nullptr);
-	void remove_widget();
+	void remove_widget(bool delete_later = true);
 };
 
 #endif // MEDIA_WIDGET_HPP

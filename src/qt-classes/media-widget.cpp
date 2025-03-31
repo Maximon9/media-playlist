@@ -75,14 +75,16 @@ void MediaWidget::update_media_data(e_MediaStringifyTYPE *media_stringify_type)
 	}
 }
 
-void MediaWidget::remove_widget()
+void MediaWidget::remove_widget(bool delete_later)
 {
 	QWidget *parent_widget = parentWidget();
 	if (parent_widget) {
 		QLayout *layout = parent_widget->layout();
 		if (layout) {
 			layout->removeWidget(this);
-			deleteLater();
+			if (delete_later == true) {
+				deleteLater();
+			}
 		}
 	}
 }

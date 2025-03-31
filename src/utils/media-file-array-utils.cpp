@@ -132,34 +132,36 @@ void push_queue_media_at(QueueMediaDataArray *media_array, SharedQueueMediaData 
 	media_array->insert(it, new_entry);
 }
 
-void pop_queue_media_back(QueueMediaDataArray *media_array, bool erase_widget)
+SharedQueueMediaData pop_queue_media_back(QueueMediaDataArray *media_array, bool erase_widget)
 {
+	SharedQueueMediaData new_entry = media_array->at(media_array->size() - 1);
 	if (erase_widget == true) {
-		SharedQueueMediaData new_entry = media_array->at(media_array->size() - 1);
 		new_entry->media_widget->remove_widget();
 		// delete new_entry->media_widget;
 		new_entry->param_media_widget->remove_widget();
 		// delete new_entry->param_media_widget;
 	}
 	media_array->pop_front();
+	return new_entry;
 }
 
-void pop_queue_media_front(QueueMediaDataArray *media_array, bool erase_widget)
+SharedQueueMediaData pop_queue_media_front(QueueMediaDataArray *media_array, bool erase_widget)
 {
+	SharedQueueMediaData new_entry = media_array->at(0);
 	if (erase_widget == true) {
-		SharedQueueMediaData new_entry = media_array->at(0);
 		new_entry->media_widget->remove_widget();
 		// delete new_entry->media_widget;
 		new_entry->param_media_widget->remove_widget();
 		// delete new_entry->param_media_widget;
 	}
 	media_array->pop_front();
+	return new_entry;
 }
 
-void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool erase_widget)
+SharedQueueMediaData pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool erase_widget)
 {
+	SharedQueueMediaData new_entry = media_array->at(index);
 	if (erase_widget == true) {
-		SharedQueueMediaData new_entry = media_array->at(index);
 		new_entry->media_widget->remove_widget();
 		// delete new_entry->media_widget;
 		new_entry->param_media_widget->remove_widget();
@@ -167,6 +169,7 @@ void pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool era
 	}
 	QueueMediaDataArray::const_iterator it = media_array->cbegin() + index;
 	media_array->erase(it);
+	return new_entry;
 }
 
 void clear_queue(QueueMediaDataArray *media_array)
@@ -206,8 +209,8 @@ SharedQueueMediaData init_queue_media_data_from_path(std::string path, size_t wi
 		if (playlist_widget_data->playlist_widget != nullptr) {
 			new_entry->media_widget =
 				playlist_widget_data->playlist_widget->create_media_widget(&new_entry->media_data);
-			playlist_widget_data->playlist_widget->insert_media_widget(new_entry->media_widget,
-										   widget_index);
+			playlist_widget_data->playlist_widget->push_media_widget_at(new_entry->media_widget,
+										    widget_index);
 		}
 	} else {
 		media_widget->media_data = nullptr;
@@ -220,8 +223,8 @@ SharedQueueMediaData init_queue_media_data_from_path(std::string path, size_t wi
 			new_entry->param_media_widget =
 				playlist_widget_data->param_playlist_widget->create_media_widget(
 					&new_entry->media_data);
-			playlist_widget_data->param_playlist_widget->insert_media_widget(new_entry->param_media_widget,
-											 widget_index);
+			playlist_widget_data->param_playlist_widget->push_media_widget_at(new_entry->param_media_widget,
+											  widget_index);
 		}
 	} else {
 		param_media_widget->media_data = nullptr;
@@ -243,8 +246,8 @@ SharedQueueMediaData init_queue_media_data(const std::string path, const std::st
 		if (playlist_widget_data->playlist_widget != nullptr) {
 			new_entry->media_widget =
 				playlist_widget_data->playlist_widget->create_media_widget(&new_entry->media_data);
-			playlist_widget_data->playlist_widget->insert_media_widget(new_entry->media_widget,
-										   widget_index);
+			playlist_widget_data->playlist_widget->push_media_widget_at(new_entry->media_widget,
+										    widget_index);
 		}
 	} else {
 		media_widget->media_data = nullptr;
@@ -257,8 +260,8 @@ SharedQueueMediaData init_queue_media_data(const std::string path, const std::st
 			new_entry->param_media_widget =
 				playlist_widget_data->param_playlist_widget->create_media_widget(
 					&new_entry->media_data);
-			playlist_widget_data->param_playlist_widget->insert_media_widget(new_entry->param_media_widget,
-											 widget_index);
+			playlist_widget_data->param_playlist_widget->push_media_widget_at(new_entry->param_media_widget,
+											  widget_index);
 		}
 	} else {
 		param_media_widget->media_data = nullptr;
@@ -280,8 +283,8 @@ SharedQueueMediaData init_queue_media_data_from_media_data(MediaData media_data,
 		if (playlist_widget_data->playlist_widget != nullptr) {
 			new_entry->media_widget =
 				playlist_widget_data->playlist_widget->create_media_widget(&new_entry->media_data);
-			playlist_widget_data->playlist_widget->insert_media_widget(new_entry->media_widget,
-										   widget_index);
+			playlist_widget_data->playlist_widget->push_media_widget_at(new_entry->media_widget,
+										    widget_index);
 		}
 	} else {
 		media_widget->media_data = nullptr;
@@ -294,8 +297,8 @@ SharedQueueMediaData init_queue_media_data_from_media_data(MediaData media_data,
 			new_entry->param_media_widget =
 				playlist_widget_data->param_playlist_widget->create_media_widget(
 					&new_entry->media_data);
-			playlist_widget_data->param_playlist_widget->insert_media_widget(new_entry->param_media_widget,
-											 widget_index);
+			playlist_widget_data->param_playlist_widget->push_media_widget_at(new_entry->param_media_widget,
+											  widget_index);
 		}
 	} else {
 		param_media_widget->media_data = nullptr;

@@ -38,6 +38,8 @@ public:
 	// void create_media_widget(MediaData *media_data, std::function<void(MediaWidget *)> callback);
 	MediaWidget *create_media_widget(MediaData *media_data,
 					 e_MediaStringifyTYPE media_stringify_type = MEDIA_STRINGIFY_TYPE_FILENAME);
-	void insert_media_widget(MediaWidget *mediaWidget, size_t index);
+	void push_media_widget_front(MediaWidget *mediaWidget);
+	void push_media_widget_back(MediaWidget *mediaWidget);
+	void push_media_widget_at(MediaWidget *mediaWidget, size_t index);
 };
 #endif // PLAYLIST_QUEUE_VIEWER_HPP
