@@ -17,9 +17,10 @@ void refresh_queue_list(PlaylistWidgetData *playlist_data);
 
 void playlist_media_source_ended(void *data, calldata_t *callback);
 
-void playlist_queue(PlaylistData *playlist_data);
+void set_queue(PlaylistData *playlist_data);
+// void playlist_queue(PlaylistData *playlist_data);
 
-void playlist_queue_restart(PlaylistData *playlist_data);
+// void playlist_queue_restart(PlaylistData *playlist_data);
 
 void clear_any_media_playing(PlaylistData *playlist_data);
 
