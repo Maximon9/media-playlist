@@ -192,6 +192,23 @@ void clear_queue(QueueMediaDataArray *media_array)
 	}
 }
 
+void shuffle_queue(QueueMediaDataArray *media_array, PlaylistData *playlist_data)
+{
+	std::random_device rd;
+	std::mt19937 g(rd());
+
+	// Shuffle the deque
+	std::shuffle(media_array->begin(), media_array->end(), g);
+
+	for (size_t i = 0; i < media_array->size(); i++) {
+		SharedQueueMediaData queue_media_data = media_array->at(i);
+		queue_media_data->media_widget->remove_widget();
+		queue_media_data->param_media_widget->remove_widget();
+
+		init_widgets(queue_media_data, i, playlist_data);
+	}
+}
+
 void init_widgets(SharedQueueMediaData entry, size_t index, PlaylistData *playlist_data, MediaWidget *media_widget,
 		  MediaWidget *param_media_widget)
 {

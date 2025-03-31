@@ -8,6 +8,9 @@
 #include "../types/media-file-data-types.hpp"
 #include <../../include/types/playlist-source-types.hpp>
 #include "../utils/enum-utils.hpp"
+#include <iostream>
+#include <algorithm>
+#include <random>
 
 // using namespace std;
 namespace fs = std::filesystem;
@@ -61,6 +64,8 @@ SharedQueueMediaData pop_queue_media_front(QueueMediaDataArray *media_array, boo
 SharedQueueMediaData pop_queue_media_at(QueueMediaDataArray *media_array, size_t index, bool erase_widget = true);
 
 void clear_queue(QueueMediaDataArray *media_array);
+
+void shuffle_queue(QueueMediaDataArray *media_array, PlaylistData *playlist_data);
 
 void init_widgets(SharedQueueMediaData entry, size_t index, PlaylistData *playlist_data,
 		  MediaWidget *media_widget = nullptr, MediaWidget *param_media_widget = nullptr);
