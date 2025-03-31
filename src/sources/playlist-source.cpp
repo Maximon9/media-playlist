@@ -882,6 +882,8 @@ void playlist_video_tick(void *data, float seconds)
 	playlist_context->num_channels = audio_output_get_channels(a);
 
 	pthread_mutex_unlock(&playlist_context->audio_mutex);
+
+	scale_media_source_to_fit(playlist_context);
 }
 
 void playlist_video_render(void *data, gs_effect_t *effect)
