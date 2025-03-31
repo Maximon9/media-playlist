@@ -393,7 +393,9 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 				    MEDIA_STRINGIFY_TYPE_FILENAME);
 	}
 
-	bool shuffle_queue = obs_data_get_bool(settings, "shuffle_queue");
+	playlist_data->shuffle_queue = obs_data_get_bool(settings, "shuffle_queue");
+	// if (shuffle_queue != playlist_data->shuffle_queue)
+	// 	playlist_data->shuffle_queue = shuffle_queue;
 
 	playlist_data->start_behavior = (e_StartBehavior)obs_data_get_int(settings, "start_behavior");
 	if (playlist_data->debug == true) {
@@ -410,36 +412,35 @@ void update_playlist_data(PlaylistWidgetData *playlist_widget_data, obs_data_t *
 		obs_log(LOG_INFO, "End Behavior: %s", EndBehavior[playlist_data->end_behavior]);
 	}
 
-	if (shuffle_queue != playlist_data->shuffle_queue) {
-		if (shuffle_queue == false) {
+	pthread_mutex_lock(&playlist_data->mutex);
 
-			// } else {
-			SharedQueueMediaData queue_media = nullptr;
-			switch (playlist_data->end_behavior) {
-			case END_BEHAVIOR_STOP:
-				break;
-			case END_BEHAVIOR_LOOP:
-				if (playlist_data->queue.size() > 0) {
-					queue_media = playlist_data->queue[playlist_data->queue.size() - 1];
-					for (size_t i = queue_media->media_data.index;
-					     i < playlist_data->all_media.size(); i++) {
-						MediaData media_data = playlist_data->all_media[i];
-						push_queue_media_data_back(&playlist_data->queue, media_data,
-									   playlist_widget_data);
-					}
-				}
-				break;
-			case END_BEHAVIOR_LOOP_AT_INDEX:
-				break;
-			case END_BEHAVIOR_LOOP_AT_END:
-				break;
-			default:
-				break;
+	SharedQueueMediaData queue_media = nullptr;
+	switch (playlist_data->end_behavior) {
+	case END_BEHAVIOR_STOP:
+		break;
+	case END_BEHAVIOR_LOOP:
+		if (playlist_data->queue.size() > 0) {
+			queue_media = playlist_data->queue[playlist_data->queue.size() - 1];
+			obs_log(LOG_INFO, "Queue Media Index: %d", queue_media->media_data.index);
+			for (size_t i = queue_media->media_data.index; i < playlist_data->all_media.size(); i++) {
+				MediaData media_data = playlist_data->all_media[i];
+				push_queue_media_data_back(&playlist_data->queue, media_data, playlist_widget_data);
+			}
+			for (size_t i = 0; i < queue_media->media_data.index; i++) {
+				MediaData media_data = playlist_data->all_media[i];
+				push_queue_media_data_back(&playlist_data->queue, media_data, playlist_widget_data);
 			}
 		}
-		playlist_data->shuffle_queue = shuffle_queue;
-		// update_properties = true;
+		break;
+	case END_BEHAVIOR_LOOP_AT_INDEX:
+		break;
+	case END_BEHAVIOR_LOOP_AT_END:
+		break;
+	default:
+		break;
 	}
+
+	pthread_mutex_unlock(&playlist_data->mutex);
 
 	int all_media_size = (int)playlist_data->all_media.size();
 
