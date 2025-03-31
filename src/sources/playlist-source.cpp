@@ -39,14 +39,10 @@ void playlist_media_source_ended(void *data, const char *signal, calldata_t *cal
 	PlaylistContext *playlist_context = playlist_data->playlist_context;
 	if (playlist_context->restarting_media_source == false) {
 		if (strcmp(signal, "media_ended") == 0) {
-			obs_log(LOG_INFO, "Signal: %s", signal);
-
 			UNUSED_PARAMETER(callback);
 			playlist_context->state = OBS_MEDIA_STATE_ENDED;
 
 			obs_source_media_next(playlist_context->source);
-		} else if (strcmp(signal, "media_restart") == 0) {
-			obs_log(LOG_INFO, "Signal: %s", signal);
 		}
 	}
 }
@@ -456,7 +452,6 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 			// }
 			// } else {
 			if (end_behavior_changed == true || shuffle_changed == true) {
-				obs_log(LOG_INFO, "This should restart");
 				obs_source_media_restart(playlist_context->source);
 			} else if (playlist_context->queue.size() > 0) {
 				SharedQueueMediaData first_queue_media = playlist_context->queue[0];
@@ -469,7 +464,6 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 			}
 		} else {
 			if (end_behavior_changed == true || shuffle_changed == true) {
-				obs_log(LOG_INFO, "This should restart");
 				obs_source_media_restart(playlist_context->source);
 			}
 		}
