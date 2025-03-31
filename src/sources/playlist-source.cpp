@@ -928,8 +928,6 @@ void media_next(void *data)
 			pop_queue_media_front(&playlist_data->queue);
 		} else if (playlist_data->end_behavior == END_BEHAVIOR_LOOP) {
 			if (playlist_data->queue.size() > 1) {
-				const MediaData media_data = playlist_data->queue[0]->media_data;
-
 				SharedQueueMediaData new_entry = pop_queue_media_front(&playlist_data->queue);
 				if (playlist_data->queue.size() > 0) {
 					init_widgets(new_entry, playlist_data->queue.size(), playlist_widget_data);
