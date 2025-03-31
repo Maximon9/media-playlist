@@ -414,6 +414,35 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 		obs_log(LOG_INFO, "End Behavior: %s", EndBehavior[playlist_context->end_behavior]);
 	}
 
+	int all_media_size = (int)playlist_context->all_media.size();
+
+	int last_index = all_media_size - 1;
+
+	if (last_index < 0) {
+		last_index += 1;
+	}
+
+	bool infinite_changed = false;
+	if (playlist_context->end_behavior == END_BEHAVIOR_LOOP_AT_END) {
+		bool infinite = obs_data_get_bool(settings, "infinite");
+		if (infinite != playlist_context->infinite) {
+			infinite_changed = true;
+			update_properties = true;
+		}
+		playlist_context->infinite = infinite;
+		if (playlist_context->infinite) {
+			playlist_context->max_loop_count = (int)obs_data_get_int(settings, "max_loop_count");
+			playlist_context->loop_end_behavior =
+				(e_LoopEndBehavior)obs_data_get_int(settings, "loop_end_behavior");
+		}
+		if (playlist_data->playlist_context->debug == true) {
+			obs_log(LOG_INFO, "Infinite: %s", playlist_context->infinite == true ? "true" : "false");
+			if (playlist_context->infinite == false && playlist_context->debug == true) {
+				obs_log(LOG_INFO, "Loop Count: %d", playlist_context->max_loop_count);
+			}
+		}
+	}
+
 	pthread_mutex_lock(&playlist_context->mutex);
 
 	switch (playlist_context->end_behavior) {
@@ -509,39 +538,15 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 		}
 		break;
 	case END_BEHAVIOR_LOOP_AT_END:
+		if (infinite_changed == true) {
+			playlist_context->loop_count = 0;
+		}
 		break;
 	default:
 		break;
 	}
 
 	pthread_mutex_unlock(&playlist_context->mutex);
-
-	int all_media_size = (int)playlist_context->all_media.size();
-
-	int last_index = all_media_size - 1;
-
-	if (last_index < 0) {
-		last_index += 1;
-	}
-
-	if (playlist_context->end_behavior == END_BEHAVIOR_LOOP_AT_END) {
-		bool infinite = obs_data_get_bool(settings, "infinite");
-		if (infinite != playlist_context->infinite) {
-			update_properties = true;
-		}
-		playlist_context->infinite = infinite;
-		if (playlist_context->infinite) {
-			playlist_context->max_loop_count = (int)obs_data_get_int(settings, "max_loop_count");
-			playlist_context->loop_end_behavior =
-				(e_LoopEndBehavior)obs_data_get_int(settings, "loop_end_behavior");
-		}
-		if (playlist_data->playlist_context->debug == true) {
-			obs_log(LOG_INFO, "Infinite: %s", playlist_context->infinite == true ? "true" : "false");
-			if (playlist_context->infinite == false && playlist_context->debug == true) {
-				obs_log(LOG_INFO, "Loop Count: %d", playlist_context->max_loop_count);
-			}
-		}
-	}
 
 	playlist_context->song_history_limit = (int)obs_data_get_int(settings, "song_history_limit");
 
