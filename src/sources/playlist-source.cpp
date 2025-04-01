@@ -818,6 +818,7 @@ void playlist_activate(void *data)
 	default:
 		break;
 	}
+	scale_media_source_to_fit(playlist_context);
 	// obs_source_update_properties(playlist_data->playlist_context->source);
 }
 
@@ -882,8 +883,6 @@ void playlist_video_tick(void *data, float seconds)
 	playlist_context->num_channels = audio_output_get_channels(a);
 
 	pthread_mutex_unlock(&playlist_context->audio_mutex);
-
-	scale_media_source_to_fit(playlist_context);
 }
 
 void playlist_video_render(void *data, gs_effect_t *effect)
@@ -1003,6 +1002,7 @@ void media_play_pause(void *data, bool pause)
 			playlist_context->state = OBS_MEDIA_STATE_PLAYING;
 		}
 		obs_source_media_play_pause(playlist_context->media_source, pause);
+		scale_media_source_to_fit(playlist_context);
 	}
 
 	// pthread_mutex_unlock(&playlist_context->mutex);
@@ -1033,6 +1033,7 @@ void media_restart(void *data)
 			obs_source_media_restart(playlist_context->media_source);
 			playlist_context->restarting_media_source = false;
 		}
+		scale_media_source_to_fit(playlist_context);
 	}
 
 	// pthread_mutex_unlock(&playlist_context->mutex);
@@ -1179,9 +1180,9 @@ void media_next(void *data)
 		obs_source_media_ended(playlist_context->source);
 	}
 
-	// obs_log(LOG_INFO, "Buffer Offest: %f", obs_source_get_sync_offset(playlist_context->source));
-
 	pthread_mutex_unlock(&playlist_context->mutex);
+
+	scale_media_source_to_fit(playlist_context);
 }
 
 void media_previous(void *data)
@@ -1331,6 +1332,8 @@ void media_previous(void *data)
 	}
 
 	pthread_mutex_unlock(&playlist_context->mutex);
+
+	scale_media_source_to_fit(playlist_context);
 }
 
 int64_t media_get_duration(void *data)
