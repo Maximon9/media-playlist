@@ -171,7 +171,11 @@ obs_properties_t *make_playlist_properties(PlaylistData *playlist_data)
 	PlaylistContext *playlist_context = playlist_data->playlist_context;
 	obs_properties_t *props = obs_properties_create();
 
-	obs_properties_add_bool(props, "use_media_resolution", "Use Media Resolution");
+	obs_property_t *stretch_mode = obs_properties_add_list(props, "stretch_mode",
+							       "How the media stretches into the view",
+							       OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
+
+	add_enums_to_property_list(stretch_mode, StretchMode, 1);
 
 	if (playlist_context->use_media_resolution) {
 		obs_properties_add_int(props, "media_width", "Media Width", 0, INT_MAX, 1);
@@ -222,16 +226,12 @@ obs_properties_t *make_playlist_properties(PlaylistData *playlist_data)
 void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 {
 	PlaylistContext *playlist_context = playlist_data->playlist_context;
-	playlist_context->show_queue_when_properties_open =
-		obs_data_get_bool(settings, "show_queue_when_properties_open");
 
 	bool update_properties = false;
 
-	bool use_media_resolution = obs_data_get_bool(settings, "use_media_resolution");
-
-	if (use_media_resolution != playlist_context->use_media_resolution) {
-		playlist_context->use_media_resolution = use_media_resolution;
-		update_properties = true;
+	playlist_context->stretch_mode = (e_StretchMode)obs_data_get_int(settings, "stretch_mode");
+	if (playlist_context->debug == true) {
+		obs_log(LOG_INFO, "Stretch Mode: %s", StretchMode[playlist_context->stretch_mode]);
 	}
 
 	if (playlist_context->use_media_resolution) {
@@ -642,8 +642,6 @@ void *playlist_source_create(obs_data_t *settings, obs_source_t *source)
 	// signal_handler_connect(sh_media_source, "media_ended", playlist_media_source_ended, playlist_data);
 	signal_handler_connect_global(sh_media_source, playlist_media_source_ended, playlist_data);
 
-	playlist_context->show_queue_when_properties_open = true;
-
 	playlist_context->all_media_initialized = false;
 
 	playlist_context->all_media = {};
@@ -742,9 +740,6 @@ uint32_t playlist_source_width(void *data)
 {
 	PlaylistData *playlist_data = static_cast<PlaylistData *>(data);
 	PlaylistContext *playlist_context = playlist_data->playlist_context;
-
-	// obs_sceneitem_set_scale();
-	// obs_source_update;
 	return obs_source_get_width(playlist_context->media_source);
 }
 
@@ -772,10 +767,6 @@ obs_properties_t *playlist_get_properties(void *data)
 {
 	PlaylistData *playlist_data = static_cast<PlaylistData *>(data);
 	PlaylistContext *playlist_context = playlist_data->playlist_context;
-
-	if (playlist_context->show_queue_when_properties_open == true) {
-		show_param_queue(playlist_data);
-	}
 
 	return make_playlist_properties(playlist_data);
 }
@@ -818,7 +809,6 @@ void playlist_activate(void *data)
 	default:
 		break;
 	}
-	scale_media_source_to_fit(playlist_context);
 	// obs_source_update_properties(playlist_data->playlist_context->source);
 }
 
@@ -883,6 +873,8 @@ void playlist_video_tick(void *data, float seconds)
 	playlist_context->num_channels = audio_output_get_channels(a);
 
 	pthread_mutex_unlock(&playlist_context->audio_mutex);
+
+	handle_stretch_mode(playlist_context);
 }
 
 void playlist_video_render(void *data, gs_effect_t *effect)
@@ -1002,7 +994,6 @@ void media_play_pause(void *data, bool pause)
 			playlist_context->state = OBS_MEDIA_STATE_PLAYING;
 		}
 		obs_source_media_play_pause(playlist_context->media_source, pause);
-		scale_media_source_to_fit(playlist_context);
 	}
 
 	// pthread_mutex_unlock(&playlist_context->mutex);
@@ -1033,7 +1024,6 @@ void media_restart(void *data)
 			obs_source_media_restart(playlist_context->media_source);
 			playlist_context->restarting_media_source = false;
 		}
-		scale_media_source_to_fit(playlist_context);
 	}
 
 	// pthread_mutex_unlock(&playlist_context->mutex);
@@ -1181,8 +1171,6 @@ void media_next(void *data)
 	}
 
 	pthread_mutex_unlock(&playlist_context->mutex);
-
-	scale_media_source_to_fit(playlist_context);
 }
 
 void media_previous(void *data)
@@ -1332,8 +1320,6 @@ void media_previous(void *data)
 	}
 
 	pthread_mutex_unlock(&playlist_context->mutex);
-
-	scale_media_source_to_fit(playlist_context);
 }
 
 int64_t media_get_duration(void *data)

@@ -24,12 +24,22 @@
 	X(MEDIA_STRINGIFY_TYPE_NAME)     \
 	X(MEDIA_STRINGIFY_TYPE_EXTENSION)
 
+#define ENUM_STRETCH_MODE               \
+	X(STRETCH_FREE)                 \
+	X(STRETCH_KEEP)                 \
+	X(STRETCH_KEEP_CENTERED)        \
+	X(STRETCH_KEEP_ASPECT)          \
+	X(STRETCH_KEEP_ASPECT_CENTERED) \
+	X(STRETCH_KEEP_ASPECT_COVERED)  \
+	X(STRETCH_SCALE)
+
 // Define the enum values for StartBehavior and EndBehavior
 #define X(name) name,
 typedef enum { ENUM_START_BEHAVIOR_LIST } e_StartBehavior;
 typedef enum { ENUM_END_BEHAVIOR_LIST } e_EndBehavior;
 typedef enum { ENUM_LOOP_END_BEHAVIOR_LIST } e_LoopEndBehavior;
 typedef enum { ENUM_MEDIA_STRINGIFY_TYPE } e_MediaStringifyTYPE;
+typedef enum { ENUM_STRETCH_MODE } e_StretchMode;
 #undef X
 
 // Create lookup tables using macros for the string representations
@@ -37,7 +47,8 @@ typedef enum { ENUM_MEDIA_STRINGIFY_TYPE } e_MediaStringifyTYPE;
 const char *StartBehavior[];
 const char *EndBehavior[];
 const char *LoopEndBehavior[];
-const char *MediaStringifyTYPE[];
+const char *MediaStringifyType[];
+const char *StretchMode[];
 #undef X
 
 #endif // ENUM_UTILS_H

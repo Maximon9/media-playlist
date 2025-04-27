@@ -2,7 +2,28 @@
 
 #include "../include/utils/utils.hpp"
 
-void scale_media_source_to_fit(PlaylistContext *playlist_context)
+void handle_stretch_mode(PlaylistContext *playlist_context)
+{
+	vec2 end_size{};
+	switch (playlist_context->stretch_mode) {
+	case STRETCH_KEEP:
+		break;
+	case STRETCH_KEEP_ASPECT:
+		break;
+	case STRETCH_KEEP_ASPECT_CENTERED:
+		handle_keep_aspect(playlist_context, &end_size);
+		position_center(playlist_context, &end_size);
+		break;
+	case STRETCH_KEEP_ASPECT_COVERED:
+		break;
+	case STRETCH_SCALE:
+		break;
+	default:
+		break;
+	}
+}
+
+void handle_keep_aspect(PlaylistContext *playlist_context, vec2 *end_size)
 {
 	if (!playlist_context || !playlist_context->media_source || !playlist_context->source_scene_item)
 		return;
@@ -13,20 +34,63 @@ void scale_media_source_to_fit(PlaylistContext *playlist_context)
 	uint32_t canvas_height = video_output_get_height(video);
 
 	// Get media source size
-	uint32_t media_width = obs_source_get_width(playlist_context->media_source);
-	uint32_t media_height = obs_source_get_height(playlist_context->media_source);
-
-	if (media_width == 0 || media_height == 0)
-		return; // Avoid division by zero
+	end_size->x = obs_source_get_width(playlist_context->media_source);
+	end_size->y = obs_source_get_height(playlist_context->media_source);
 
 	// Calculate scale factor to fit inside canvas while keeping aspect ratio
-	float scale_x = (float)canvas_width / media_width;
-	float scale_y = (float)canvas_height / media_height;
+	float scale_x = (float)canvas_width / end_size->x;
+	float scale_y = (float)canvas_height / end_size->y;
 	float scale_factor = fmin(scale_x, scale_y);
+
+	end_size->x *scale_x;
+	end_size->y *scale_x;
 
 	// Set the new scale
 	struct vec2 scale = {scale_factor, scale_factor};
 	obs_sceneitem_set_scale(playlist_context->source_scene_item, &scale);
+}
+
+void position_top_left(PlaylistContext *playlist_context)
+{
+	if (!playlist_context || !playlist_context->media_source || !playlist_context->source_scene_item)
+		return;
+
+	// Get OBS base canvas size
+	// video_t *video = obs_get_video();
+	// uint32_t canvas_width = video_output_get_width(video);
+	// uint32_t canvas_height = video_output_get_height(video);
+
+	// // Get media source size
+	// uint32_t media_width = obs_source_get_width(playlist_context->media_source);
+	// uint32_t media_height = obs_source_get_height(playlist_context->media_source);
+
+	// if (media_width == 0 || media_height == 0)
+	// return; // Avoid division by zero
+
+	// Calculate scale factor to fit inside canvas while keeping aspect ratio
+	struct vec2 pos = {0, 0};
+	obs_sceneitem_set_pos(playlist_context->source_scene_item, &pos);
+}
+
+void position_center(PlaylistContext *playlist_context, vec2 *end_size)
+{
+	if (!playlist_context || !playlist_context->media_source || !playlist_context->source_scene_item)
+		return;
+
+	// Get OBS base canvas size
+	video_t *video = obs_get_video();
+	uint32_t canvas_width = video_output_get_width(video);
+	uint32_t canvas_height = video_output_get_height(video);
+
+	// Calculate position to center (no scaling, only move)
+	obs_log(LOG_INFO, "Value: %u, %u", canvas_width, canvas_height);
+	float pos_x = (canvas_width - end_size->x) / 2.0f;
+	float pos_y = (canvas_height - end_size->y) / 2.0f;
+
+	struct vec2 pos = {pos_x, pos_y};
+
+	// Set position
+	obs_sceneitem_set_pos(playlist_context->source_scene_item, &pos);
 }
 
 size_t get_random_size_t(size_t min, size_t max)

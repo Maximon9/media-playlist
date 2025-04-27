@@ -13,7 +13,7 @@ class PlaylisQueueWidget;
 
 typedef struct PlaylistContext {
 #pragma region Public
-	bool show_queue_when_properties_open;
+	e_StretchMode stretch_mode;
 	MediaDataArray all_media;
 	obs_source_t *source;
 	obs_source_t *media_source;
