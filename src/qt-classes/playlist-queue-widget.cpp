@@ -138,7 +138,7 @@ void PlaylisQueueWidget::remove_widget()
 	}
 }
 
-MediaWidget *PlaylisQueueWidget::create_media_widget(MediaContext *media_data,
+MediaWidget *PlaylisQueueWidget::create_media_widget(MediaContext *media_context,
 						     e_MediaStringifyTYPE media_stringify_type)
 {
 	// Create an event loop to ensure synchronous execution
@@ -149,7 +149,7 @@ MediaWidget *PlaylisQueueWidget::create_media_widget(MediaContext *media_data,
 	QMetaObject::invokeMethod(
 		this,
 		[=, &widget, &loop, &media_stringify_type]() {
-			widget = new MediaWidget(media_data, media_stringify_type, this);
+			widget = new MediaWidget(media_context, media_stringify_type, this);
 			loop.quit(); // Exit the event loop once widget is created
 		},
 		Qt::QueuedConnection);

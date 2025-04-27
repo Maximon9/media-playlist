@@ -14,15 +14,15 @@ void push_media_front(MediaList *media_array, const std::string path)
 	media_array->push_front(entry);
 }
 
-void push_media_data_back(MediaList *media_array, MediaContext media_data)
+void push_media_data_back(MediaList *media_array, MediaContext media_context)
 {
-	const MediaContext new_entry = init_media_data_from_media_data(media_data);
+	const MediaContext new_entry = init_media_data_from_media_data(media_context);
 	media_array->push_back(new_entry);
 }
 
-void push_media_data_front(MediaList *media_array, MediaContext media_data)
+void push_media_data_front(MediaList *media_array, MediaContext media_context)
 {
-	const MediaContext new_entry = init_media_data_from_media_data(media_data);
+	const MediaContext new_entry = init_media_data_from_media_data(media_context);
 	media_array->push_front(new_entry);
 }
 
@@ -33,10 +33,10 @@ void push_media_at(MediaList *media_array, const std::string path, size_t index)
 	media_array->insert(it, entry);
 }
 
-void push_media_data_at(MediaList *media_array, MediaContext media_data, size_t index)
+void push_media_data_at(MediaList *media_array, MediaContext media_context, size_t index)
 {
 	MediaList::const_iterator it = media_array->cbegin() + index;
-	const MediaContext new_entry = init_media_data_from_media_data(media_data);
+	const MediaContext new_entry = init_media_data_from_media_data(media_context);
 	media_array->insert(it, new_entry);
 }
 
@@ -73,10 +73,10 @@ MediaContext init_media_data(const std::string path, const std::string filename,
 	return new_entry;
 }
 
-MediaContext init_media_data_from_media_data(const MediaContext media_data)
+MediaContext init_media_data_from_media_data(const MediaContext media_context)
 {
 	// Create and insert new MediaContext
-	MediaContext new_entry = media_data;
+	MediaContext new_entry = media_context;
 	return new_entry;
 }
 
@@ -101,23 +101,23 @@ void push_queue_media_path_at(QueuedMedia *media_array, const std::string path, 
 	media_array->insert(it, new_entry);
 }
 
-void push_queue_media_data_back(QueuedMedia *media_array, MediaContext media_data, PlaylistData *playlist_data)
+void push_queue_media_data_back(QueuedMedia *media_array, MediaContext media_context, PlaylistData *playlist_data)
 {
 	QueueMedia new_entry =
-		init_queue_media_data_from_media_data(media_data, media_array->size(), playlist_data);
+		init_queue_media_data_from_media_data(media_context, media_array->size(), playlist_data);
 	media_array->push_back(new_entry);
 }
 
-void push_queue_media_data_front(QueuedMedia *media_array, MediaContext media_data, PlaylistData *playlist_data)
+void push_queue_media_data_front(QueuedMedia *media_array, MediaContext media_context, PlaylistData *playlist_data)
 {
-	QueueMedia new_entry = init_queue_media_data_from_media_data(media_data, 0, playlist_data);
+	QueueMedia new_entry = init_queue_media_data_from_media_data(media_context, 0, playlist_data);
 	media_array->push_front(new_entry);
 }
 
-void push_queue_media_data_at(QueuedMedia *media_array, MediaContext media_data, size_t index,
+void push_queue_media_data_at(QueuedMedia *media_array, MediaContext media_context, size_t index,
 			      PlaylistData *playlist_data)
 {
-	QueueMedia new_entry = init_queue_media_data_from_media_data(media_data, index, playlist_data);
+	QueueMedia new_entry = init_queue_media_data_from_media_data(media_context, index, playlist_data);
 	QueuedMedia::const_iterator it = media_array->cbegin() + index;
 	media_array->insert(it, new_entry);
 }
@@ -214,24 +214,24 @@ void init_widgets(QueueMedia entry, size_t index, PlaylistData *playlist_data, M
 {
 	if (media_widget == nullptr) {
 		if (playlist_data->playlist_widget != nullptr) {
-			entry->media_widget = playlist_data->playlist_widget->create_media_widget(&entry->media_data);
+			entry->media_widget = playlist_data->playlist_widget->create_media_widget(&entry->media_context);
 			playlist_data->playlist_widget->push_media_widget_at(entry->media_widget, index);
 		}
 	} else {
-		media_widget->media_data = nullptr;
-		media_widget->media_data = &entry->media_data;
+		media_widget->media_context = nullptr;
+		media_widget->media_context = &entry->media_context;
 		entry->media_widget = media_widget;
 	}
 
 	if (param_media_widget == nullptr) {
 		if (playlist_data->param_playlist_widget != nullptr) {
 			entry->param_media_widget =
-				playlist_data->param_playlist_widget->create_media_widget(&entry->media_data);
+				playlist_data->param_playlist_widget->create_media_widget(&entry->media_context);
 			playlist_data->param_playlist_widget->push_media_widget_at(entry->param_media_widget, index);
 		}
 	} else {
-		param_media_widget->media_data = nullptr;
-		param_media_widget->media_data = &entry->media_data;
+		param_media_widget->media_context = nullptr;
+		param_media_widget->media_context = &entry->media_context;
 		entry->param_media_widget = param_media_widget;
 	}
 }
@@ -253,7 +253,7 @@ QueueMedia init_queue_media_data_from_path(std::string path, size_t widget_index
 	// Extract the file extension (including the dot)
 	std::string ext = file_path.extension().string();
 
-	new_entry->media_data = {path, filename, name, ext, index};
+	new_entry->media_context = {path, filename, name, ext, index};
 
 	init_widgets(new_entry, widget_index, playlist_data, media_widget, param_media_widget);
 
@@ -267,20 +267,20 @@ QueueMedia init_queue_media_data(const std::string path, const std::string filen
 {
 	QueueMedia new_entry = std::make_shared<MediaData>();
 	// Create and insert new MediaContext
-	new_entry->media_data = {path, filename, name, ext, index};
+	new_entry->media_context = {path, filename, name, ext, index};
 	init_widgets(new_entry, widget_index, playlist_data, media_widget, param_media_widget);
 
 	return new_entry;
 }
 
-QueueMedia init_queue_media_data_from_media_data(MediaContext media_data, size_t widget_index,
+QueueMedia init_queue_media_data_from_media_data(MediaContext media_context, size_t widget_index,
 							   PlaylistData *playlist_data, MediaWidget *media_widget,
 							   MediaWidget *param_media_widget)
 
 {
 	QueueMedia new_entry = std::make_shared<MediaData>();
 	// Create and insert new MediaContext
-	new_entry->media_data = media_data;
+	new_entry->media_context = media_context;
 	init_widgets(new_entry, widget_index, playlist_data, media_widget, param_media_widget);
 
 	return new_entry;
@@ -409,20 +409,20 @@ const char *stringify_media_array(const MediaList *media_array, size_t threshold
 	for (size_t i = 0; i < media_array->size(); i++) {
 		result += "\"";
 
-		const MediaContext *media_data = &((*media_array)[i]);
+		const MediaContext *media_context = &((*media_array)[i]);
 
 		switch (media_stringify_type) {
 		case MEDIA_STRINGIFY_TYPE_PATH:
-			result += media_data->path;
+			result += media_context->path;
 			break;
 		case MEDIA_STRINGIFY_TYPE_FILENAME:
-			result += media_data->filename;
+			result += media_context->filename;
 			break;
 		case MEDIA_STRINGIFY_TYPE_NAME:
-			result += media_data->name;
+			result += media_context->name;
 			break;
 		case MEDIA_STRINGIFY_TYPE_EXTENSION:
-			result += media_data->ext;
+			result += media_context->ext;
 			break;
 		default:
 			break;
@@ -444,20 +444,20 @@ const char *stringify_media_array(const MediaList *media_array, size_t threshold
 			prettified_result += indent; // Add indentation before each element
 			prettified_result += "\"";
 
-			const MediaContext *media_data = &media_array->at(i);
+			const MediaContext *media_context = &media_array->at(i);
 
 			switch (media_stringify_type) {
 			case MEDIA_STRINGIFY_TYPE_PATH:
-				prettified_result += media_data->path;
+				prettified_result += media_context->path;
 				break;
 			case MEDIA_STRINGIFY_TYPE_FILENAME:
-				prettified_result += media_data->filename;
+				prettified_result += media_context->filename;
 				break;
 			case MEDIA_STRINGIFY_TYPE_NAME:
-				prettified_result += media_data->name;
+				prettified_result += media_context->name;
 				break;
 			case MEDIA_STRINGIFY_TYPE_EXTENSION:
-				prettified_result += media_data->ext;
+				prettified_result += media_context->ext;
 				break;
 			default:
 				break;
@@ -513,20 +513,20 @@ const char *stringify_queue_media_array(const QueuedMedia *media_array, int queu
 		prettified_result += indent; // Add indentation before each element
 		prettified_result += "\"";
 
-		const MediaContext *media_data = &(media_array->at(i)->media_data);
+		const MediaContext *media_context = &(media_array->at(i)->media_context);
 
 		switch (media_stringify_type) {
 		case MEDIA_STRINGIFY_TYPE_PATH:
-			prettified_result += media_data->path;
+			prettified_result += media_context->path;
 			break;
 		case MEDIA_STRINGIFY_TYPE_FILENAME:
-			prettified_result += media_data->filename;
+			prettified_result += media_context->filename;
 			break;
 		case MEDIA_STRINGIFY_TYPE_NAME:
-			prettified_result += media_data->name;
+			prettified_result += media_context->name;
 			break;
 		case MEDIA_STRINGIFY_TYPE_EXTENSION:
-			prettified_result += media_data->ext;
+			prettified_result += media_context->ext;
 			break;
 		default:
 			break;

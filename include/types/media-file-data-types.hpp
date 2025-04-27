@@ -16,7 +16,7 @@ typedef struct MediaContext {
 } MediaContext;
 
 typedef struct MediaData {
-	MediaContext media_data;
+	MediaContext media_context;
 	MediaWidget *media_widget;
 	MediaWidget *param_media_widget;
 	// std::string path;

@@ -4,11 +4,11 @@
 #include <obs-module.h>
 #include <plugin-support.h>
 
-MediaWidget::MediaWidget(const MediaContext *media_data, e_MediaStringifyTYPE media_stringify_type, QWidget *parent)
+MediaWidget::MediaWidget(const MediaContext *media_context, e_MediaStringifyTYPE media_stringify_type, QWidget *parent)
 	: QWidget(parent),
 	  media_stringify_type(media_stringify_type)
 {
-	this->media_data = media_data;
+	this->media_context = media_context;
 	QVBoxLayout *layout = new QVBoxLayout(this);
 
 	this->setStyleSheet("QWidget {"
@@ -20,17 +20,17 @@ MediaWidget::MediaWidget(const MediaContext *media_data, e_MediaStringifyTYPE me
 
 	switch (this->media_stringify_type) {
 	case MEDIA_STRINGIFY_TYPE_PATH:
-		label = new QLabel(QString::fromStdString(media_data->path), this);
+		label = new QLabel(QString::fromStdString(media_context->path), this);
 		break;
 	case MEDIA_STRINGIFY_TYPE_FILENAME:
 		/* code */
-		label = new QLabel(QString::fromStdString(media_data->filename), this);
+		label = new QLabel(QString::fromStdString(media_context->filename), this);
 		break;
 	case MEDIA_STRINGIFY_TYPE_NAME:
-		label = new QLabel(QString::fromStdString(media_data->name), this);
+		label = new QLabel(QString::fromStdString(media_context->name), this);
 		break;
 	case MEDIA_STRINGIFY_TYPE_EXTENSION:
-		label = new QLabel(QString::fromStdString(media_data->ext), this);
+		label = new QLabel(QString::fromStdString(media_context->ext), this);
 		break;
 	default:
 		break;
@@ -58,17 +58,17 @@ void MediaWidget::update_media_data(e_MediaStringifyTYPE *media_stringify_type)
 
 	switch (this->media_stringify_type) {
 	case MEDIA_STRINGIFY_TYPE_PATH:
-		label->setText(QString::fromStdString(media_data->path));
+		label->setText(QString::fromStdString(media_context->path));
 		break;
 	case MEDIA_STRINGIFY_TYPE_FILENAME:
 		/* code */
-		label->setText(QString::fromStdString(media_data->filename));
+		label->setText(QString::fromStdString(media_context->filename));
 		break;
 	case MEDIA_STRINGIFY_TYPE_NAME:
-		label->setText(QString::fromStdString(media_data->name));
+		label->setText(QString::fromStdString(media_context->name));
 		break;
 	case MEDIA_STRINGIFY_TYPE_EXTENSION:
-		label->setText(QString::fromStdString(media_data->ext));
+		label->setText(QString::fromStdString(media_context->ext));
 		break;
 	default:
 		break;

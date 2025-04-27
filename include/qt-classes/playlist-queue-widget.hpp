@@ -35,8 +35,8 @@ public:
 	void update_playlist_name();
 	void update_playlist_data(e_MediaStringifyTYPE media_stringify_type = MEDIA_STRINGIFY_TYPE_FILENAME);
 	void remove_widget();
-	// void create_media_widget(MediaContext *media_data, std::function<void(MediaWidget *)> callback);
-	MediaWidget *create_media_widget(MediaContext *media_data,
+	// void create_media_widget(MediaContext *media_context, std::function<void(MediaWidget *)> callback);
+	MediaWidget *create_media_widget(MediaContext *media_context,
 					 e_MediaStringifyTYPE media_stringify_type = MEDIA_STRINGIFY_TYPE_FILENAME);
 	void push_media_widget_front(MediaWidget *mediaWidget);
 	void push_media_widget_back(MediaWidget *mediaWidget);

@@ -26,11 +26,11 @@ void push_media_front(MediaList *media_array, const std::string path);
 
 void push_media_at(MediaList *media_array, const std::string path, size_t index);
 
-void push_media_data_back(MediaList *media_array, MediaContext media_data);
+void push_media_data_back(MediaList *media_array, MediaContext media_context);
 
-void push_media_data_front(MediaList *media_array, MediaContext media_data);
+void push_media_data_front(MediaList *media_array, MediaContext media_context);
 
-void push_media_data_at(MediaList *media_array, MediaContext media_data, size_t index);
+void push_media_data_at(MediaList *media_array, MediaContext media_context, size_t index);
 
 void pop_media_at(MediaList *media_array, size_t index);
 
@@ -39,7 +39,7 @@ MediaContext init_media_data_from_path(std::string path, size_t index);
 MediaContext init_media_data(const std::string path, const std::string filename, const std::string name,
 			     const std::string ext, size_t index);
 
-MediaContext init_media_data_from_media_data(const MediaContext media_data);
+MediaContext init_media_data_from_media_data(const MediaContext media_context);
 
 void push_queue_media_path_back(QueuedMedia *media_array, const std::string path, PlaylistData *playlist_data);
 
@@ -48,11 +48,11 @@ void push_queue_media_path_front(QueuedMedia *media_array, const std::string pat
 void push_queue_media_path_at(QueuedMedia *media_array, const std::string path, size_t index,
 			      PlaylistData *playlist_data);
 
-void push_queue_media_data_back(QueuedMedia *media_array, MediaContext media_data, PlaylistData *playlist_data);
+void push_queue_media_data_back(QueuedMedia *media_array, MediaContext media_context, PlaylistData *playlist_data);
 
-void push_queue_media_data_front(QueuedMedia *media_array, MediaContext media_data, PlaylistData *playlist_data);
+void push_queue_media_data_front(QueuedMedia *media_array, MediaContext media_context, PlaylistData *playlist_data);
 
-void push_queue_media_data_at(QueuedMedia *media_array, MediaContext media_data, size_t index,
+void push_queue_media_data_at(QueuedMedia *media_array, MediaContext media_context, size_t index,
 			      PlaylistData *playlist_data);
 
 void push_queue_media_at(QueuedMedia *media_array, QueueMedia new_entry, size_t index);
@@ -78,7 +78,7 @@ QueueMedia init_queue_media_data(const std::string path, const std::string filen
 				 const std::string ext, size_t widget_index, size_t index, PlaylistData *playlist_data,
 				 MediaWidget *media_widget = nullptr, MediaWidget *param_media_widget = nullptr);
 
-QueueMedia init_queue_media_data_from_media_data(MediaContext media_data, size_t widget_index,
+QueueMedia init_queue_media_data_from_media_data(MediaContext media_context, size_t widget_index,
 						 PlaylistData *playlist_data, MediaWidget *media_widget = nullptr,
 						 MediaWidget *param_media_widget = nullptr);
 

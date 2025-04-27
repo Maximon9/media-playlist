@@ -65,13 +65,13 @@ void set_queue(PlaylistContext *playlist_context)
 	// obs_log(LOG_INFO, "WE TRIED SET THE QUEUE YAY!!!");
 
 	// Get video file path from the array
-	MediaContext *media_data = &playlist_context->queue[0]->media_data;
+	MediaContext *media_context = &playlist_context->queue[0]->media_context;
 
-	if (!media_data)
+	if (!media_context)
 		return;
 	// obs_log(LOG_INFO, "WE SET THE QUEUE YAY!!!");
 
-	obs_data_set_string(playlist_context->media_source_settings, S_FFMPEG_LOCAL_FILE, media_data->path.c_str());
+	obs_data_set_string(playlist_context->media_source_settings, S_FFMPEG_LOCAL_FILE, media_context->path.c_str());
 	obs_source_update(playlist_context->media_source, playlist_context->media_source_settings);
 }
 
@@ -112,10 +112,7 @@ void playlist_audio_callback(void *data, obs_source_t *source, const struct audi
 
 bool uses_song_history_limit(PlaylistContext *playlist_context)
 {
-	return ((playlist_context->end_behavior == END_BEHAVIOR_LOOP_AT_END &&
-		 playlist_context->shuffle_queue == true) ||
-		(playlist_context->end_behavior == END_BEHAVIOR_LOOP && playlist_context->shuffle_queue == true) ||
-		(playlist_context->end_behavior == END_BEHAVIOR_STOP && playlist_context->shuffle_queue == true));
+	return playlist_context->shuffle_queue == true;
 }
 #pragma endregion
 
@@ -277,10 +274,10 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 					MediaContext new_entry =
 						init_media_data_from_path(entry.path().string(), entry_index);
 					if (entry_index < playlist_context->all_media.size()) {
-						const MediaContext media_data = playlist_context->all_media[i];
-						if (media_data.path != new_entry.path) {
+						const MediaContext media_context = playlist_context->all_media[i];
+						if (media_context.path != new_entry.path) {
 							if (pre_media_array_size > array_size) {
-								removed_medias.push_back(media_data);
+								removed_medias.push_back(media_context);
 							}
 							playlist_context->all_media[entry_index] = new_entry;
 						}
@@ -294,10 +291,10 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 			} else {
 				MediaContext new_entry = init_media_data_from_path(std::string(element), entry_index);
 				if (entry_index < playlist_context->all_media.size()) {
-					const MediaContext media_data = playlist_context->all_media[i];
-					if (media_data.path != new_entry.path) {
+					const MediaContext media_context = playlist_context->all_media[i];
+					if (media_context.path != new_entry.path) {
 						if (pre_media_array_size > array_size) {
-							removed_medias.push_back(media_data);
+							removed_medias.push_back(media_context);
 						}
 						playlist_context->all_media[entry_index] = new_entry;
 					}
@@ -326,13 +323,13 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 			bool changed_queue = false;
 			for (size_t i = playlist_context->queue.size(); i-- > 0;) {
 				QueueMedia queue_media_data = playlist_context->queue[i];
-				if (queue_media_data->media_data.index < playlist_context->all_media.size()) {
-					MediaContext media_data =
-						playlist_context->all_media[queue_media_data->media_data.index];
+				if (queue_media_data->media_context.index < playlist_context->all_media.size()) {
+					MediaContext media_context =
+						playlist_context->all_media[queue_media_data->media_context.index];
 
-					if (queue_media_data->media_data.path != media_data.path) {
+					if (queue_media_data->media_context.path != media_context.path) {
 						QueueMedia new_entry = init_queue_media_data_from_media_data(
-							media_data, i, playlist_data, queue_media_data->media_widget,
+							media_context, i, playlist_data, queue_media_data->media_widget,
 							queue_media_data->param_media_widget);
 
 						playlist_context->queue[i] = new_entry;
@@ -349,7 +346,7 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 				QueueMedia queue_media_data = playlist_context->queue[i];
 				for (size_t r_i = removed_medias.size(); r_i-- > 0;) {
 					MediaContext removed_media_data = removed_medias[r_i];
-					if (queue_media_data->media_data.index == removed_media_data.index) {
+					if (queue_media_data->media_context.index == removed_media_data.index) {
 						pop_queue_media_at(&playlist_context->queue, i, true);
 						if (changed_queue == false)
 							changed_queue = true;
@@ -361,7 +358,7 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 
 			if (playlist_context->queue.size() > 0) {
 				queue_last_index =
-					playlist_context->queue[playlist_context->queue.size() - 1]->media_data.index;
+					playlist_context->queue[playlist_context->queue.size() - 1]->media_context.index;
 				found_queue = true;
 			}
 
@@ -468,7 +465,8 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 				QueueMedia first_queue_media = playlist_context->queue[0];
 				for (size_t i = playlist_context->queue.size(); i-- > 0;) {
 					QueueMedia queue_media_data = playlist_context->queue[i];
-					if (queue_media_data->media_data.index < first_queue_media->media_data.index) {
+					if (queue_media_data->media_context.index <
+					    first_queue_media->media_context.index) {
 						pop_queue_media_at(&playlist_context->queue, i);
 					}
 				}
@@ -490,17 +488,18 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 
 					size_t queue_index = 1;
 
-					for (size_t i = first_queue_media_data->media_data.index + 1;
+					for (size_t i = first_queue_media_data->media_context.index + 1;
 					     i < playlist_context->all_media.size(); i++) {
-						MediaContext media_data = playlist_context->all_media[i];
+						MediaContext media_context = playlist_context->all_media[i];
 						if (queue_index < playlist_context->queue.size()) {
 							QueueMedia queue_media_data =
 								playlist_context->queue[queue_index];
 
-							if (queue_media_data->media_data.path != media_data.path) {
+							if (queue_media_data->media_context.path !=
+							    media_context.path) {
 								QueueMedia new_entry =
 									init_queue_media_data_from_media_data(
-										media_data, i, playlist_data,
+										media_context, i, playlist_data,
 										queue_media_data->media_widget,
 										queue_media_data->param_media_widget);
 
@@ -510,21 +509,23 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 								new_entry->param_media_widget->update_media_data();
 							}
 						} else {
-							push_queue_media_data_at(&playlist_context->queue, media_data,
-										 queue_index, playlist_data);
+							push_queue_media_data_at(&playlist_context->queue,
+										 media_context, queue_index,
+										 playlist_data);
 						}
 						queue_index++;
 					}
-					for (size_t i = 0; i < first_queue_media_data->media_data.index; i++) {
-						MediaContext media_data = playlist_context->all_media[i];
+					for (size_t i = 0; i < first_queue_media_data->media_context.index; i++) {
+						MediaContext media_context = playlist_context->all_media[i];
 						if (queue_index < playlist_context->queue.size()) {
 							QueueMedia queue_media_data =
 								playlist_context->queue[queue_index];
 
-							if (queue_media_data->media_data.path != media_data.path) {
+							if (queue_media_data->media_context.path !=
+							    media_context.path) {
 								QueueMedia new_entry =
 									init_queue_media_data_from_media_data(
-										media_data, i, playlist_data,
+										media_context, i, playlist_data,
 										queue_media_data->media_widget,
 										queue_media_data->param_media_widget);
 
@@ -534,8 +535,9 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 								new_entry->param_media_widget->update_media_data();
 							}
 						} else {
-							push_queue_media_data_at(&playlist_context->queue, media_data,
-										 queue_index, playlist_data);
+							push_queue_media_data_at(&playlist_context->queue,
+										 media_context, queue_index,
+										 playlist_data);
 						}
 						queue_index++;
 					}
@@ -562,7 +564,8 @@ void update_playlist_data(PlaylistData *playlist_data, obs_data_t *settings)
 				QueueMedia first_queue_media = playlist_context->queue[0];
 				for (size_t i = playlist_context->queue.size(); i-- > 0;) {
 					QueueMedia queue_media_data = playlist_context->queue[i];
-					if (queue_media_data->media_data.index < first_queue_media->media_data.index) {
+					if (queue_media_data->media_context.index <
+					    first_queue_media->media_context.index) {
 						pop_queue_media_at(&playlist_context->queue, i);
 					}
 				}
@@ -995,7 +998,7 @@ void media_restart(void *data)
 
 		refresh_queue_list(playlist_data);
 
-		if (playlist_context->shuffle_queue == true) {
+		if (uses_song_history_limit(playlist_context)) {
 			shuffle_queue(&playlist_context->queue, playlist_data);
 			playlist_context->queue_history.clear();
 		}
@@ -1022,6 +1025,17 @@ void media_stop(void *data)
 
 	if (playlist_context->media_source != NULL) {
 		playlist_context->state = OBS_MEDIA_STATE_STOPPED;
+
+		if (uses_song_history_limit(playlist_context)) {
+			for (size_t i = 0; i < playlist_context->queue.size(); i++) {
+				const MediaContext media_context = playlist_context->queue[i]->media_context;
+				push_media_data_front(&playlist_context->queue_history, media_context);
+				if (playlist_context->queue_history.size() > playlist_context->song_history_limit) {
+					playlist_context->queue_history.pop_back();
+				}
+			}
+		}
+
 		clear_queue(&playlist_context->queue);
 		obs_source_media_stop(playlist_context->media_source);
 	}
@@ -1044,9 +1058,9 @@ void media_next(void *data)
 			if (playlist_context->end_behavior != END_BEHAVIOR_LOOP_AT_END ||
 			    (playlist_context->end_behavior == END_BEHAVIOR_LOOP_AT_END &&
 			     playlist_context->queue.size() > 1)) {
-				const MediaContext media_data = playlist_context->queue[0]->media_data;
+				const MediaContext media_context = playlist_context->queue[0]->media_context;
 
-				push_media_data_front(&playlist_context->queue_history, media_data);
+				push_media_data_front(&playlist_context->queue_history, media_context);
 
 				if (playlist_context->queue_history.size() > playlist_context->song_history_limit) {
 					playlist_context->queue_history.pop_back();
@@ -1079,9 +1093,10 @@ void media_next(void *data)
 					if (queue_size <= 1 &&
 					    playlist_context->loop_count >= playlist_context->max_loop_count) {
 
-						const MediaContext media_data = playlist_context->queue[0]->media_data;
+						const MediaContext media_context =
+							playlist_context->queue[0]->media_context;
 
-						push_media_data_front(&playlist_context->queue_history, media_data);
+						push_media_data_front(&playlist_context->queue_history, media_context);
 
 						pop_queue_media_front(&playlist_context->queue);
 					}
@@ -1134,7 +1149,7 @@ void media_next(void *data)
 				set_this_queue = true;
 			}
 			if (set_this_queue == true) {
-				bool restart = playlist_context->queue[0]->media_data.path ==
+				bool restart = playlist_context->queue[0]->media_context.path ==
 					       get_current_media_input(playlist_context->media_source_settings);
 
 				set_queue(playlist_context);
@@ -1153,6 +1168,11 @@ void media_next(void *data)
 		obs_source_media_stop(playlist_context->media_source);
 		obs_source_media_ended(playlist_context->source);
 	}
+	bool media_ended = playlist_context->state == OBS_MEDIA_STATE_STOPPED ||
+			   playlist_context->state == OBS_MEDIA_STATE_ENDED;
+	if (!media_ended) {
+		obs_source_media_play_pause(playlist_context->source, false);
+	}
 
 	pthread_mutex_unlock(&playlist_context->mutex);
 }
@@ -1164,18 +1184,24 @@ void media_previous(void *data)
 
 	pthread_mutex_lock(&playlist_context->mutex);
 
+	bool restart = false;
+	bool un_pause = true;
+
 	if (uses_song_history_limit(playlist_context) == true) {
-		if (playlist_context->queue_history.size() > 0) {
+		bool history_size_not_empty = playlist_context->queue_history.size() > 0;
+		obs_log(LOG_INFO, "HISTORY TEST %d, %s", playlist_context->queue_history.size(),
+			history_size_not_empty ? "true" : "false");
+		if (history_size_not_empty) {
 			bool at_start_of_loop_count = false;
 			if (playlist_context->end_behavior == END_BEHAVIOR_LOOP_AT_END) {
 				if (playlist_context->infinite == false && playlist_context->loop_count > 0) {
 					playlist_context->loop_count--;
 					if (playlist_context->queue.size() <= 0) {
-						const MediaContext media_data = playlist_context->queue_history[0];
+						const MediaContext media_context = playlist_context->queue_history[0];
 
 						playlist_context->queue_history.pop_front();
 
-						push_queue_media_data_front(&playlist_context->queue, media_data,
+						push_queue_media_data_front(&playlist_context->queue, media_context,
 									    playlist_data);
 					}
 				} else {
@@ -1185,23 +1211,25 @@ void media_previous(void *data)
 				at_start_of_loop_count = true;
 			}
 			if (at_start_of_loop_count == true) {
-				const MediaContext media_data = playlist_context->queue_history[0];
+				const MediaContext media_context = playlist_context->queue_history[0];
 
 				playlist_context->queue_history.pop_front();
 
-				push_queue_media_data_front(&playlist_context->queue, media_data, playlist_data);
+				push_queue_media_data_front(&playlist_context->queue, media_context, playlist_data);
 			}
+		} else {
+			un_pause = false;
+		}
+
+		if (playlist_context->queue.size() > 0) {
+			restart = playlist_context->queue[0]->media_context.path ==
+				  get_current_media_input(playlist_context->media_source_settings);
+		}
+		if (history_size_not_empty) {
 			if (playlist_context->queue.size() > 0) {
-				bool restart = playlist_context->queue[0]->media_data.path ==
-					       get_current_media_input(playlist_context->media_source_settings);
 
 				set_queue(playlist_context);
 
-				if (restart) {
-					playlist_context->restarting_media_source = true;
-					obs_source_media_restart(playlist_context->media_source);
-					playlist_context->restarting_media_source = false;
-				}
 				obs_source_media_started(playlist_context->source);
 			}
 		}
@@ -1213,16 +1241,10 @@ void media_previous(void *data)
 			}
 			playlist_context->queue.push_front(new_entry);
 
-			bool restart = playlist_context->queue[0]->media_data.path ==
-				       get_current_media_input(playlist_context->media_source_settings);
+			restart = playlist_context->queue[0]->media_context.path ==
+				  get_current_media_input(playlist_context->media_source_settings);
 
 			set_queue(playlist_context);
-
-			if (restart) {
-				playlist_context->restarting_media_source = true;
-				obs_source_media_restart(playlist_context->media_source);
-				playlist_context->restarting_media_source = false;
-			}
 
 			obs_source_media_started(playlist_context->source);
 		}
@@ -1233,9 +1255,9 @@ void media_previous(void *data)
 			if (playlist_context->queue.size() <= 0) {
 				size_t previous_index = playlist_context->all_media.size() - 1;
 
-				const MediaContext media_data = playlist_context->all_media[previous_index];
+				const MediaContext media_context = playlist_context->all_media[previous_index];
 
-				push_queue_media_data_front(&playlist_context->queue, media_data, playlist_data);
+				push_queue_media_data_front(&playlist_context->queue, media_context, playlist_data);
 			}
 		} else {
 			at_start_of_loop_count = true;
@@ -1249,58 +1271,71 @@ void media_previous(void *data)
 				size_t previous_index = playlist_context->all_media.size() - 1;
 				if (playlist_context->queue.size() > 0) {
 					QueueMedia queue_media_data = playlist_context->queue[0];
-					if (queue_media_data->media_data.index > 0) {
-						previous_index = (queue_media_data->media_data.index - 1);
+					if (queue_media_data->media_context.index > 0) {
+						previous_index = (queue_media_data->media_context.index - 1);
 					}
 				}
 
-				const MediaContext media_data = playlist_context->all_media[previous_index];
+				const MediaContext media_context = playlist_context->all_media[previous_index];
 
-				push_queue_media_data_front(&playlist_context->queue, media_data, playlist_data);
+				push_queue_media_data_front(&playlist_context->queue, media_context, playlist_data);
 			}
 		}
+
+		if (playlist_context->queue.size() > 0) {
+			restart = playlist_context->queue[0]->media_context.path ==
+				  get_current_media_input(playlist_context->media_source_settings);
+		}
+
 		if (queue_size_under_all_media_size) {
-			bool restart = playlist_context->queue[0]->media_data.path ==
-				       get_current_media_input(playlist_context->media_source_settings);
-
 			set_queue(playlist_context);
-
-			if (restart) {
-				playlist_context->restarting_media_source = true;
-				obs_source_media_restart(playlist_context->media_source);
-				playlist_context->restarting_media_source = false;
-			}
 
 			obs_source_media_started(playlist_context->source);
 		}
+
 	} else {
-		if (playlist_context->queue.size() < playlist_context->all_media.size()) {
+		bool queue_size_under_all_media_size = playlist_context->queue.size() <
+						       playlist_context->all_media.size();
+		if (queue_size_under_all_media_size) {
 
 			size_t previous_index = playlist_context->all_media.size() - 1;
 			if (playlist_context->queue.size() > 0) {
 				QueueMedia queue_media_data = playlist_context->queue[0];
-				if (queue_media_data->media_data.index > 0) {
-					previous_index = (queue_media_data->media_data.index - 1);
+				if (queue_media_data->media_context.index > 0) {
+					previous_index = (queue_media_data->media_context.index - 1);
 				}
 			}
 
-			const MediaContext media_data = playlist_context->all_media[previous_index];
+			const MediaContext media_context = playlist_context->all_media[previous_index];
 
-			push_queue_media_data_front(&playlist_context->queue, media_data, playlist_data);
+			push_queue_media_data_front(&playlist_context->queue, media_context, playlist_data);
+		}
 
-			bool restart = playlist_context->queue[0]->media_data.path ==
-				       get_current_media_input(playlist_context->media_source_settings);
+		if (playlist_context->queue.size() > 0) {
+			restart = playlist_context->queue[0]->media_context.path ==
+				  get_current_media_input(playlist_context->media_source_settings);
+		}
 
+		if (queue_size_under_all_media_size) {
 			set_queue(playlist_context);
-
-			if (restart) {
-				playlist_context->restarting_media_source = true;
-				obs_source_media_restart(playlist_context->media_source);
-				playlist_context->restarting_media_source = false;
-			}
 
 			obs_source_media_started(playlist_context->source);
 		}
+	}
+
+	if (restart) {
+		playlist_context->restarting_media_source = true;
+		obs_source_media_restart(playlist_context->media_source);
+		playlist_context->restarting_media_source = false;
+	}
+
+	bool media_ended = playlist_context->state == OBS_MEDIA_STATE_STOPPED ||
+			   playlist_context->state == OBS_MEDIA_STATE_ENDED;
+
+	if (((playlist_context->end_behavior == END_BEHAVIOR_LOOP && !media_ended) ||
+	     playlist_context->end_behavior != END_BEHAVIOR_LOOP) &&
+	    un_pause) {
+		obs_source_media_play_pause(playlist_context->source, false);
 	}
 
 	pthread_mutex_unlock(&playlist_context->mutex);
@@ -1353,44 +1388,6 @@ enum obs_media_state media_get_state(void *data)
 #pragma endregion
 
 #pragma endregion
-
-/*
-obs_encoder_t *obs_audio_encoder_create(const char *id, const char *name, obs_data_t *settings, size_t mixer_idx, obs_data_t *hotkey_data);
-bool obs_audio_monitoring_available(void);
-audio_t *obs_get_audio(void);
-bool obs_get_audio_info(struct obs_audio_info *oai);
-void obs_get_audio_monitoring_device(const char **name, const char **id);
-bool obs_set_audio_monitoring_device(const char *name, const char *id);
-void obs_enum_audio_monitoring_devices(obs_enum_audio_device_cb cb, PlaylistSource *playlist_data->playlist_context);
-bool obs_reset_audio2(const struct obs_audio_info2 *oai);
-bool obs_reset_audio(const struct obs_audio_info *oai);
-void obs_reset_audio_monitoring(void);
-audio_t *obs_output_audio(const obs_output_t *output);
-bool obs_source_audio_active(const obs_source_t *source);
-bool obs_source_audio_pending(const obs_source_t *source);
-audio_t *obs_encoder_audio(const obs_encoder_t *encoder);
-void obs_add_raw_audio_callback(size_t mix_idx, const struct audio_convert_info *conversion, audio_output_callback_t callback, void *param);
-obs_encoder_t *obs_output_get_audio_encoder(const obs_output_t *output, size_t idx);
-void obs_output_set_audio_conversion(obs_output_t *output, const struct audio_convert_info *conversion);
-void obs_output_set_audio_encoder(obs_output_t *output, obs_encoder_t *encoder, size_t idx);
-void obs_remove_raw_audio_callback(size_t mix_idx, audio_output_callback_t callback, void *param);
-void obs_source_add_audio_capture_callback(obs_source_t *source, obs_source_audio_capture_t callback, void *param);
-void obs_source_add_audio_pause_callback(obs_source_t *source, signal_callback_t callback, void *param);
-void obs_source_get_audio_mix(const obs_source_t *source, struct obs_source_audio_mix *audio);
-uint32_t obs_source_get_audio_mixers(const obs_source_t *source);
-uint64_t obs_source_get_audio_timestamp(const obs_source_t *source);
-void obs_source_set_audio_active(obs_source_t *source, bool show);
-void obs_source_set_audio_mixers(obs_source_t *source, uint32_t mixers);
-bool obs_transition_audio_render(obs_source_t *transition, uint64_t *ts_out, struct obs_source_audio_mix *audio, uint32_t mixers, size_t channels, size_t sample_rate, obs_transition_audio_mix_callback_t mix_a_callback, obs_transition_audio_mix_callback_t mix_b_callback);
-void obs_encoder_set_audio(obs_encoder_t *encoder, audio_t *audio);
-void obs_hotkeys_set_audio_hotkeys_translations(const char *mute, const char *unmute, const char *push_to_mute, const char *push_to_talk);
-void obs_source_output_audio(obs_source_t *source, const struct obs_source_audio *audio);
-void obs_source_remove_audio_capture_callback(obs_source_t *source, obs_source_audio_capture_t callback, void *param);
-void obs_source_remove_audio_pause_callback(obs_source_t *source, signal_callback_t callback, void *param);
-const char *obs_get_output_supported_audio_codecs(const char *id);
-const char *obs_output_get_supported_audio_codecs(const obs_output_t *output);
-const char **obs_service_get_supported_audio_codecs(const obs_service_t *service);
-*/
 
 /*
 scene
