@@ -94,7 +94,7 @@ bool obs_module_load(void)
 
 	// obs_frontend_add_event_callback(on_scene_initialized, NULL);
 
-	// Initialize two MediaData arrays
+	// Initialize two MediaContext arrays
 
 	return true;
 }

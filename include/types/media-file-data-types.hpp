@@ -7,16 +7,16 @@
 
 class MediaWidget;
 
-typedef struct MediaData {
+typedef struct MediaContext {
 	std::string path;
 	std::string filename;
 	std::string name;
 	std::string ext;
 	size_t index;
-} MediaData;
+} MediaContext;
 
-typedef struct QueueMediaData {
-	MediaData media_data;
+typedef struct MediaData {
+	MediaContext media_data;
 	MediaWidget *media_widget;
 	MediaWidget *param_media_widget;
 	// std::string path;
@@ -24,11 +24,11 @@ typedef struct QueueMediaData {
 	// std::string name;
 	// std::string ext;
 	// size_t index;
-} QueueMediaData;
+} MediaData;
 
-typedef std::shared_ptr<QueueMediaData> SharedQueueMediaData;
+typedef std::shared_ptr<MediaData> QueueMedia;
 
-typedef std::deque<MediaData> MediaDataArray;
-typedef std::deque<std::shared_ptr<QueueMediaData>> QueueMediaDataArray;
+typedef std::deque<MediaContext> MediaList;
+typedef std::deque<QueueMedia> QueuedMedia;
 
 #endif MEDIA_FILE_DATA_TYPES_HPP

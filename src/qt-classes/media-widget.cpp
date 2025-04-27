@@ -4,7 +4,7 @@
 #include <obs-module.h>
 #include <plugin-support.h>
 
-MediaWidget::MediaWidget(const MediaData *media_data, e_MediaStringifyTYPE media_stringify_type, QWidget *parent)
+MediaWidget::MediaWidget(const MediaContext *media_data, e_MediaStringifyTYPE media_stringify_type, QWidget *parent)
 	: QWidget(parent),
 	  media_stringify_type(media_stringify_type)
 {

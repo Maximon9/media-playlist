@@ -12,11 +12,9 @@
 class PlaylisQueueWidget;
 
 typedef struct PlaylistContext {
-#pragma region Public
+#pragma region Exported
 	e_StretchMode stretch_mode;
-	MediaDataArray all_media;
-	obs_source_t *source;
-	obs_source_t *media_source;
+	MediaList all_media;
 	bool shuffle_queue;
 	e_StartBehavior start_behavior;
 	e_EndBehavior end_behavior;
@@ -28,18 +26,17 @@ typedef struct PlaylistContext {
 	bool debug;
 #pragma endregion
 #pragma region Private
+	obs_source_t *source;
+	obs_source_t *media_source;
+	obs_data_t *media_source_settings;
 	obs_sceneitem_t *source_scene_item;
-	bool use_media_resolution;
-	int media_width;
-	int media_height;
 	bool restarting_media_source;
 	int loop_count;
 	obs_media_state state;
 	std::string name;
 	bool all_media_initialized;
-	obs_data_t *media_source_settings;
-	QueueMediaDataArray queue;
-	MediaDataArray queue_history;
+	QueuedMedia queue;
+	MediaList queue_history;
 	pthread_mutex_t mutex;
 	struct deque audio_data[MAX_AUDIO_CHANNELS];
 	struct deque audio_frames;
@@ -53,8 +50,8 @@ typedef struct PlaylistContext {
 // 	public:
 // 		QLabel *label;
 // 		e_MediaStringifyTYPE media_stringify_type;
-// 		const MediaData *media_data;
-// 		explicit MediaWidget(const MediaData *media_data,
+// 		const MediaContext *media_data;
+// 		explicit MediaWidget(const MediaContext *media_data,
 // 					 e_MediaStringifyTYPE media_stringify_type = MEDIA_STRINGIFY_TYPE_FILENAME,
 // 					 QWidget *parent = nullptr);
 // 		void update_media_data(e_MediaStringifyTYPE *media_stringify_type = nullptr);

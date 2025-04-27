@@ -13,19 +13,19 @@
 // std::string  *concat_mem_string(std::string  *_Destination, const std::string  *_Source);
 typedef struct PlaylistContext PlaylistContext;
 
-void handle_keep(PlaylistContext *playlist_context);
-
 void handle_stretch_mode(PlaylistContext *playlist_context);
 
-void handle_keep_aspect(PlaylistContext *playlist_context);
+void handle_keep(PlaylistContext *playlist_context, vec2 *end_size);
 
-void handle_keep_aspect_covered(PlaylistContext *playlist_context);
+void handle_keep_aspect(PlaylistContext *playlist_context, vec2 *end_size);
 
-void handle_scale(PlaylistContext *playlist_context);
+void handle_keep_aspect_covered(PlaylistContext *playlist_context, vec2 *end_size);
+
+void handle_scale(PlaylistContext *playlist_context, vec2 *end_size);
 
 void position_top_left(PlaylistContext *playlist_context);
 
-void position_center(PlaylistContext *playlist_context);
+void position_center(PlaylistContext *playlist_context, vec2 *end_size);
 
 size_t get_random_size_t(size_t min, size_t max);
 

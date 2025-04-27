@@ -138,7 +138,8 @@ void PlaylisQueueWidget::remove_widget()
 	}
 }
 
-MediaWidget *PlaylisQueueWidget::create_media_widget(MediaData *media_data, e_MediaStringifyTYPE media_stringify_type)
+MediaWidget *PlaylisQueueWidget::create_media_widget(MediaContext *media_data,
+						     e_MediaStringifyTYPE media_stringify_type)
 {
 	// Create an event loop to ensure synchronous execution
 	QEventLoop loop;
