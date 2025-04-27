@@ -6,11 +6,11 @@
 #include <QWidget>
 #include <QPushButton>
 #include <QVBoxLayout>
-#include "../include/types/playlist-source-types.hpp"
+#include "../include/types/media-vault-source-types.hpp"
 
-typedef struct PlaylistContext PlaylistContext;
+typedef struct MediaVaultContext MediaVaultContext;
 
-class PlaylisQueueWidget : public QWidget {
+class MediaVaultQueueWidget : public QWidget {
 private:
 	QVBoxLayout *layout;
 	QPushButton *toggleButton;
@@ -28,12 +28,12 @@ private:
 #pragma endregion
 
 public:
-	const PlaylistContext *playlist_context;
-	explicit PlaylisQueueWidget(const PlaylistContext *playlist, QWidget *parent = nullptr,
-				    bool is_main_widget = false);
+	const MediaVaultContext *media_vault_context;
+	explicit MediaVaultQueueWidget(const MediaVaultContext *media_vault, QWidget *parent = nullptr,
+				       bool is_main_widget = false);
 	void toggleMediaVisibility();
-	void update_playlist_name();
-	void update_playlist_data(e_MediaStringifyTYPE media_stringify_type = MEDIA_STRINGIFY_TYPE_FILENAME);
+	void update_media_vault_name();
+	void update_media_vault_data(e_MediaStringifyTYPE media_stringify_type = MEDIA_STRINGIFY_TYPE_FILENAME);
 	void remove_widget();
 	// void create_media_widget(MediaContext *media_context, std::function<void(MediaWidget *)> callback);
 	MediaWidget *create_media_widget(MediaContext *media_context,

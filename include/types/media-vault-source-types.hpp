@@ -7,11 +7,11 @@
 #include <util/deque.h>
 #include "./media-file-data-types.hpp"
 #include "../include/utils/enum-utils.hpp"
-#include "../include/qt-classes/playlist-queue-widget.hpp"
+#include "../include/qt-classes/media-vault-queue-widget.hpp"
 
-class PlaylisQueueWidget;
+class MediaVaultQueueWidget;
 
-typedef struct PlaylistContext {
+typedef struct MediaVaultContext {
 #pragma region Exported
 	e_StretchMode stretch_mode;
 	MediaList all_media;
@@ -22,7 +22,7 @@ typedef struct PlaylistContext {
 	bool infinite;
 	int max_loop_count;
 	e_LoopEndBehavior loop_end_behavior;
-	int song_history_limit;
+	int media_history_limit;
 	bool debug;
 #pragma endregion
 #pragma region Private
@@ -44,9 +44,9 @@ typedef struct PlaylistContext {
 	size_t num_channels;
 	pthread_mutex_t audio_mutex;
 #pragma endregion
-} PlaylistContext;
+} MediaVaultContext;
 
-// class PlaylistData {
+// class MediaVaultData {
 // 	public:
 // 		QLabel *label;
 // 		e_MediaStringifyTYPE media_stringify_type;
@@ -58,10 +58,10 @@ typedef struct PlaylistContext {
 // 		void remove_widget(bool delete_later = true);
 // 	};
 
-typedef struct PlaylistData {
-	PlaylisQueueWidget *playlist_widget;
-	PlaylisQueueWidget *param_playlist_widget;
-	PlaylistContext *playlist_context;
-} PlaylistData;
+typedef struct MediaVaultData {
+	MediaVaultQueueWidget *media_vault_widget;
+	MediaVaultQueueWidget *param_media_vault_widget;
+	MediaVaultContext *media_vault_context;
+} MediaVaultData;
 
 #endif // PLAYLIST_SOURCE_TYPES_HPP

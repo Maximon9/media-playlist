@@ -18,7 +18,7 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 
 #pragma region Main
 
-#include "../include/sources/playlist-source.hpp"
+#include "../include/sources/media-vault-source.hpp"
 
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
@@ -43,46 +43,46 @@ typedef struct test_str_struct {
 bool obs_module_load(void)
 {
 	QWidget *obs_main_window = (QWidget *)obs_frontend_get_main_window();
-	multi_playlist_queue_viewer = new MultiPlaylistQueueViewer(obs_main_window);
+	multi_media_vault_queue_viewer = new MultiMediaVaultQueueViewer(obs_main_window);
 
-	if (obs_frontend_add_dock_by_id("multi_playlist_queue_viewer_maximon9", "Multi Playlist Queue Viewer",
-					multi_playlist_queue_viewer) == false) {
-		delete multi_playlist_queue_viewer;
+	if (obs_frontend_add_dock_by_id("multi_vault_queue_viewer_maximon9", "Multi Media Vault Queue Viewer",
+					multi_media_vault_queue_viewer) == false) {
+		delete multi_media_vault_queue_viewer;
 	}
 
-	struct obs_source_info playlist_source_template{};
+	struct obs_source_info media_vault_source_template{};
 
-	playlist_source_template.id = "media_playlist_code_maximon9",
-	playlist_source_template.type = OBS_SOURCE_TYPE_INPUT;
-	playlist_source_template.get_name = playlist_source_name;
-	playlist_source_template.create = playlist_source_create;
-	playlist_source_template.destroy = playlist_source_destroy;
-	playlist_source_template.get_width = playlist_source_width;
-	playlist_source_template.get_height = playlist_source_height;
-	playlist_source_template.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_CUSTOM_DRAW | OBS_SOURCE_AUDIO |
-						OBS_SOURCE_CONTROLLABLE_MEDIA;
-	playlist_source_template.get_defaults = playlist_get_defaults;
-	playlist_source_template.get_properties = playlist_get_properties;
-	playlist_source_template.update = playlist_update;
-	playlist_source_template.activate = playlist_activate;
-	playlist_source_template.deactivate = playlist_deactivate;
-	playlist_source_template.video_tick = playlist_video_tick;
-	playlist_source_template.video_render = playlist_video_render;
-	playlist_source_template.audio_render = playlist_audio_render;
-	// playlist_source_template.get_properties2 = playlist_get_properties2;
-	playlist_source_template.enum_active_sources = playlist_enum_active_sources;
-	playlist_source_template.save = playlist_save;
-	playlist_source_template.load = playlist_load;
-	playlist_source_template.icon_type = OBS_ICON_TYPE_MEDIA;
-	playlist_source_template.media_play_pause = media_play_pause;
-	playlist_source_template.media_restart = media_restart;
-	playlist_source_template.media_stop = media_stop;
-	playlist_source_template.media_next = media_next;
-	playlist_source_template.media_previous = media_previous;
-	playlist_source_template.media_get_duration = media_get_duration;
-	playlist_source_template.media_get_time = media_get_time;
-	playlist_source_template.media_set_time = media_set_time;
-	playlist_source_template.media_get_state = media_get_state;
+	media_vault_source_template.id = "media_vault_maximon9",
+	media_vault_source_template.type = OBS_SOURCE_TYPE_INPUT;
+	media_vault_source_template.get_name = media_vault_source_name;
+	media_vault_source_template.create = media_vault_source_create;
+	media_vault_source_template.destroy = media_vault_source_destroy;
+	media_vault_source_template.get_width = media_vault_source_width;
+	media_vault_source_template.get_height = media_vault_source_height;
+	media_vault_source_template.output_flags = OBS_SOURCE_VIDEO | OBS_SOURCE_CUSTOM_DRAW | OBS_SOURCE_AUDIO |
+						   OBS_SOURCE_CONTROLLABLE_MEDIA;
+	media_vault_source_template.get_defaults = media_vault_get_defaults;
+	media_vault_source_template.get_properties = media_vault_get_properties;
+	media_vault_source_template.update = media_vault_update;
+	media_vault_source_template.activate = media_vault_activate;
+	media_vault_source_template.deactivate = media_vault_deactivate;
+	media_vault_source_template.video_tick = media_vault_video_tick;
+	media_vault_source_template.video_render = media_vault_video_render;
+	media_vault_source_template.audio_render = media_vault_audio_render;
+	// media_vault_source_template.get_properties2 = media_vault_get_properties2;
+	media_vault_source_template.enum_active_sources = media_vault_enum_active_sources;
+	media_vault_source_template.save = media_vault_save;
+	media_vault_source_template.load = media_vault_load;
+	media_vault_source_template.icon_type = OBS_ICON_TYPE_MEDIA;
+	media_vault_source_template.media_play_pause = media_play_pause;
+	media_vault_source_template.media_restart = media_restart;
+	media_vault_source_template.media_stop = media_stop;
+	media_vault_source_template.media_next = media_next;
+	media_vault_source_template.media_previous = media_previous;
+	media_vault_source_template.media_get_duration = media_get_duration;
+	media_vault_source_template.media_get_time = media_get_time;
+	media_vault_source_template.media_set_time = media_set_time;
+	media_vault_source_template.media_get_state = media_get_state;
 
 	obs_log(LOG_INFO, "%s plugin loaded successfully (version %s)", PLUGIN_NAME, PLUGIN_VERSION);
 	// da_init(test_array);
@@ -90,7 +90,7 @@ bool obs_module_load(void)
 	// obs_log(LOG_INFO, "NERD");
 	// obs_log_media_array(LOG_INFO, &test_array, 90, "    ");
 
-	obs_register_source(&playlist_source_template);
+	obs_register_source(&media_vault_source_template);
 
 	// obs_frontend_add_event_callback(on_scene_initialized, NULL);
 
@@ -110,9 +110,9 @@ void obs_module_unload(void)
 	// 	obs_log(LOG_INFO, "Media source released successfully");
 	// }
 	// da_free(test_array);
-	// if (multi_playlist_queue_viewer != nullptr) {
-	// 	delete multi_playlist_queue_viewer;
-	// 	multi_playlist_queue_viewer = nullptr;
+	// if (multi_media_vault_queue_viewer != nullptr) {
+	// 	delete multi_media_vault_queue_viewer;
+	// 	multi_media_vault_queue_viewer = nullptr;
 	// }
 	obs_log(LOG_INFO, "%s plugin unloaded %s", PLUGIN_NAME, PLUGIN_VERSION);
 }

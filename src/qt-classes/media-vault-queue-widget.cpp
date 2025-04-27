@@ -1,14 +1,15 @@
 #pragma region Main
 
-#include "../../include/qt-classes/playlist-queue-widget.hpp"
+#include "../../include/qt-classes/media-vault-queue-widget.hpp"
 #include "../../include/qt-classes/media-widget.hpp"
 
-PlaylisQueueWidget::PlaylisQueueWidget(const PlaylistContext *playlist_context, QWidget *parent, bool is_main_widget)
+MediaVaultQueueWidget::MediaVaultQueueWidget(const MediaVaultContext *media_vault_context, QWidget *parent,
+					     bool is_main_widget)
 	: QWidget(parent),
 	  expanded(is_main_widget),
 	  is_main_widget(is_main_widget)
 {
-	this->playlist_context = playlist_context;
+	this->media_vault_context = media_vault_context;
 
 	QWidget *media_container_root = this;
 
@@ -18,7 +19,7 @@ PlaylisQueueWidget::PlaylisQueueWidget(const PlaylistContext *playlist_context, 
 	QBoxLayout *media_container_root_layout = layout;
 
 	if (is_main_widget == true) {
-		setWindowTitle(QString::fromStdString(playlist_context->name + " Queue"));
+		setWindowTitle(QString::fromStdString(media_vault_context->name + " Queue"));
 
 		// Scroll area setup
 		scrollArea = new QScrollArea(this);
@@ -41,7 +42,7 @@ PlaylisQueueWidget::PlaylisQueueWidget(const PlaylistContext *playlist_context, 
 		// Create a layout for the toggleButton to make it expand horizontally
 		buttonLayout = new QHBoxLayout();
 
-		toggleButton = new QPushButton(QString::fromStdString(playlist_context->name), this);
+		toggleButton = new QPushButton(QString::fromStdString(media_vault_context->name), this);
 		toggleButton->setSizePolicy(QSizePolicy::Minimum,
 					    QSizePolicy::Fixed); // Make button expand horizontally
 
@@ -92,14 +93,14 @@ PlaylisQueueWidget::PlaylisQueueWidget(const PlaylistContext *playlist_context, 
 		setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint); // Ensure it stays above others
 		setAttribute(Qt::WA_ShowWithoutActivating);
 	} else {
-		// Toggle playlist expansion
-		connect(toggleButton, &QPushButton::clicked, this, &PlaylisQueueWidget::toggleMediaVisibility);
+		// Toggle media_vault expansion
+		connect(toggleButton, &QPushButton::clicked, this, &MediaVaultQueueWidget::toggleMediaVisibility);
 	}
 
 	setLayout(layout);
 }
 
-void PlaylisQueueWidget::toggleMediaVisibility()
+void MediaVaultQueueWidget::toggleMediaVisibility()
 {
 	if (mediaContainer == nullptr)
 		return;
@@ -108,26 +109,26 @@ void PlaylisQueueWidget::toggleMediaVisibility()
 	mediaContainer->setVisible(expanded);
 }
 
-void PlaylisQueueWidget::update_playlist_name()
+void MediaVaultQueueWidget::update_media_vault_name()
 {
 	if (toggleButton == nullptr)
 		return;
 	if (is_main_widget == true) {
-		setWindowTitle(QString::fromStdString(playlist_context->name + " Queue"));
+		setWindowTitle(QString::fromStdString(media_vault_context->name + " Queue"));
 	} else {
-		toggleButton->setText(QString::fromStdString(playlist_context->name));
+		toggleButton->setText(QString::fromStdString(media_vault_context->name));
 	}
 }
 
-void PlaylisQueueWidget::update_playlist_data(e_MediaStringifyTYPE media_stringify_type)
+void MediaVaultQueueWidget::update_media_vault_data(e_MediaStringifyTYPE media_stringify_type)
 {
-	PlaylisQueueWidget::update_playlist_name();
-	for (size_t i = 0; i < playlist_context->queue.size(); i++) {
-		playlist_context->queue[i]->media_widget->update_media_data(&media_stringify_type);
+	MediaVaultQueueWidget::update_media_vault_name();
+	for (size_t i = 0; i < media_vault_context->queue.size(); i++) {
+		media_vault_context->queue[i]->media_widget->update_media_data(&media_stringify_type);
 	}
 }
 
-void PlaylisQueueWidget::remove_widget()
+void MediaVaultQueueWidget::remove_widget()
 {
 	QWidget *parent_widget = parentWidget();
 	if (parent_widget) {
@@ -138,8 +139,8 @@ void PlaylisQueueWidget::remove_widget()
 	}
 }
 
-MediaWidget *PlaylisQueueWidget::create_media_widget(MediaContext *media_context,
-						     e_MediaStringifyTYPE media_stringify_type)
+MediaWidget *MediaVaultQueueWidget::create_media_widget(MediaContext *media_context,
+							e_MediaStringifyTYPE media_stringify_type)
 {
 	// Create an event loop to ensure synchronous execution
 	QEventLoop loop;
@@ -162,11 +163,11 @@ MediaWidget *PlaylisQueueWidget::create_media_widget(MediaContext *media_context
 	// Store or handle the widget as necessary
 }
 
-void PlaylisQueueWidget::push_media_widget_front(MediaWidget *mediaWidget)
+void MediaVaultQueueWidget::push_media_widget_front(MediaWidget *mediaWidget)
 {
 	push_media_widget_at(mediaWidget, 0);
 }
-void PlaylisQueueWidget::push_media_widget_back(MediaWidget *mediaWidget)
+void MediaVaultQueueWidget::push_media_widget_back(MediaWidget *mediaWidget)
 {
 	QWidget *parent_widget = parentWidget();
 	if (parent_widget) {
@@ -174,7 +175,7 @@ void PlaylisQueueWidget::push_media_widget_back(MediaWidget *mediaWidget)
 	}
 }
 
-void PlaylisQueueWidget::push_media_widget_at(MediaWidget *mediaWidget, size_t index)
+void MediaVaultQueueWidget::push_media_widget_at(MediaWidget *mediaWidget, size_t index)
 {
 	QEventLoop loop;
 	QMetaObject::invokeMethod(

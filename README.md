@@ -1,60 +1,59 @@
-# OBS Plugin Template
+# MediaVault
 
 ## Introduction
 
-The plugin template is meant to be used as a starting point for OBS Studio plugin development. It includes:
+### What it's for
 
--   Boilerplate plugin source code
--   A CMake project file
--   GitHub Actions workflows and repository actions
+**MediaVault** is an OBS plugin that adds a new source type called **MediaVault**.  
+It acts like a media playlist, allowing you to queue up multiple videos, images, or any media OBS supports.
 
-## Supported Build Environments
+### Why I made it
 
-| Platform | Tool                 |
-| -------- | -------------------- |
-| Windows  | Visal Studio 17 2022 |
+I created MediaVault because I wanted a simple way to make a playlist that, once finished, would **infinitely loop the last media**.
 
-<!--     | macOS                | XCode 16.0        | -->
-<!--     | Windows, macOS       | CMake 3.30.5      | -->
-<!--     | Ubuntu 24.04         | CMake 3.28.3      | -->
-<!--     | Ubuntu 24.04         | `ninja-build`     | -->
-<!--     | Ubuntu 24.04         | `pkg-config` -->  |
-<!--     | Ubuntu 24.04         | `build-essential` | -->
+Existing OBS options didn’t easily support this use case, so MediaVault fills that gap with lightweight, easy-to-control playlist functionality.
 
-## Quick Start
+## Features
 
-An absolute bare-bones [Quick Start Guide](https://github.com/obsproject/obs-plugintemplate/wiki/Quick-Start-Guide) is available in the wiki.
+-   **Multi MediaVault Queue Viewer**
 
-## Documentation
+    -   This is a dock in the dockers tab above that allows you to view the queue of all MediaVaults.
 
-All documentation can be found in the [Plugin Template Wiki](https://github.com/obsproject/obs-plugintemplate/wiki).
+-   **Show Queue Button**
 
-Suggested reading to get up and running:
+    -   The properties window for this source has a show queue button.
 
--   [Getting started](https://github.com/obsproject/obs-plugintemplate/wiki/Getting-Started)
--   [Build system requirements](https://github.com/obsproject/obs-plugintemplate/wiki/Build-System-Requirements)
--   [Build system options](https://github.com/obsproject/obs-plugintemplate/wiki/CMake-Build-System-Options)
+-   **Stretch Sodes**
 
-## GitHub Actions & CI
+    -   by default it's free meaning that no stretching of any kind is done to the media.
 
-Default GitHub Actions workflows are available for the following repository actions:
+-   **Shuffle Queue**
 
--   `push`: Run for commits or tags pushed to `master` or `main` branches.
--   `pr-pull`: Run when a Pull Request has been pushed or synchronized.
--   `dispatch`: Run when triggered by the workflow dispatch in GitHub's user interface.
--   `build-project`: Builds the actual project and is triggered by other workflows.
--   `check-format`: Checks CMake and plugin source code formatting and is triggered by other workflows.
+    -   This allows the list of media in the queue to be shuffled.
 
-The workflows make use of GitHub repository actions (contained in `.github/actions`) and build scripts (contained in `.github/scripts`) which are not needed for local development, but might need to be adjusted if additional/different steps are required to build the plugin.
+-   **Start Behavior**
 
-### Retrieving build artifacts
+    -   This is the behavior for when the source is activated by switching to the scene it is in.
 
-Successful builds on GitHub Actions will produce build artifacts that can be downloaded for testing. These artifacts are commonly simple archives and will not contain package installers or installation programs.
+-   **An End Behavior**
 
-### Building a Release
+    -   This is the behavior for when the playlist reaches the end.
 
-To create a release, an appropriately named tag needs to be pushed to the `main`/`master` branch using semantic versioning (e.g., `12.3.4`, `23.4.5-beta2`). A draft release will be created on the associated repository with generated installer packages or installation programs attached as release artifacts.
+-   **Looping**
 
-## Signing and Notarizing on macOS
+-   **Looping Last Media**
 
-Basic concepts of codesigning and notarization on macOS are explained in the correspodning [Wiki article](https://github.com/obsproject/obs-plugintemplate/wiki/Codesigning-On-macOS) which has a specific section for the [GitHub Actions setup](https://github.com/obsproject/obs-plugintemplate/wiki/Codesigning-On-macOS#setting-up-code-signing-for-github-actions).
+    -   This loops the last media a set ammount or infinitely.
+
+-   **Mediia History Limit**
+
+    -   Mainly for when activating shuffling.
+
+-   **Debug**
+    -   Mainly for dev perposes.
+
+## Acknowledgments
+
+Huge thanks to CodeYan01 and all the contributors who made this repository https://github.com/CodeYan01/media-playlist-source.
+
+I didn't steal any code, but it did help me understand to make the audio portion of it all work.

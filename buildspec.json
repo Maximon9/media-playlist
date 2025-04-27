@@ -36,8 +36,8 @@
             "bundleId": "com.example.plugintemplate-for-obs"
         }
     },
-    "name": "playlist",
-    "displayName": "Playlist",
+    "name": "media_vault",
+    "displayName": "MediaVault",
     "version": "1.0.0",
     "author": "Maximon9",
     "website": "https://github.com/Maximon9/media-playlist",

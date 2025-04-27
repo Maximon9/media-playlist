@@ -6,7 +6,7 @@
 #include <util/dstr.h>
 #include <filesystem>
 #include "../types/media-file-data-types.hpp"
-#include <../../include/types/playlist-source-types.hpp>
+#include <../../include/types/media-vault-source-types.hpp>
 #include "../utils/enum-utils.hpp"
 #include <iostream>
 #include <algorithm>
@@ -41,19 +41,20 @@ MediaContext init_media_data(const std::string path, const std::string filename,
 
 MediaContext init_media_data_from_media_data(const MediaContext media_context);
 
-void push_queue_media_path_back(QueuedMedia *media_array, const std::string path, PlaylistData *playlist_data);
+void push_queue_media_path_back(QueuedMedia *media_array, const std::string path, MediaVaultData *media_vault_data);
 
-void push_queue_media_path_front(QueuedMedia *media_array, const std::string path, PlaylistData *playlist_data);
+void push_queue_media_path_front(QueuedMedia *media_array, const std::string path, MediaVaultData *media_vault_data);
 
 void push_queue_media_path_at(QueuedMedia *media_array, const std::string path, size_t index,
-			      PlaylistData *playlist_data);
+			      MediaVaultData *media_vault_data);
 
-void push_queue_media_data_back(QueuedMedia *media_array, MediaContext media_context, PlaylistData *playlist_data);
+void push_queue_media_data_back(QueuedMedia *media_array, MediaContext media_context, MediaVaultData *media_vault_data);
 
-void push_queue_media_data_front(QueuedMedia *media_array, MediaContext media_context, PlaylistData *playlist_data);
+void push_queue_media_data_front(QueuedMedia *media_array, MediaContext media_context,
+				 MediaVaultData *media_vault_data);
 
 void push_queue_media_data_at(QueuedMedia *media_array, MediaContext media_context, size_t index,
-			      PlaylistData *playlist_data);
+			      MediaVaultData *media_vault_data);
 
 void push_queue_media_at(QueuedMedia *media_array, QueueMedia new_entry, size_t index);
 
@@ -65,21 +66,22 @@ QueueMedia pop_queue_media_at(QueuedMedia *media_array, size_t index, bool erase
 
 void clear_queue(QueuedMedia *media_array);
 
-void shuffle_queue(QueuedMedia *media_array, PlaylistData *playlist_data);
+void shuffle_queue(QueuedMedia *media_array, MediaVaultData *media_vault_data);
 
-void init_widgets(QueueMedia entry, size_t index, PlaylistData *playlist_data, MediaWidget *media_widget = nullptr,
+void init_widgets(QueueMedia entry, size_t index, MediaVaultData *media_vault_data, MediaWidget *media_widget = nullptr,
 		  MediaWidget *param_media_widget = nullptr);
 
 QueueMedia init_queue_media_data_from_path(std::string path, size_t widget_index, size_t index,
-					   PlaylistData *playlist_data, MediaWidget *media_widget = nullptr,
+					   MediaVaultData *media_vault_data, MediaWidget *media_widget = nullptr,
 					   MediaWidget *param_media_widget = nullptr);
 
 QueueMedia init_queue_media_data(const std::string path, const std::string filename, const std::string name,
-				 const std::string ext, size_t widget_index, size_t index, PlaylistData *playlist_data,
-				 MediaWidget *media_widget = nullptr, MediaWidget *param_media_widget = nullptr);
+				 const std::string ext, size_t widget_index, size_t index,
+				 MediaVaultData *media_vault_data, MediaWidget *media_widget = nullptr,
+				 MediaWidget *param_media_widget = nullptr);
 
 QueueMedia init_queue_media_data_from_media_data(MediaContext media_context, size_t widget_index,
-						 PlaylistData *playlist_data, MediaWidget *media_widget = nullptr,
+						 MediaVaultData *media_vault_data, MediaWidget *media_widget = nullptr,
 						 MediaWidget *param_media_widget = nullptr);
 
 std::string obs_array_to_string(obs_data_array_t *array);
@@ -88,7 +90,7 @@ std::string obs_array_to_string(obs_data_array_t *array);
 bool valid_extension(const std::string *ext);
 
 // Turns an obs_data_array_t into a MediaList
-// void obs_data_media_array_retain(MediaList *media_file_data_array, obs_data_array_t *obs_playlist);
+// void obs_data_media_array_retain(MediaList *media_file_data_array, obs_data_array_t *obs_media_vault);
 
 // Turns the media array into a string
 const char *stringify_media_array(const MediaList *media_array, size_t threshold, const std::string indent,
