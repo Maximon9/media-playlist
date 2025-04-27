@@ -58,3 +58,7 @@ Existing OBS options didn’t easily support this use case, so MediaVault fills 
 Huge thanks to CodeYan01 and all the contributors who made this repository https://github.com/CodeYan01/media-playlist-source.
 
 I didn't steal any code, but it did help me understand to make the audio portion of it all work.
+
+## Issues
+
+If you have any issues put them here https://github.com/Maximon9/media-vault/issues
